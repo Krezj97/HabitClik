@@ -1,12 +1,13 @@
 "use strict";
 
-const CACHE_NAME = "habitclik-static-v7";
+const CACHE_NAME = "habitclik-static-v8";
 const CACHE_PREFIX = "habitclik-static-";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css",
-  "./app.js",
+  "./styles.css?v=8",
+  "./app.js?v=8",
+  "./phrases.js?v=8",
   "./manifest.webmanifest",
   "./icon.svg",
   "./icons/icon-192.png",
@@ -51,15 +52,15 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Immutable app shell assets are cached during install.
+  // Prefer fresh JavaScript/CSS after updates; fall back to cached assets offline.
   event.respondWith(
-    caches.match(request).then((cached) => cached || fetch(request).then((response) => {
+    fetch(request).then((response) => {
       if (response.ok && response.type === "basic") {
         const copy = response.clone();
         event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)));
       }
       return response;
-    }))
+    }).catch(() => caches.match(request))
   );
 });
 
