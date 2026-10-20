@@ -180,7 +180,7 @@ test("PWA shell and DOM references remain consistent", () => {
   for (const [, id] of source.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(ids.has(id), "missing DOM element " + id);
   }
-  assert.match(sw, /habitclik-static-v6/);
+  assert.match(sw, /habitclik-static-v7/);
   assert.equal((css.match(/{/g) ?? []).length, (css.match(/}/g) ?? []).length);
   for (const icon of manifest.icons) {
     assert.ok(fs.existsSync(path.join(root, icon.src)), "missing icon " + icon.src);
@@ -206,6 +206,12 @@ test("historical calendar can mark an existing past day but not a future day", (
   });
   assert.match(element("calendar-selected-title").textContent, /19 de octubre/);
   assert.equal(api.getData().logs["2026-10-22"], undefined);
+  element("calendar-prev").handlers.click();
+  assert.match(element("calendar-month-title").textContent, /Septiembre/);
+  assert.match(element("calendar-selected-title").textContent, /19 de septiembre/);
+  element("calendar-next").handlers.click();
+  assert.match(element("calendar-month-title").textContent, /Octubre/);
+  assert.match(element("calendar-selected-title").textContent, /19 de octubre/);
 });
 
 test("calendar ignores logs from before the habit existed", () => {
