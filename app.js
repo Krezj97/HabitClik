@@ -48,7 +48,8 @@ function starterData() {
       { id: newId(), title: "Leer 15 minutos", category: "mente", createdAt: now, weeklyTarget: 7 },
       { id: newId(), title: "Mover el cuerpo", category: "movimiento", createdAt: now, weeklyTarget: 7 }
     ],
-    logs: {}
+    logs: {},
+    settings: { reminderEnabled: false, reminderTime: "19:00", lastRemindedAt: null }
   };
 }
 
@@ -85,7 +86,20 @@ function normalizeData(input) {
     const valid = [...new Set(values.filter((id) => typeof id === "string" && seen.has(id)))];
     if (valid.length) logs[day] = valid;
   }
-  return { habits, logs };
+  const sourceSettings = input.settings && typeof input.settings === "object" &&
+    !Array.isArray(input.settings) ? input.settings : {};
+  const settings = {
+    reminderEnabled: sourceSettings.reminderEnabled === true,
+    reminderTime: isValidReminderTime(sourceSettings.reminderTime)
+      ? sourceSettings.reminderTime : "19:00",
+    lastRemindedAt: typeof sourceSettings.lastRemindedAt === "string" &&
+      isValidDateKey(sourceSettings.lastRemindedAt) ? sourceSettings.lastRemindedAt : null
+  };
+  return { habits, logs, settings };
+}
+
+function isValidReminderTime(value) {
+  return typeof value === "string" && /^(?:[01]\\d|2[0-3]):[0-5]\\d$/.test(value);
 }
 
 function isValidDateKey(key) {
@@ -331,6 +345,29 @@ function renderHabitStreaks() {
   }).join("");
 }
 
+function renderReminderSettings() {
+  $("reminder-enabled").checked = data.settings.reminderEnabled;
+  $("reminder-time").value = data.settings.reminderTime;
+}
+
+function showPendingReminder() {
+  if (!data.settings.reminderEnabled || document.hidden) return;
+  const now = new Date();
+  const today = keyForDate(now);
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const parts = data.settings.reminderTime.split(":").map(Number);
+  const targetMinutes = parts[0] * 60 + parts[1];
+  if (data.settings.lastRemindedAt === today || currentMinutes < targetMinutes) return;
+  const pending = data.habits.filter((habit) =>
+    !completedIds(today).includes(habit.id) && completionsThisWeek(habit) < targetFor(habit));
+  if (pending.length === 0) return;
+  data.settings.lastRemindedAt = today;
+  persist();
+  showToast("Tienes " + pending.length +
+    (pending.length === 1 ? " hábito pendiente" : " hábitos pendientes") +
+    " para avanzar en tus metas esta semana.");
+}
+
 function render() {
   const today = new Date();
   const key = keyForDate(today);
@@ -356,6 +393,7 @@ function render() {
   renderHabits();
   renderChart();
   renderHabitStreaks();
+  renderReminderSettings();
 }
 
 function showView(view) {
@@ -503,9 +541,35 @@ $("import-file").addEventListener("change", async (event) => {
   await importData(event.target.files[0]);
   event.target.value = "";
 });
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) render();
+
+$("reminder-enabled").addEventListener("change", () => {
+  data.settings.reminderEnabled = $("reminder-enabled").checked;
+  persist();
+  showToast(data.settings.reminderEnabled
+    ? "Aviso activado mientras tengas HabitClik abierta."
+    : "Aviso diario desactivado.");
+  showPendingReminder();
 });
+
+$("reminder-time").addEventListener("change", () => {
+  const time = $("reminder-time").value;
+  if (!isValidReminderTime(time)) {
+    $("reminder-time").value = data.settings.reminderTime;
+    showToast("Selecciona una hora válida.");
+    return;
+  }
+  data.settings.reminderTime = time;
+  persist();
+  showPendingReminder();
+});
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) {
+    render();
+    showPendingReminder();
+  }
+});
+window.addEventListener("focus", showPendingReminder);
+setInterval(showPendingReminder, 60 * 1000);
 
 let deferredInstallPrompt = null;
 const installButton = $("install-app-btn");
@@ -544,3 +608,4 @@ if ("serviceWorker" in navigator && window.isSecureContext) {
 
 persist();
 render();
+showPendingReminder();
