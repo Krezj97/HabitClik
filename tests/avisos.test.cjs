@@ -84,12 +84,12 @@ function openAvisos(options = {}) {
 test("Avisos navigation uses an independent real HTML link", () => {
   assert.match(index, /<a[^>]+href="\.\/avisos\.html"[^>]*>[\s\S]*?Avisos<\/a>/);
   assert.match(html, /<title>Avisos · HabitClik<\/title>/);
-  assert.match(html, /<script src="\.\/avisos\.js\?v=16" defer><\/script>/);
+  assert.match(html, /<script src="\.\/avisos\.js\?v=17" defer><\/script>/);
   assert.doesNotMatch(html, /src="app\.js"/);
   for (const [,id] of script.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(html.includes('id="' + id + '"'), "missing on Avisos page: " + id);
   }
-  assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /habitclik-static-v16/);
+  assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /habitclik-static-v17/);
   assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /"\.\/avisos\.html"/);
 });
 
@@ -416,7 +416,7 @@ test("licensed WAV recordings play as real audio while retaining the volume cont
     page.nodes("alarm-tone").listeners.change();
     await page.nodes("test-alarm-btn").listeners.click();
     const last = heard.at(-1);
-    assert.equal(last.path, "./sounds/" + name + ".wav");
+    assert.equal(last.path, "./sounds/" + name + ".mp3");
     assert.equal(last.volume, 0.5);
   }
   assert.equal(heard.length, 5);
