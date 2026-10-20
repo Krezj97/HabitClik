@@ -360,3 +360,20 @@ a.nav-item:focus-visible, .sidebar-back:focus-visible, .nav-back-button:focus-vi
   .nav-item { padding: 9px 10px; font-size: 12px; gap: 7px; }
   .nav-back-button { padding: 10px; }
 }
+
+/* Choose among five alarm sounds. Keep a large touch target on small screens. */
+.alarm-tone-picker { margin-top: 16px; }
+.alarm-tone-picker .settings-input-label { margin: 0 0 8px; }
+.alarm-tone-select {
+  width: 100%; min-height: 48px; border: 1px solid #cbdce0; border-radius: 12px;
+  padding: 12px 42px 12px 14px; background: #f8fbfb; color: #233e4d;
+  font: inherit; font-size: 14px; font-weight: 700;
+  cursor: pointer;
+}
+.alarm-tone-select:focus-visible { outline: 3px solid #8cbcdc; outline-offset: 2px; }
+.alarm-tone-picker .settings-note { margin-top: 8px; min-height: 16px; }
+.settings-volume-row input[type="range"] { min-height: 28px; }
+@media (max-width: 470px) {
+  .alarm-tone-select { font-size: 14px; }
+  .settings-volume-row { align-items: center; }
+}
