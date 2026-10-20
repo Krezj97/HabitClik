@@ -187,3 +187,7 @@ h1 { line-height: 1.06; letter-spacing: -2.3px; }
 @media (max-width: 760px) {
   .install-button { margin-top: 10px; padding: 9px 11px; }
 }
+.habit-action-buttons { display: inline-flex; gap: 3px; align-items: center; flex: 0 0 auto; }
+.edit-habit { border: 0; background: transparent; color: #8697a6; border-radius: 8px; font-size: 17px; width: 28px; height: 34px; }
+.edit-habit:hover { color: #356d82; background: #e7f2f5; }
+@media (max-width: 470px) { .habit-action-buttons { gap: 0; } .edit-habit { width: 23px; } }
