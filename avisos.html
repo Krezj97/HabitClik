@@ -9,8 +9,9 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-    <link rel="stylesheet" href="./styles.css?v=9" />
-    <script src="./avisos.js?v=9" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=10" />
+    <script src="./alarm-sounds.js?v=10" defer></script>
+    <script src="./avisos.js?v=10" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -79,17 +80,29 @@
             <div class="settings-icon settings-icon-purple" aria-hidden="true">♫</div>
             <div class="settings-detail">
               <div class="settings-heading">
-                <div><h2 id="alarm-heading">Sonido de alarma</h2><p>Un tono suave al recibir un recordatorio, si el dispositivo permite audio.</p></div>
+                <div><h2 id="alarm-heading">Sonido de alarma</h2><p>Elige entre cinco alarmas, prueba el tono y ajusta la intensidad.</p></div>
                 <label class="settings-toggle">
                   <input id="alarm-enabled" type="checkbox" role="switch" aria-label="Activar sonido de alarma" />
                   <span class="settings-toggle-track" aria-hidden="true"></span>
                 </label>
+              </div>
+              <div class="alarm-tone-picker">
+                <label class="settings-input-label" for="alarm-tone">Tu sonido</label>
+                <select id="alarm-tone" class="alarm-tone-select">
+                  <option value="campanas">Campanas — melódica</option>
+                  <option value="digital">Digital — pitidos cortos</option>
+                  <option value="clasica">Despertador — clásica</option>
+                  <option value="alegre">Alegre — musical</option>
+                  <option value="energia">Energía — potente</option>
+                </select>
+                <p id="alarm-tone-description" class="settings-note" role="status">Campanas: melódica y clara.</p>
               </div>
               <div class="settings-volume-row">
                 <label for="alarm-volume">Volumen</label>
                 <input type="range" id="alarm-volume" min="10" max="100" step="10" value="50" />
                 <output for="alarm-volume" id="alarm-volume-value">50 %</output>
               </div>
+              <p class="settings-note">El nivel máximo ahora es más intenso. No aumenta el volumen general del móvil, y el modo silencio puede limitarlo.</p>
               <div class="settings-actions">
                 <button type="button" class="settings-action" id="test-alarm-btn">♪ Escuchar prueba</button>
               </div>
