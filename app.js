@@ -834,53 +834,108 @@ $("import-file").addEventListener("change", async (event) => {
   event.target.value = "";
 });
 
-$("test-alarm-btn").addEventListener("click", () => {
-  if (!playAlarm()) showToast("El navegador no admite esta alarma.");
+$("test-alarm-btn").addEventListener("click", async () => {
+  $("alarm-status").textContent = "Reproduciendo sonido de prueba…";
+  const played = await playAlarm();
+  $("alarm-status").textContent = played
+    ? "Prueba enviada al altavoz. Si no se oye, sube el volumen y revisa el modo silencio."
+    : "El navegador ha bloqueado el audio. Toca de nuevo o revisa el modo silencio.";
+  showToast(played ? "♪ Prueba sonora reproducida." : "No se pudo reproducir el sonido.");
 });
-$("alarm-enabled").addEventListener("change", () => {
+
+$("alarm-enabled").addEventListener("change", async () => {
   const enabled = $("alarm-enabled").checked;
-  if (enabled && !playAlarm()) {
+  if (!enabled) {
+    data.settings.alarmEnabled = false;
+    persist();
+    $("alarm-status").textContent = "Alarma desactivada.";
+    showToast("Alarma sonora desactivada.");
+    return;
+  }
+  $("alarm-status").textContent = "Comprobando audio…";
+  const played = await playAlarm();
+  if (!played) {
     $("alarm-enabled").checked = false;
-    showToast("Este navegador no permite reproducir la alarma.");
+    data.settings.alarmEnabled = false;
+    $("alarm-status").textContent = "No se puede activar el sonido. Revisa los permisos de audio y el modo silencio.";
+    showToast("El navegador no ha permitido reproducir la alarma.");
+    persist();
     return;
   }
-  data.settings.alarmEnabled = enabled;
+  data.settings.alarmEnabled = true;
   persist();
-  showToast(enabled
-    ? "Alarma activada si HabitClik está abierta y el audio permitido."
-    : "Alarma sonora desactivada.");
+  $("alarm-status").textContent = "Activada. Sonará con la página abierta cuando haya un recordatorio pendiente.";
+  showToast("♪ Alarma activada. Has escuchado la prueba.");
 });
+
+$("alarm-volume").addEventListener("input", () => {
+  $("alarm-volume-value").textContent = $("alarm-volume").value + " %";
+});
+$("alarm-volume").addEventListener("change", () => {
+  const volume = Number($("alarm-volume").value);
+  if (!Number.isInteger(volume) || volume < 10 || volume > 100) return;
+  data.settings.alarmVolume = volume;
+  persist();
+  $("alarm-volume-value").textContent = volume + " %";
+  showToast("Volumen guardado.");
+});
+
 $("notification-permission-btn").addEventListener("click", async () => {
-  const supported = window.isSecureContext && typeof window.Notification !== "undefined";
-  if (!supported) {
-    showToast("Las notificaciones no están disponibles en este navegador.");
+  const permission = notificationCapability();
+  if (permission === "unsupported") {
+    showToast("Usa un navegador compatible o el aviso de calendario. En iPhone, prueba la web instalada.");
+    renderReminderSettings();
     return;
   }
-  if (data.settings.notificationEnabled) {
+  if (permission === "denied") {
+    showToast("Permiso bloqueado: actívalo en los ajustes del sitio del navegador.");
+    renderReminderSettings();
+    return;
+  }
+  if (data.settings.notificationEnabled && permission === "granted") {
     data.settings.notificationEnabled = false;
     persist();
     renderReminderSettings();
-    showToast("Notificaciones de HabitClik desactivadas.");
+    showToast("Notificaciones desactivadas en HabitClik.");
     return;
   }
   try {
-    const permission = window.Notification.permission === "granted"
+    const result = permission === "granted"
       ? "granted" : await window.Notification.requestPermission();
-    if (permission === "granted") {
-      data.settings.notificationEnabled = true;
-      data.settings.reminderEnabled = true;
+    if (result !== "granted") {
+      data.settings.notificationEnabled = false;
       persist();
-      showToast("Notificaciones activadas. Mantén HabitClik abierta para recibirlas.");
-      showPendingReminder();
-    } else {
-      showToast("Sin permiso del navegador; puedes usar avisos dentro de la app.");
+      renderReminderSettings();
+      showToast("No se concedió permiso. Puedes seguir utilizando el calendario.");
+      return;
     }
+    data.settings.notificationEnabled = true;
+    data.settings.reminderEnabled = true;
+    persist();
+    renderReminderSettings();
+    showToast("Notificaciones activadas. Pulsa «Enviar prueba» para comprobarlas.");
   } catch (error) {
-    console.warn("HabitClik: permiso de notificación no disponible.", error);
-    showToast("No se pudo solicitar permiso para notificaciones.");
+    console.warn("HabitClik: no se pudo pedir permiso.", error);
+    showToast("El navegador no pudo solicitar el permiso. Usa el calendario si lo necesitas.");
+    renderReminderSettings();
   }
-  renderReminderSettings();
 });
+
+$("test-notification-btn").addEventListener("click", async () => {
+  const permission = notificationCapability();
+  if (permission !== "granted" || !data.settings.notificationEnabled) {
+    $("notification-help").textContent = "Primero pulsa «Activar notificaciones» y concede permiso en el navegador.";
+    showToast("Activa las notificaciones antes de probarlas.");
+    return;
+  }
+  $("notification-help").textContent = "Enviando notificación de prueba…";
+  const sent = await sendDeviceNotification("¡Esta es tu notificación de prueba! Tu configuración está lista.");
+  $("notification-help").textContent = sent
+    ? "Notificación enviada. Si no aparece, comprueba los permisos y el modo No molestar."
+    : "El navegador no pudo mostrar el aviso. Comprueba los permisos e instala la app si tu móvil lo requiere.";
+  showToast(sent ? "Prueba enviada: revisa tus notificaciones." : "No se pudo mostrar la notificación en este dispositivo.");
+});
+
 $("calendar-export-btn").addEventListener("click", downloadCalendarReminder);
 
 $("reminder-enabled").addEventListener("change", () => {
