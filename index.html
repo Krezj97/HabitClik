@@ -25,6 +25,16 @@
         </nav>
         <div class="sidebar-bottom">
           <div class="tip-card"><span class="tip-icon" aria-hidden="true">✦</span><strong>La constancia gana.</strong><p>No necesitas un día perfecto. Solo dar un paso más.</p></div>
+          <div class="reminder-box" aria-labelledby="reminder-heading">
+            <div class="reminder-title" id="reminder-heading">✦ Tu aviso diario</div>
+            <label class="reminder-switch" for="reminder-enabled">
+              <input type="checkbox" id="reminder-enabled" />
+              <span>Recordármelo en la app</span>
+            </label>
+            <label class="reminder-time-label" for="reminder-time">A partir de las</label>
+            <input id="reminder-time" type="time" value="19:00" />
+            <p class="reminder-help">Aparece al tener HabitClik abierta, no cuando está cerrada.</p>
+          </div>
           <button type="button" id="install-app-btn" class="install-button" hidden>↧ Instalar HabitClik</button>
           <div class="data-actions"><button type="button" id="export-btn">↓ Exportar datos</button><button type="button" id="import-btn">↑ Importar datos</button></div>
           <p class="privacy-note">Tus datos se guardan en este dispositivo.</p>
