@@ -9,6 +9,7 @@ const vm = require("node:vm");
 const root = path.join(__dirname, "..");
 const source = fs.readFileSync(path.join(root, "app.js"), "utf8");
 const alarmSource = fs.readFileSync(path.join(root, "alarm-sounds.js"), "utf8");
+const progressSource = fs.readFileSync(path.join(root, "progress.js"), "utf8");
 
 function boot(seed, hour = 20, options = {}) {
   const elements = new Map();
@@ -82,6 +83,7 @@ function boot(seed, hour = 20, options = {}) {
     console: { warn() {} }
   };
   vm.runInNewContext(alarmSource, context, { filename: "alarm-sounds.js" });
+  vm.runInNewContext(progressSource, context, { filename: "progress.js" });
   vm.runInNewContext(source + "\nglobalThis.testApi = {" +
     "getData: () => data, normalizeData, completionsThisWeek, weeklyStreak, " +
     "toggleHabit, showPendingReminder, renderCalendar, motivationForToday };", context, { filename: "app.js" });
@@ -183,7 +185,7 @@ test("PWA shell and DOM references remain consistent", () => {
   for (const [, id] of source.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(ids.has(id), "missing DOM element " + id);
   }
-  assert.match(sw, /habitclik-static-v16/);
+  assert.match(sw, /habitclik-static-v17/);
   assert.equal((css.match(/{/g) ?? []).length, (css.match(/}/g) ?? []).length);
   for (const icon of manifest.icons) {
     assert.ok(fs.existsSync(path.join(root, icon.src)), "missing icon " + icon.src);
@@ -473,4 +475,19 @@ test("the Premium dialog discloses that billing is not enabled", () => {
   assert.match(html, /id="upgrade-dialog"/);
   assert.match(html, /Premium todavía no está disponible/);
   assert.match(html, /No es posible comprar o desbloquear Premium/);
+});
+
+test("progress panel and achievements are connected to real habit history", () => {
+  const logs = {"2026-10-19": ["a"], "2026-10-20": ["a"]};
+  const { element, api } = boot({
+    habits: [{id:"a",title:"Caminar",category:"salud",createdAt:"2026-10-01",weeklyTarget:7}],
+    logs
+  });
+  assert.equal(element("journey-level").textContent, "1");
+  assert.match(element("journey-total").textContent,/60 XP/);
+  assert.match(element("achievement-list").innerHTML,/Primer paso/);
+  assert.match(element("journey-highlight").textContent,/conseguido todo/);
+  element("hero-scene-next").handlers.click();
+  api.toggleHabit("a");
+  assert.equal(element("journey-total").textContent,"30 XP");
 });
