@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "habitclik-static-v6";
+const CACHE_NAME = "habitclik-static-v7";
 const CACHE_PREFIX = "habitclik-static-";
 const ASSETS = [
   "./",
