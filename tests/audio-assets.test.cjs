@@ -1,42 +1,34 @@
 "use strict";
-
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const root = path.join(__dirname, "..");
-const files = {
-  "campanas.wav": "92097843241dee7fc514fb2ad78669a4a166e35a",
-  "digital.wav": "7341e248cd6655b21e61acf80f07d127679fe8f4",
-  "clasica.wav": "a0fab32369ced563fcb14c73fbd7bc2099495789",
-  "alegre.wav": "5cfa092d1126e14cf4eb5457d2d92bd399809fce",
-  "energia.wav": "2355ca6622d984fc63833db18250448556a09d08"
-};
+const ids = ["campanas","digital","clasica","alegre","energia"];
 
-test("all five licensed WAV assets are local, valid RIFF files and match upstream blobs", () => {
-  for (const [file, expected] of Object.entries(files)) {
-    const bytes = fs.readFileSync(path.join(root, "sounds", file));
-    assert.equal(bytes.toString("ascii", 0, 4), "RIFF");
-    assert.equal(bytes.toString("ascii", 8, 12), "WAVE");
-    const hash = crypto.createHash("sha1")
-      .update(Buffer.from("blob " + bytes.length + "\0"))
-      .update(bytes)
-      .digest("hex");
-    assert.equal(hash, expected, file + " must remain identical to licensed source");
+test("five distinct, locally hosted MP3 alarms have recognizable MPEG headers", () => {
+  const hashes = new Set();
+  for (const id of ids) {
+    const bytes = fs.readFileSync(path.join(root,"sounds",id+".mp3"));
+    assert.ok(bytes.length > 15000 && bytes.length < 600000,id+" has unexpected audio size");
+    assert.ok(bytes.toString("ascii",0,3)==="ID3" ||
+      (bytes[0]===0xff && (bytes[1]&0xe0)===0xe0),id+" is not recognizable MP3 audio");
+    hashes.add(crypto.createHash("sha256").update(bytes).digest("hex"));
   }
+  assert.equal(hashes.size,5,"each preset should contain a different recording");
 });
 
-test("service worker precaches recorded alarms for offline use", () => {
-  const sw = fs.readFileSync(path.join(root, "sw.js"), "utf8");
-  const engine = fs.readFileSync(path.join(root, "alarm-sounds.js"), "utf8");
-  const readme = fs.readFileSync(path.join(root, "SOUND-LICENSES.md"), "utf8");
-  for (const filename of Object.keys(files)) {
-    assert.ok(sw.includes("./sounds/" + filename), filename + " not precached");
-    assert.ok(engine.includes("./sounds/" + filename), filename + " not in sound picker");
-    assert.ok(readme.includes(filename), filename + " not attributed");
+test("service worker caches new audio and illustrates provenance and licensing", () => {
+  const sw=fs.readFileSync(path.join(root,"sw.js"),"utf8");
+  const engine=fs.readFileSync(path.join(root,"alarm-sounds.js"),"utf8");
+  const license=fs.readFileSync(path.join(root,"SOUND-LICENSES.md"),"utf8");
+  for (const id of ids) {
+    assert.ok(sw.includes("./sounds/"+id+".mp3"),id+" not cached offline");
+    assert.ok(engine.includes("./sounds/"+id+".mp3"),id+" not playable");
+    assert.ok(license.includes("sounds/"+id+".mp3"),id+" missing license ledger");
   }
-  assert.match(readme, /CC0/);
-  assert.match(readme, /akx\/Notifications/);
-  assert.match(sw, /habitclik-static-v16/);
+  assert.match(license,/CC0/);
+  assert.match(license,/gretzke\/open-alarm/);
+  assert.match(sw,/habitclik-static-v17/);
 });
