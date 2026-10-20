@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#404d38" />
+    <meta name="theme-color" content="#203943" />
     <meta name="description" content="Personaliza tus avisos y alarmas en HabitClik." />
     <title>Avisos · HabitClik</title>
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-    <link rel="stylesheet" href="./styles.css?v=15" />
-    <script src="./alarm-sounds.js?v=15" defer></script>
-    <script src="./avisos.js?v=15" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=16" />
+    <script src="./alarm-sounds.js?v=16" defer></script>
+    <script src="./avisos.js?v=16" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -89,14 +89,14 @@
               <div class="alarm-tone-picker">
                 <label class="settings-input-label" for="alarm-tone">Tu sonido</label>
                 <select id="alarm-tone" class="alarm-tone-select">
-                  <option value="campanas">Campanas — melódica</option>
-                  <option value="digital">Digital — pitidos cortos</option>
-                  <option value="clasica">Despertador — clásica</option>
-                  <option value="alegre">Alegre — musical</option>
-                  <option value="energia">Energía — potente</option>
+                  <option value="campanas">Aurora — acordes suaves</option>
+                  <option value="digital">Pulse — digital</option>
+                  <option value="clasica">Clásica — alarma</option>
+                  <option value="alegre">Destellos — musical</option>
+                  <option value="energia">Horizonte — moderno</option>
                   <option value="personalizada" id="alarm-custom-choice" disabled>Mi alarma (sube tu audio)</option>
                 </select>
-                <p id="alarm-tone-description" class="settings-note" role="status">Campanas: melódica y clara.</p>
+                <p id="alarm-tone-description" class="settings-note" role="status">Aurora: acordes cálidos y elegantes.</p>
                 <div class="custom-alarm-area">
                   <div class="custom-alarm-head">
                     <div class="custom-alarm-emblem" aria-hidden="true">♫</div>
@@ -122,6 +122,7 @@
                 <button type="button" class="settings-action" id="test-alarm-btn">♪ Escuchar prueba</button>
               </div>
               <p class="settings-note" id="alarm-status" role="status">Pulsa la prueba para comprobar el sonido.</p>
+              <p class="settings-note alarm-credit">Cinco tonos profesionales grabados por AKX · <a href="./SOUND-LICENSES.md" target="_blank" rel="noopener noreferrer">Licencia y procedencia (CC0)</a></p>
             </div>
           </section>
           <section class="settings-card" aria-labelledby="calendar-alert-heading">
