@@ -902,3 +902,43 @@ a.nav-item:focus-visible, a.brand-link:focus-visible,
   #hero-main::before { animation: none; }
   .hero-scene-next, .journey-progress-track span { transition: none; }
 }
+
+/* Prioritize everyday actions: habits and progress above the illustrated hero. */
+.today-priority {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(300px, .88fr);
+  gap: 18px;
+  align-items: stretch;
+}
+.today-priority-habits { min-width: 0; }
+.today-priority .habit-section { margin-top: 20px; }
+.today-priority .habit-list { gap: 10px; }
+.today-priority .habit-card { padding: 13px 15px; min-height: 76px; }
+.today-priority .journey-card { margin-top: 0; min-width: 0; }
+.today-priority + #hero-main { margin-top: 25px; }
+.quick-daily-progress {
+  padding: 17px 20px;
+  border-radius: 17px;
+  background: #ffffff;
+  border: 1px solid #d9e8e4;
+  box-shadow: 0 4px 18px #203c430b;
+}
+.quick-daily-heading { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
+.quick-daily-heading strong { display: block; color: #254950; font-size: 18px; font-weight: 840; letter-spacing: -.6px; margin-top: 6px; }
+.quick-daily-percent { color: #177369; font-size: 22px; font-weight: 850; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.quick-daily-track { height: 10px; border-radius: 999px; margin-top: 13px; overflow: hidden; background: #dfeeea; }
+.quick-daily-track span { display: block; width: 0; height: 100%; background: linear-gradient(90deg,#22887c,#7cc7aa); border-radius: inherit; transition: width 250ms ease; }
+.quick-daily-caption { margin: 8px 0 0; font-size: 12px; font-weight: 670; color: #657d79; }
+@media (max-width: 1230px) {
+  .today-priority { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+}
+@media (max-width: 470px) {
+  .quick-daily-progress { padding: 15px 17px; }
+  .quick-daily-heading strong { font-size: 16px; }
+  .quick-daily-percent { font-size: 19px; }
+  .today-priority .habit-section { margin-top: 19px; }
+  .today-priority + #hero-main { margin-top: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quick-daily-track span { transition: none; }
+}
