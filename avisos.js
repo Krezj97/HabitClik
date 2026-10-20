@@ -17,6 +17,7 @@ const DEFAULTS = {
 let settings = { ...DEFAULTS };
 let audioContext = null;
 let toastTimer;
+let customAudioInfo = null;
 
 function validTime(t) {
   return typeof t === "string" && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(t);
@@ -139,10 +140,81 @@ function render() {
 function renderToneDescription() {
   const voices = window.HABITCLIK_SOUNDS && window.HABITCLIK_SOUNDS.choices;
   const chosen = voices && voices.find((voice) => voice.id === settings.alarmTone);
-  $("alarm-tone-description").textContent = chosen
-    ? chosen.title + ": " + chosen.description + "."
-    : "Elige el sonido que más te guste y pulsa «Escuchar prueba».";
+  $("alarm-tone-description").textContent = settings.alarmTone === "personalizada"
+    ? customAudioInfo
+      ? "Mi alarma: " + customAudioInfo.name + ". Pulsa «Escuchar prueba» para oírla."
+      : "No se encuentra tu archivo. Añade un audio para volver a usar este tono."
+    : chosen
+      ? chosen.title + ": " + chosen.description + "."
+      : "Elige el sonido que más te guste y pulsa «Escuchar prueba».";
 }
+
+async function refreshCustomAudio() {
+  if (!window.HABITCLIK_SOUNDS) return;
+  try {
+    customAudioInfo = await window.HABITCLIK_SOUNDS.getCustomInfo();
+  } catch (error) {
+    customAudioInfo = null;
+    console.warn("HabitClik: audio personalizado no disponible.", error);
+    $("alarm-custom-status").textContent = "Este navegador no permite acceder al audio guardado.";
+  }
+  const option = $("alarm-custom-choice");
+  option.disabled = !customAudioInfo;
+  option.textContent = customAudioInfo
+    ? "Mi alarma — " + customAudioInfo.name.slice(0, 28)
+    : "Mi alarma (sube tu audio)";
+  $("alarm-custom-remove").hidden = !customAudioInfo;
+  if (customAudioInfo) {
+    $("alarm-custom-status").textContent = "Guardado: " + customAudioInfo.name;
+  } else if ($("alarm-custom-status").textContent.startsWith("Guardado:")) {
+    $("alarm-custom-status").textContent = "Aún no has añadido un sonido propio.";
+  }
+  if (settings.alarmTone === "personalizada" && !customAudioInfo) {
+    settings.alarmTone = "campanas";
+    saveSettings();
+  }
+  $("alarm-tone").value = settings.alarmTone;
+  renderToneDescription();
+}
+
+$("alarm-custom-file").addEventListener("change", async (event) => {
+  const file = event.target.files && event.target.files[0];
+  if (!file || !window.HABITCLIK_SOUNDS) return;
+  $("alarm-custom-status").textContent = "Guardando tu audio en este dispositivo…";
+  try {
+    const saved = await window.HABITCLIK_SOUNDS.saveCustom(file);
+    customAudioInfo = saved;
+    settings.alarmTone = "personalizada";
+    saveSettings();
+    await refreshCustomAudio();
+    $("alarm-custom-status").textContent = "Listo: " + saved.name + ". Ya puedes escucharlo.";
+    showToast("Tu alarma personalizada se ha guardado y seleccionado.");
+  } catch (error) {
+    $("alarm-custom-status").textContent = error instanceof Error
+      ? error.message : "No se pudo guardar el audio.";
+    showToast("No se pudo añadir tu sonido. Comprueba el formato y el tamaño.");
+  } finally {
+    $("alarm-custom-file").value = "";
+  }
+});
+
+$("alarm-custom-remove").addEventListener("click", async () => {
+  if (!window.HABITCLIK_SOUNDS) return;
+  try {
+    await window.HABITCLIK_SOUNDS.removeCustom();
+    customAudioInfo = null;
+    if (settings.alarmTone === "personalizada") {
+      settings.alarmTone = "campanas";
+      saveSettings();
+    }
+    await refreshCustomAudio();
+    $("alarm-custom-status").textContent = "Audio eliminado de este navegador.";
+    showToast("Alarma personal eliminada. Se ha seleccionado Campanas.");
+  } catch (error) {
+    $("alarm-custom-status").textContent = "No se pudo eliminar el archivo del navegador.";
+    console.warn("HabitClik: error al eliminar audio.", error);
+  }
+});
 
 async function playSound() {
   if (!window.HABITCLIK_SOUNDS) return false;
@@ -416,4 +488,7 @@ window.addEventListener("storage", (event) => {
   }
 });
 setInterval(maybeRemind, 60000);
+refreshCustomAudio().catch((error) =>
+  console.warn("HabitClik: no se pudo restaurar el audio personalizado.", error)
+);
 maybeRemind();
