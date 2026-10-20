@@ -46,7 +46,7 @@ function boot(seed, hour = 20, options = {}) {
   const document = {
     hidden: false,
     getElementById: element,
-    querySelectorAll() { return []; },
+    querySelectorAll(selector) { return selector === "[data-view]" ? (options.navButtons ?? []) : []; },
     addEventListener(type, fn) { handlers[type] = fn; },
     createElement() { return element("temporary"); },
     body: { append() {} }
@@ -56,6 +56,8 @@ function boot(seed, hour = 20, options = {}) {
     Notification: options.Notification,
     AudioContext: options.AudioContext,
     HABITCLIK_PHRASES: options.phrases,
+    history: options.history,
+    location: options.location,
     addEventListener(type, fn) { handlers["window:" + type] = fn; },
     scrollTo() {}
   };
@@ -518,4 +520,38 @@ test("new users see a useful zero-state in top progress before adding habits", (
   assert.equal(element("quick-progress-percent").textContent,"0 %");
   assert.equal(element("quick-progress-count").textContent,"0 de 0 hábitos completados");
   assert.equal(element("quick-progress-fill").style.width,"0%");
+});
+
+test("Android bottom navigation supports the system back button", () => {
+  const location = { hash: "" };
+  const pushed = [];
+  const history = { pushState(_state,_title,url) {
+    pushed.push(url);
+    location.hash = url.includes("#") ? "#" + url.split("#")[1] : "";
+  } };
+  function tab(view) {
+    return {
+      dataset: {view}, handlers: {}, classList:{toggle(){}},
+      addEventListener(type,listener){this.handlers[type]=listener;},
+      setAttribute(){}, removeAttribute(){}
+    };
+  }
+  const tabs=["today","stats","calendar"].map(tab);
+  const { element,handlers }=boot(undefined,20,{history,location,navButtons:tabs});
+  tabs[1].handlers.click();
+  assert.equal(pushed.at(-1),"./index.html#stats");
+  assert.equal(element("stats-view").hidden,false);
+  tabs[2].handlers.click();
+  assert.equal(pushed.at(-1),"./index.html#calendar");
+  assert.equal(element("calendar-view").hidden,false);
+  // Android back restores the prior URL and invokes popstate.
+  location.hash="#stats";
+  handlers["window:popstate"]();
+  assert.equal(element("stats-view").hidden,false);
+  location.hash="";
+  handlers["window:popstate"]();
+  assert.equal(element("today-view").hidden,false);
+  const numberBefore=element("quick-progress-percent").textContent;
+  handlers["window:pageshow"]();
+  assert.equal(element("quick-progress-percent").textContent,numberBefore);
 });
