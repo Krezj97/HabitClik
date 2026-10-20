@@ -15,7 +15,7 @@
 - 📴 Abrir y utilizar la aplicación sin conexión **después de una primera visita con conexión**.
 - ⏰ Activar un **aviso diario opcional** dentro de la aplicación y elegir la hora; se muestra una vez al día cuando la app está activa y hay metas pendientes.
 - 🔔 Activar voluntariamente **notificaciones del navegador**, sujetas a sus permisos y a que la app esté abierta/activa.
-- ♪ Activar y probar una **alarma sonora** dentro de la aplicación; el navegador puede requerir una interacción previa para permitir audio.
+- ♪ Elegir entre **cinco sonidos de alarma** (Campanas, Digital, Despertador, Alegre o Energía), escucharlos antes de decidir y ajustar un volumen de reproducción más intenso, que sigue limitado por el volumen y las restricciones del dispositivo.
 - 📆 Exportar un archivo de calendario `.ics` con un evento diario recurrente y alarma previa para recibir avisos a través del calendario del dispositivo, incluso con HabitClik cerrada si el calendario lo permite.
 - 💬 Ver **frases motivacionales** según el progreso del día y la duración de la racha, o pulsar para cambiar de frase.
 
@@ -63,6 +63,8 @@ El flujo de GitHub Actions `.github/workflows/tests.yml` ejecuta automáticament
 - `index.html`: paneles, formulario y metadatos PWA.
 - `styles.css`: diseño responsive.
 - `app.js`: hábitos, rachas, estadísticas, avisos locales, copias de seguridad e instalación.
+- `avisos.html` y `avisos.js`: controles de avisos, selección de sonido, permisos de notificaciones y calendario.
+- `alarm-sounds.js`: cinco tonos sintetizados sin archivos externos, con salida regulable.
 - `manifest.webmanifest`: identidad y configuración de instalación.
 - `sw.js`: caché de los recursos estáticos y navegación sin conexión.
 - `icon.svg` y `icons/`: iconos de la aplicación.
