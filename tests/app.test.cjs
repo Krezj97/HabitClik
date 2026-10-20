@@ -18,7 +18,7 @@ function boot(seed, hour = 20, options = {}) {
   function element(id) {
     if (!elements.has(id)) {
       elements.set(id, {
-        value: id === "habit-target" ? "7" : id === "reminder-time" ? "19:00" : "",
+        value: id === "habit-target" ? "7" : id === "reminder-time" ? "19:00" : id === "alarm-volume" ? "50" : "",
         checked: false,
         hidden: false,
         textContent: "",
@@ -53,6 +53,7 @@ function boot(seed, hour = 20, options = {}) {
     isSecureContext: options.secure ?? false,
     Notification: options.Notification,
     AudioContext: options.AudioContext,
+    HABITCLIK_PHRASES: options.phrases,
     addEventListener(type, fn) { handlers["window:" + type] = fn; },
     scrollTo() {}
   };
@@ -180,7 +181,7 @@ test("PWA shell and DOM references remain consistent", () => {
   for (const [, id] of source.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(ids.has(id), "missing DOM element " + id);
   }
-  assert.match(sw, /habitclik-static-v7/);
+  assert.match(sw, /habitclik-static-v8/);
   assert.equal((css.match(/{/g) ?? []).length, (css.match(/}/g) ?? []).length);
   for (const icon of manifest.icons) {
     assert.ok(fs.existsSync(path.join(root, icon.src)), "missing icon " + icon.src);
@@ -256,13 +257,16 @@ test("notifications need an explicit user opt-in, and can be switched off", asyn
   await element("notification-permission-btn").handlers.click();
   assert.equal(api.getData().settings.notificationEnabled, true);
   assert.equal(api.getData().settings.reminderEnabled, true);
+  assert.equal(sent.length, 0);
+  await element("test-notification-btn").handlers.click();
   assert.equal(sent.length, 1);
   assert.match(sent[0].title, /HabitClik/);
+  assert.match(element("notification-help").textContent, /enviada/i);
   await element("notification-permission-btn").handlers.click();
   assert.equal(api.getData().settings.notificationEnabled, false);
 });
 
-test("alarm sound is opt-in and needs an available browser audio API", () => {
+test("alarm sound is opt-in and needs an available browser audio API", async () => {
   let played = 0;
   class FakeAudioContext {
     constructor() { this.currentTime = 0; this.state = "running"; this.destination = {}; }
@@ -277,11 +281,18 @@ test("alarm sound is opt-in and needs an available browser audio API", () => {
   assert.equal(api.getData().settings.alarmEnabled, false);
   assert.equal(played, 0);
   element("alarm-enabled").checked = true;
-  element("alarm-enabled").handlers.change();
+  await element("alarm-enabled").handlers.change();
   assert.equal(api.getData().settings.alarmEnabled, true);
-  assert.equal(played, 2);
+  assert.equal(played, 3);
+  assert.match(element("alarm-status").textContent, /Activada/);
+  await element("test-alarm-btn").handlers.click();
+  assert.equal(played, 6);
+  element("alarm-volume").value = "80";
+  element("alarm-volume").handlers.input();
+  element("alarm-volume").handlers.change();
+  assert.equal(api.getData().settings.alarmVolume, 80);
   element("alarm-enabled").checked = false;
-  element("alarm-enabled").handlers.change();
+  await element("alarm-enabled").handlers.change();
   assert.equal(api.getData().settings.alarmEnabled, false);
 });
 
@@ -299,4 +310,51 @@ test("calendar export creates a daily event with an alarm", async () => {
   assert.match(text, /BEGIN:VALARM/);
   assert.match(text, /ACTION:DISPLAY/);
   assert.match(text, /DTSTART:20261021T190000/);
+});
+
+
+test("notifications explain unsupported browsers instead of disabling buttons", async () => {
+  const { element } = boot();
+  assert.equal(element("notification-permission-btn").disabled, undefined);
+  await element("notification-permission-btn").handlers.click();
+  assert.match(element("toast").textContent, /navegador compatible/);
+  assert.equal(element("notification-status").textContent, "No disponibles");
+});
+
+test("sound test reports when the browser has no Web Audio API", async () => {
+  const { api, element } = boot();
+  await element("test-alarm-btn").handlers.click();
+  assert.match(element("alarm-status").textContent, /bloqueado/i);
+  element("alarm-enabled").checked = true;
+  await element("alarm-enabled").handlers.change();
+  assert.equal(api.getData().settings.alarmEnabled, false);
+  assert.equal(element("alarm-enabled").checked, false);
+});
+
+test("large motivation library loads and rotates among hundreds of unique phrases", () => {
+  const phraseSource = fs.readFileSync(path.join(root, "phrases.js"), "utf8");
+  const phraseWindow = {};
+  vm.runInNewContext(phraseSource, { window: phraseWindow }, { filename: "phrases.js" });
+  const phrases = phraseWindow.HABITCLIK_PHRASES;
+  const all = Object.values(phrases).flat();
+  assert.ok(all.length >= 300, "expected at least 300 motivational phrases");
+  assert.equal(new Set(all).size, all.length, "phrases should not repeat");
+  assert.ok(Object.values(phrases).every((list) => list.length >= 40));
+  const { element } = boot(null, 20, { phrases });
+  const first = element("motivation-phrase").textContent;
+  element("motivation-next").handlers.click();
+  assert.notEqual(element("motivation-phrase").textContent, first);
+});
+
+test("reminder settings are accessible on their own screen", () => {
+  const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  const { element } = boot();
+  assert.match(html, /data-view="reminders"/);
+  assert.match(html, /id="reminders-view"/);
+  assert.match(html, /id="notification-help"/);
+  assert.match(html, /id="alarm-status"/);
+  assert.match(html, /id="test-notification-btn"/);
+  assert.match(html, /id="test-alarm-btn"/);
+  assert.match(html, /id="alarm-volume"/);
+  assert.equal(element("reminder-overview").textContent, "Avisos diarios desactivados");
 });
