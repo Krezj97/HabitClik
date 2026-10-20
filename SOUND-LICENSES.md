@@ -1,29 +1,31 @@
 # Licencias y procedencia de los sonidos de HabitClik
 
-## Cinco alarmas integradas
+## Nueva colección: cinco alarmas naturales y musicales
 
-**Autor:** AKX (akx). Colección original: [akx/Notifications](https://github.com/akx/Notifications).
+HabitClik incorpora cinco muestras convertidas a MP3 a partir de las versiones abreviadas de la colección abierta [OpenAlarm, de gretzke](https://github.com/gretzke/open-alarm). Los archivos originales de esa colección tienen licencias individuales: **no** se asume que la licencia MIT del código de OpenAlarm cubra su música.
 
-**Licencia escogida: Creative Commons Zero / dominio público (CC0).** El autor ofrece expresamente la colección con doble licencia (CC BY 3.0 o CC0), y HabitClik utiliza la opción CC0, válida para usos personales y comerciales sin pago ni atribución obligatoria. Aun así, reconocemos a su autor por cortesía.
+Elegimos exclusivamente pistas marcadas **Creative Commons Zero (CC0)** por los autores o por el catálogo de atribución de OpenAlarm. CC0 permite copiar, modificar y redistribuir los sonidos, también comercialmente. Se reconocen los creadores por transparencia.
 
-Licencia y declaración original: https://github.com/akx/Notifications#license
+Catálogo original, procedencia y licencias: [OpenAlarm / Ringtones / SOURCES.md](https://github.com/gretzke/open-alarm/blob/main/OpenAlarm/Resources/Ringtones/SOURCES.md).
 
-Los archivos se han tomado de la revisión pública fija `db184d33834a94028b6600d155d312ce7b704e8d` y se han verificado con sus huellas Git antes de incorporarlos al repositorio. No se usa un proveedor de audio de terceros en tiempo de ejecución.
+| En HabitClik | Archivo propio (MP3) | Fuente en OpenAlarm | Autor / fuente original | Licencia |
+|---|---|---|---|---|
+| **Brisa** – campanillas suaves | `sounds/campanas.mp3` | `ringtone_classic_koshichime.caf` | Membeth, *Koshi wind chime*, Wikimedia Commons | CC0 |
+| **Luz** – melodía tranquila | `sounds/digital.mp3` | `ringtone_dawn_wisdominthesun.caf` | Kevin MacLeod, *Wisdom in the Sun*, FreePD | CC0 |
+| **Despertar** – campanas | `sounds/clasica.mp3` | `ringtone_classic_twinbell.caf` | cryptidcat, *Twin bell alarm clock*, Freesound | CC0 |
+| **Buen día** – música alegre | `sounds/alegre.mp3` | `ringtone_dawn_motions.caf` | Rafael Krux, *Motions*, FreePD | CC0 |
+| **Bosque** – canto de pájaros | `sounds/energia.mp3` | `ringtone_nature_morningbirds.caf` | Joseph Sardin, *Réveil des oiseaux*, Wikimedia Commons | CC0 |
 
-| Nombre en HabitClik | Archivo local | Original | SHA de Git (original) |
-| --- | --- | --- | --- |
-| Aurora | `sounds/campanas.wav` | `WAV/Chord.wav` | `92097843241dee7fc514fb2ad78669a4a166e35a` |
-| Pulse | `sounds/digital.wav` | `WAV/Beeper.wav` | `7341e248cd6655b21e61acf80f07d127679fe8f4` |
-| Clásica | `sounds/clasica.wav` | `WAV/Alarmed.wav` | `a0fab32369ced563fcb14c73fbd7bc2099495789` |
-| Destellos | `sounds/alegre.wav` | `WAV/Glisten.wav` | `5cfa092d1126e14cf4eb5457d2d92bd399809fce` |
-| Horizonte | `sounds/energia.wav` | `WAV/Whistleronic.wav` | `2355ca6622d984fc63833db18250448556a09d08` |
+Los archivos se descargan desde el commit `60590dca0bb1b00247c0be861030b06bf0941178` del repositorio de OpenAlarm, y su integridad se compara con las huellas Git de la fuente **antes de convertirlos**.
 
-Se han distribuido con nombres adaptados a la interfaz española; **no se han modificado las grabaciones**. El control de volumen lo aplica el reproductor durante la reproducción. Los cinco clips se sirven localmente desde HabitClik y se guardan para su funcionamiento sin conexión después de la primera carga.
+Se procesan clips de unos 10 segundos, con fundidos suaves y limitación de picos, utilizando FFmpeg y códec MP3 compatible con navegadores móviles. Las pistas resultantes se guardan localmente en HabitClik y se precargan para escuchar las alarmas incluso sin conexión después de la primera carga. Se puede regular su volumen.
 
-## Tu alarma personalizada
+Estos clips se entregan como pequeños avisos y no como música de fondo continua. Los sistemas operativos y navegadores pueden limitar la reproducción del audio con la web cerrada o en segundo plano.
 
-Los archivos aportados por cada persona permanecen en el almacenamiento local de ese navegador y no forman parte de los sonidos CC0 integrados. Su licencia y derechos corresponden al archivo aportado y a quien lo haya creado. HabitClik no obtiene ni redistribuye esos archivos.
+## Audio personalizado
 
-## Nota sobre el modo cerrado
+Cada persona puede seleccionar un archivo de audio propio. Ese archivo se guarda **solo** en el almacenamiento local del navegador; HabitClik no lo transmite ni redistribuye. Los derechos de las alarmas personales son responsabilidad de quien aporta los archivos.
 
-Las alarmas de la aplicación web están limitadas por las políticas de reproducción del navegador: pueden no sonar en segundo plano ni con la aplicación cerrada. El calendario exportado permite utilizar las notificaciones del sistema si el calendario las admite.
+## Ilustraciones del encabezado
+
+Los cuatro fondos del recuadro principal (`art/amanecer.svg`, `art/enfoque.svg`, `art/bosque.svg` y `art/celebracion.svg`) son ilustraciones vectoriales originales creadas para HabitClik. No contienen material de bancos de imágenes ni de terceros.
