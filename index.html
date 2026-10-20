@@ -11,10 +11,11 @@
     <link rel="apple-touch-icon" href="./icons/icon-192.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <link rel="stylesheet" href="styles.css?v=16" />
-    <script src="phrases.js?v=16" defer></script>
-    <script src="alarm-sounds.js?v=16" defer></script>
-    <script src="app.js?v=16" defer></script>
+    <link rel="stylesheet" href="styles.css?v=17" />
+    <script src="phrases.js?v=17" defer></script>
+    <script src="alarm-sounds.js?v=17" defer></script>
+    <script src="progress.js?v=17" defer></script>
+    <script src="app.js?v=17" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -45,10 +46,27 @@
         </header>
 
         <section class="view" id="today-view" aria-labelledby="today-title">
-          <div class="hero">
+          <div class="hero hero--amanecer" id="hero-main">
             <div class="hero-copy"><span class="hero-kicker">UN DÍA A LA VEZ <span aria-hidden="true">↗</span></span><h1 id="today-title">Haz que hoy cuente<span class="hero-dot">.</span></h1><p>Cada pequeño paso que das es parte de algo grande.</p><span id="current-date" class="date-chip"></span></div>
             <div class="ring-panel"><svg class="progress-ring" viewBox="0 0 140 140" role="img" aria-labelledby="ring-title"><title id="ring-title">Progreso de hoy</title><circle class="ring-track" cx="70" cy="70" r="54"></circle><circle class="ring-fill" id="progress-circle" cx="70" cy="70" r="54"></circle></svg><div class="ring-label"><strong id="progress-number">0%</strong><span>completado</span></div></div>
+            <button type="button" class="hero-scene-next" id="hero-scene-next" aria-label="Cambiar imagen de fondo" title="Cambiar paisaje">◈ <span>Otro paisaje</span></button>
           </div>
+          <section class="journey-card" aria-labelledby="journey-title">
+            <div class="journey-top">
+              <div class="journey-emblem" aria-hidden="true">✦</div>
+              <div class="journey-intro">
+                <span class="section-overline">TU CAMINO PERSONAL</span>
+                <h2 id="journey-title">Nivel <span id="journey-level">1</span> <small id="journey-rank">· Explorador</small></h2>
+              </div>
+              <span class="journey-total" id="journey-total">0 XP</span>
+            </div>
+            <div class="journey-progress-meta"><span id="journey-xp">0 / 100 XP</span><span id="journey-next">100 XP para el siguiente nivel</span></div>
+            <div class="journey-progress-track" role="progressbar" id="journey-bar" aria-label="Progreso de experiencia al siguiente nivel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="journey-bar-fill"></span></div>
+            <div class="journey-milestone">
+              <div><strong id="journey-highlight">Tu historia empieza con un pequeño paso</strong><p id="journey-detail">Cada hábito que completes te acerca a tu siguiente nivel.</p></div>
+              <span id="journey-badge-count" class="journey-badge-count">0 insignias</span>
+            </div>
+          </section>
           <section class="motivation-card" aria-labelledby="motivation-heading">
             <div class="motivation-symbol" aria-hidden="true">✦</div>
             <div class="motivation-body">
@@ -78,6 +96,11 @@
             <div class="stat-card"><span class="stat-emoji flame" aria-hidden="true">♨</span><div><span class="stat-label">Mejor racha general</span><strong id="stats-best">0 días</strong></div></div>
             <div class="stat-card"><span class="stat-emoji star" aria-hidden="true">✳</span><div><span class="stat-label">Hábitos activos</span><strong id="stats-count">0</strong></div></div>
           </div>
+          <section class="content-section achievements-section" aria-labelledby="achievements-title">
+            <div class="section-heading"><div><span class="section-overline">TUS PROPIOS LOGROS</span><h2 id="achievements-title">Insignias de progreso</h2></div><span class="subtle-text" id="achievements-count">0 desbloqueadas</span></div>
+            <p class="achievement-intro">Las insignias reconocen la constancia y los pequeños pasos. No compites con nadie.</p>
+            <div class="achievement-grid" id="achievement-list"></div>
+          </section>
           <section class="content-section"><div class="section-heading"><div><span class="section-overline">ÚLTIMOS 7 DÍAS</span><h2>Actividad diaria</h2></div></div><div class="chart-card" id="weekly-chart"></div></section>
           <section class="content-section"><div class="section-heading"><div><span class="section-overline">LO QUE ESTÁS CONSTRUYENDO</span><h2>Rachas por hábito</h2></div></div><div class="habit-list" id="habit-streak-list"></div></section>
         </section>
