@@ -2,6 +2,8 @@
 
 const STORAGE_KEY = "habitclik:v1";
 const FREE_HABIT_LIMIT = 3;
+const HERO_SCENES = ["amanecer", "enfoque", "bosque", "celebracion"];
+let heroSceneOffset = 0;
 const CATEGORIES = {
   salud: { label: "Salud", icon: "💧", background: "#e6f7ff" },
   movimiento: { label: "Movimiento", icon: "🏃", background: "#fff0de" },
@@ -629,6 +631,37 @@ function render() {
   renderChart();
   renderHabitStreaks();
   renderReminderSettings();
+  renderJourney();
+}
+
+function renderJourney() {
+  const engine = window.HABITCLIK_PROGRESS;
+  if (!engine) return;
+  const progress = engine.calculate(data, keyForDate(new Date()));
+  $("journey-level").textContent = String(progress.level);
+  $("journey-rank").textContent = "· " + progress.rank;
+  $("journey-total").textContent = progress.xp.toLocaleString("es-ES") + " XP";
+  $("journey-xp").textContent = progress.currentLevelXp + " / " + progress.nextLevelXp + " XP";
+  $("journey-next").textContent = progress.remaining + " XP para el nivel " + (progress.level + 1);
+  $("journey-bar-fill").style.width = progress.percentage + "%";
+  $("journey-bar").setAttribute("aria-valuemax", String(progress.nextLevelXp));
+  $("journey-bar").setAttribute("aria-valuenow", String(progress.currentLevelXp));
+  $("journey-highlight").textContent = progress.headline;
+  $("journey-detail").textContent = progress.detail;
+  $("journey-badge-count").textContent = progress.unlocked.length + " insignias";
+  $("achievements-count").textContent = progress.unlocked.length + " de " + progress.badges.length + " desbloqueadas";
+  $("achievement-list").innerHTML = progress.badges.map((badge) =>
+    '<article class="achievement-card' + (badge.unlocked ? ' is-unlocked' : '') +
+    '" aria-label="' + escapeHtml(badge.title + (badge.unlocked ? ": conseguida" : ": pendiente")) + '">' +
+    '<span class="achievement-icon" aria-hidden="true">' + badge.icon + '</span>' +
+    '<div><strong>' + escapeHtml(badge.title) + '</strong><p>' +
+    escapeHtml(badge.description) + '</p></div><span class="achievement-status">' +
+    (badge.unlocked ? 'Conseguida' : 'Por conseguir') + '</span></article>'
+  ).join("");
+  const ideal = HERO_SCENES.indexOf(progress.scene);
+  const scene = HERO_SCENES[(ideal + heroSceneOffset) % HERO_SCENES.length];
+  const hero = $("hero-main");
+  for (const name of HERO_SCENES) hero.classList.toggle("hero--" + name, name === scene);
 }
 
 function showView(view) {
@@ -685,14 +718,19 @@ function toggleHabit(id, day = keyForDate(new Date())) {
   if (!habit || !isValidDateKey(day) || day > keyForDate(new Date()) || day < habit.createdAt) return;
   const set = new Set(completedIds(day));
   const wasDone = set.has(id);
+  const beforeLevel = window.HABITCLIK_PROGRESS
+    ? window.HABITCLIK_PROGRESS.calculate(data, keyForDate(new Date())).level : 1;
   if (wasDone) set.delete(id);
   else set.add(id);
   if (set.size) data.logs[day] = [...set];
   else delete data.logs[day];
   persist();
   render();
-  showToast(wasDone ? "Hábito marcado como pendiente." :
-    day === keyForDate(new Date()) ? "¡Un paso más! Hábito completado." :
+  const gainedLevel = !wasDone && window.HABITCLIK_PROGRESS &&
+    window.HABITCLIK_PROGRESS.calculate(data, keyForDate(new Date())).level > beforeLevel;
+  showToast(gainedLevel ? "¡Has subido de nivel! Tu constancia está creciendo. ✨" :
+    wasDone ? "Hábito marcado como pendiente." :
+    day === keyForDate(new Date()) ? "¡Un paso más! +10 XP por tu hábito." :
       "¡Día anterior registrado! Tu historial está actualizado.");
 }
 
@@ -751,6 +789,10 @@ async function importData(file) {
 document.querySelectorAll("[data-view]").forEach((button) =>
   button.addEventListener("click", () => showView(button.dataset.view)));
 $("open-add-btn").addEventListener("click", () => openDialog());
+$("hero-scene-next").addEventListener("click", () => {
+  heroSceneOffset = (heroSceneOffset + 1) % HERO_SCENES.length;
+  renderJourney();
+});
 $("upgrade-info-btn").addEventListener("click", showUpgradeDialog);
 $("upgrade-close").addEventListener("click", () => $("upgrade-dialog").close());
 $("upgrade-dismiss").addEventListener("click", () => $("upgrade-dialog").close());
