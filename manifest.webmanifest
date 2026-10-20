@@ -22,5 +22,64 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "id": "./",
+  "categories": [
+    "lifestyle",
+    "productivity"
+  ],
+  "shortcuts": [
+    {
+      "name": "Mi día",
+      "short_name": "Mi día",
+      "description": "Completar los hábitos de hoy",
+      "url": "./index.html",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Mis estadísticas",
+      "short_name": "Progreso",
+      "description": "Ver niveles e insignias",
+      "url": "./index.html#stats",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Calendario",
+      "short_name": "Calendario",
+      "description": "Consultar las rachas",
+      "url": "./index.html#calendar",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Avisos",
+      "short_name": "Avisos",
+      "description": "Configurar recordatorios",
+      "url": "./avisos.html",
+      "icons": [
+        {
+          "src": "./icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }
