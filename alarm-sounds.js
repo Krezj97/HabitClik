@@ -1,16 +1,17 @@
 "use strict";
 
-// Five verified CC0 WAV notification recordings, with a synthesized fallback if an asset is unavailable.
+// Five licensed nature and musical MP3 alarms (source ledger: SOUND-LICENSES.md),
+// with a synthesized fallback if an asset is unavailable.
 // The audio context is started only after an explicit user action.
 (function () {
   // WAV recordings from AKX Notifications, released under CC0.
   // Old IDs are preserved so existing user preferences continue working.
   const choices = Object.freeze([
-    Object.freeze({ id: "campanas", title: "Aurora", description: "Acordes cálidos y elegantes", file: "./sounds/campanas.wav" }),
-    Object.freeze({ id: "digital", title: "Pulse", description: "Aviso digital claro y discreto", file: "./sounds/digital.wav" }),
-    Object.freeze({ id: "clasica", title: "Clásica", description: "Alarma breve y definida", file: "./sounds/clasica.wav" }),
-    Object.freeze({ id: "alegre", title: "Destellos", description: "Brillante y musical", file: "./sounds/alegre.wav" }),
-    Object.freeze({ id: "energia", title: "Horizonte", description: "Tono llamativo y moderno", file: "./sounds/energia.wav" })
+    Object.freeze({ id: "campanas", title: "Brisa", description: "Campanillas de viento, suaves y naturales", file: "./sounds/campanas.mp3" }),
+    Object.freeze({ id: "digital", title: "Luz", description: "Melodía instrumental tranquila", file: "./sounds/digital.mp3" }),
+    Object.freeze({ id: "clasica", title: "Despertar", description: "Campanas clásicas reconocibles", file: "./sounds/clasica.mp3" }),
+    Object.freeze({ id: "alegre", title: "Buen día", description: "Instrumental alegre para empezar", file: "./sounds/alegre.mp3" }),
+    Object.freeze({ id: "energia", title: "Bosque", description: "Canto de pájaros por la mañana", file: "./sounds/energia.mp3" })
   ]);
 
   // Frequencies in Hz, duration in seconds and interval before the next note.
