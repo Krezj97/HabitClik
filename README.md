@@ -20,6 +20,7 @@
 - 💬 Ver **frases motivacionales** según el progreso del día y la duración de la racha, o pulsar para cambiar de frase.
 - 🖼️ Cuatro ilustraciones vectoriales originales en el encabezado: amanecer, enfoque, bosque y celebración. Cambian según el progreso, y también puedes elegir otro paisaje.
 - ✨ **Experiencia y niveles:** +10 XP por hábito, +20 XP por completar todos los hábitos activos de un día, +35 XP por cada meta semanal lograda. Una barra muestra cuánto falta para el siguiente nivel.
+- 🎯 **Pantalla principal orientada a la acción:** lo primero que aparece es el progreso diario, la lista para marcar tus hábitos y la tarjeta de nivel/XP. Los paisajes, frases y detalles de la semana quedan debajo.
 - 🏅 **Once insignias** por avances reales, rachas y metas. Los logros se ven en Estadísticas. Sin tablas de clasificación, presión social ni pérdidas de XP por descansar; los puntos se calculan desde el historial.
 
 ## Plan gratuito y Premium
