@@ -512,6 +512,14 @@ window.addEventListener("storage", (event) => {
     render();
   }
 });
+// Register offline support even when Android opens Avisos directly.
+if ("serviceWorker" in navigator && window.isSecureContext) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch((error) =>
+      console.warn("HabitClik: no se pudo activar el modo sin conexión.", error)
+    );
+  });
+}
 setInterval(maybeRemind, 60000);
 refreshCustomAudio().catch((error) =>
   console.warn("HabitClik: no se pudo restaurar el audio personalizado.", error)
