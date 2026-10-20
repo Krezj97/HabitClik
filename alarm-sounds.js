@@ -46,7 +46,149 @@
 
   let audioContext = null;
 
+  const CUSTOM_ID = "personalizada";
+  const DB_NAME = "habitclik-custom-audio";
+  const STORE_NAME = "sounds";
+  const STORAGE_ID = "selected";
+  const MAX_FILE_BYTES = 8 * 1024 * 1024;
+  const SUPPORTED_EXTENSIONS = /\.(mp3|m4a|aac|wav|ogg|oga|webm)$/i;
+  let customCache = null;
+  let activeCustomAudio = null;
+  let activeCustomUrl = null;
+
+  function validateCustom(file) {
+    if (!file || typeof file.size !== "number" || file.size < 1) {
+      throw new Error("Selecciona un archivo de audio que no esté vacío.");
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      throw new Error("El archivo supera los 8 MB. Prueba con un audio más corto.");
+    }
+    const name = typeof file.name === "string" ? file.name : "";
+    const mime = typeof file.type === "string" ? file.type.toLowerCase() : "";
+    if (!SUPPORTED_EXTENSIONS.test(name) ||
+        (mime && !mime.startsWith("audio/") && mime !== "application/ogg")) {
+      throw new Error("Usa un archivo MP3, M4A, WAV, OGG, AAC o WebM de audio.");
+    }
+    return { name: name.slice(0, 150), size: file.size, type: mime };
+  }
+
+  function openDatabase() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) {
+        reject(new Error("Este navegador no permite guardar audios personalizados."));
+        return;
+      }
+      let request;
+      try {
+        request = window.indexedDB.open(DB_NAME, 1);
+      } catch (error) {
+        reject(error);
+        return;
+      }
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME);
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error("No se pudo abrir el almacenamiento de audio."));
+      request.onblocked = () => reject(new Error("Cierra otras pestañas de HabitClik y vuelve a intentarlo."));
+    });
+  }
+
+  async function customTransaction(operation, value) {
+    const db = await openDatabase();
+    try {
+      return await new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, operation === "get" ? "readonly" : "readwrite");
+        const store = tx.objectStore(STORE_NAME);
+        let valueRead = null;
+        const request = operation === "get" ? store.get(STORAGE_ID)
+          : operation === "put" ? store.put(value, STORAGE_ID)
+          : store.delete(STORAGE_ID);
+        request.onsuccess = () => { valueRead = request.result; };
+        tx.oncomplete = () => resolve(valueRead);
+        tx.onerror = () => reject(tx.error || request.error || new Error("No se pudo guardar el audio."));
+        tx.onabort = () => reject(tx.error || new Error("El guardado de audio se interrumpió."));
+      });
+    } finally {
+      db.close();
+    }
+  }
+
+  async function getCustom() {
+    if (customCache) return customCache;
+    const stored = await customTransaction("get");
+    if (stored && stored.blob && typeof stored.name === "string") {
+      customCache = stored;
+      return stored;
+    }
+    return null;
+  }
+
+  async function saveCustom(file) {
+    const metadata = validateCustom(file);
+    const record = { ...metadata, blob: file };
+    await customTransaction("put", record);
+    customCache = record;
+    return { name: record.name, size: record.size, type: record.type };
+  }
+
+  async function removeCustom() {
+    await customTransaction("delete");
+    customCache = null;
+    if (activeCustomAudio) {
+      activeCustomAudio.pause();
+      activeCustomAudio = null;
+    }
+    if (activeCustomUrl) {
+      URL.revokeObjectURL(activeCustomUrl);
+      activeCustomUrl = null;
+    }
+  }
+
+  async function getCustomInfo() {
+    const record = await getCustom();
+    return record ? { name: record.name, size: record.size, type: record.type } : null;
+  }
+
+  async function playCustom(volume) {
+    const record = await getCustom();
+    if (!record || !window.Audio || !window.URL || !window.URL.createObjectURL) return false;
+    try {
+      if (activeCustomAudio) activeCustomAudio.pause();
+      if (activeCustomUrl) URL.revokeObjectURL(activeCustomUrl);
+      const objectUrl = window.URL.createObjectURL(record.blob);
+      const player = new window.Audio(objectUrl);
+      activeCustomAudio = player;
+      activeCustomUrl = objectUrl;
+      player.volume = Math.min(1, Math.max(0.1, Number(volume) / 100 || 0.5));
+      const release = () => {
+        if (activeCustomAudio === player) {
+          activeCustomAudio = null;
+          activeCustomUrl = null;
+          window.URL.revokeObjectURL(objectUrl);
+        }
+      };
+      player.addEventListener("ended", release, { once: true });
+      player.addEventListener("error", release, { once: true });
+      // User files can be much longer than the built-in alarms.
+      player.addEventListener("timeupdate", () => {
+        if (player.currentTime >= 12) {
+          player.pause();
+          release();
+        }
+      });
+      await player.play();
+      return true;
+    } catch (error) {
+      console.warn("HabitClik: el formato del archivo no se pudo reproducir.", error);
+      return false;
+    }
+  }
+
+
   async function play(id, volume = 50) {
+    if (id === CUSTOM_ID) return playCustom(volume);
     const Context = window.AudioContext || window.webkitAudioContext;
     if (!Context) return false;
     const pattern = Object.hasOwn(patterns, id) ? patterns[id] : patterns.campanas;
@@ -87,6 +229,7 @@
   }
 
   window.HABITCLIK_SOUNDS = Object.freeze({
-    choices, play, isValid: (value) => choices.some((choice) => choice.id === value)
+    choices, play, customId: CUSTOM_ID, saveCustom, getCustomInfo, removeCustom,
+    isValid: (value) => value === CUSTOM_ID || choices.some((choice) => choice.id === value)
   });
 })();
