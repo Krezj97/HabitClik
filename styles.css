@@ -180,3 +180,10 @@ h1 { line-height: 1.06; letter-spacing: -2.3px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+[hidden] { display: none !important; }
+.install-button { display: block; width: 100%; margin-top: 15px; background: #b7ef82; color: #172637; border: none; border-radius: 10px; padding: 12px 14px; font-weight: 800; font-size: 12px; text-align: center; }
+.install-button:hover { background: #a4e474; }
+@media (max-width: 760px) {
+  .install-button { margin-top: 10px; padding: 9px 11px; }
+}
