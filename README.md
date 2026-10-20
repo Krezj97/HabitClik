@@ -87,7 +87,7 @@ Las copias de seguridad JSON de hábitos guardan el nombre del tono seleccionado
 
 ## Diseño
 
-El tema visual emplea fondos cálidos claros, tipografía limpia y acentos verde salvia en lugar del anterior contraste azul marino / verde neón. Se adapta a móvil y escritorio.
+HabitClik utiliza una **paleta minimalista en verde oliva**: menú lateral oliva profundo, cabeceras verde musgo, fondo gris verdoso suave y tarjetas crema. Los botones, el calendario, las estadísticas y la sección de avisos comparten la misma identidad visual. Mantiene contraste legible y se adapta a móvil y escritorio.
 
 ## Privacidad y límites
 
