@@ -29,7 +29,7 @@ jobs:
           data = file.read_bytes()
           if not data.startswith(b"RIFF") or data[8:12] != b"WAVE":
               raise SystemExit("Not a valid RIFF WAVE file: " + str(file))
-          git_hash = hashlib.sha1(b"blob " + str(len(data)).encode() + b"\\0" + data).hexdigest()
+          git_hash = hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest()
           if git_hash != sys.argv[2]:
               raise SystemExit(f"Checksum mismatch for {file}: {git_hash}")
           print(f"Verified {file}: {len(data)} bytes")
