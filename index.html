@@ -11,10 +11,10 @@
     <link rel="apple-touch-icon" href="./icons/icon-192.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <link rel="stylesheet" href="styles.css?v=12" />
-    <script src="phrases.js?v=12" defer></script>
-    <script src="alarm-sounds.js?v=12" defer></script>
-    <script src="app.js?v=12" defer></script>
+    <link rel="stylesheet" href="styles.css?v=13" />
+    <script src="phrases.js?v=13" defer></script>
+    <script src="alarm-sounds.js?v=13" defer></script>
+    <script src="app.js?v=13" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -37,7 +37,11 @@
       <main class="main-content">
         <header class="topbar">
           <div><div class="eyebrow" id="greeting">TU RUTINA, TU RITMO</div><div class="topbar-title">Tu espacio para avanzar <span aria-hidden="true">✳</span></div></div>
-          <button class="button-primary top-add" type="button" id="open-add-btn"><span aria-hidden="true">＋</span> Nuevo hábito</button>
+          <div class="topbar-actions">
+            <span class="free-plan-label" id="free-plan-count" aria-live="polite">Plan gratis · 0/3</span>
+            <button type="button" class="plan-info-link" id="upgrade-info-btn">Premium</button>
+            <button class="button-primary top-add" type="button" id="open-add-btn"><span aria-hidden="true">＋</span> Nuevo hábito</button>
+          </div>
         </header>
 
         <section class="view" id="today-view" aria-labelledby="today-title">
@@ -210,6 +214,23 @@
         <p class="field-hint">Cada día completado cuenta una vez. La semana va de lunes a domingo.</p>
         <div class="dialog-actions"><button type="button" class="button-secondary" id="cancel-dialog">Cancelar</button><button type="submit" class="button-primary" id="save-habit-btn">Crear hábito <span aria-hidden="true">↗</span></button></div>
       </form>
+    </dialog>
+    <dialog id="upgrade-dialog" class="habit-dialog upgrade-dialog" aria-labelledby="upgrade-title">
+      <div class="dialog-heading">
+        <div><span class="section-overline">TUS HÁBITOS, A TU RITMO</span><h2 id="upgrade-title">3 hábitos gratis<span class="hero-dot">.</span></h2></div>
+        <button class="icon-button" id="upgrade-close" type="button" aria-label="Cerrar información de planes">×</button>
+      </div>
+      <p class="dialog-description">El plan gratuito permite mantener hasta 3 hábitos. Para añadir más, necesitarás Premium.</p>
+      <div class="upgrade-plan-card">
+        <span class="upgrade-label">PLAN GRATUITO</span>
+        <strong id="upgrade-plan-count">3 de 3 hábitos utilizados</strong>
+        <p>Puedes seguir marcando tus hábitos, editar los existentes y consultar tus rachas.</p>
+      </div>
+      <div class="upgrade-notice" role="note">
+        <strong>Premium todavía no está disponible</strong>
+        <p>Aún no hemos integrado pagos ni activaciones de cuentas. No es posible comprar o desbloquear Premium desde esta versión.</p>
+      </div>
+      <div class="dialog-actions"><button type="button" class="button-primary" id="upgrade-dismiss">Entendido</button></div>
     </dialog>
     <input id="import-file" type="file" accept=".json,application/json" hidden />
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
