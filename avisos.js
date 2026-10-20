@@ -18,6 +18,7 @@ let settings = { ...DEFAULTS };
 let audioContext = null;
 let toastTimer;
 let customAudioInfo = null;
+let customAudioRevision = 0;
 
 function validTime(t) {
   return typeof t === "string" && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(t);
@@ -151,11 +152,19 @@ function renderToneDescription() {
 
 async function refreshCustomAudio() {
   if (!window.HABITCLIK_SOUNDS) return;
+  const revision = customAudioRevision;
+  let info = null;
+  let failed = false;
   try {
-    customAudioInfo = await window.HABITCLIK_SOUNDS.getCustomInfo();
+    info = await window.HABITCLIK_SOUNDS.getCustomInfo();
   } catch (error) {
-    customAudioInfo = null;
+    failed = true;
     console.warn("HabitClik: audio personalizado no disponible.", error);
+  }
+  // Avoid a stale on-load lookup undoing a file uploaded while it was running.
+  if (revision !== customAudioRevision) return;
+  customAudioInfo = info;
+  if (failed) {
     $("alarm-custom-status").textContent = "Este navegador no permite acceder al audio guardado.";
   }
   const option = $("alarm-custom-choice");
@@ -180,6 +189,7 @@ async function refreshCustomAudio() {
 $("alarm-custom-file").addEventListener("change", async (event) => {
   const file = event.target.files && event.target.files[0];
   if (!file || !window.HABITCLIK_SOUNDS) return;
+  customAudioRevision++;
   $("alarm-custom-status").textContent = "Guardando tu audio en este dispositivo…";
   try {
     const saved = await window.HABITCLIK_SOUNDS.saveCustom(file);
@@ -200,6 +210,7 @@ $("alarm-custom-file").addEventListener("change", async (event) => {
 
 $("alarm-custom-remove").addEventListener("click", async () => {
   if (!window.HABITCLIK_SOUNDS) return;
+  customAudioRevision++;
   try {
     await window.HABITCLIK_SOUNDS.removeCustom();
     customAudioInfo = null;
