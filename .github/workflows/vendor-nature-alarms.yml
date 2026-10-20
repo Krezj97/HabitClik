@@ -1,0 +1,55 @@
+name: Vendor licensed nature alarms
+on:
+  push:
+    paths:
+      - .github/workflows/vendor-nature-alarms.yml
+
+permissions:
+  contents: write
+
+jobs:
+  soundpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify CC0 sources and render short MP3 alarms
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sounds
+          while read -r name original sha; do
+            test -n "$name" || continue
+            curl --fail --location --silent --show-error --retry 3 \
+              "https://raw.githubusercontent.com/gretzke/open-alarm/60590dca0bb1b00247c0be861030b06bf0941178/OpenAlarm/Resources/Ringtones/$original" \
+              --output "/tmp/$original"
+            source_sha="$(git hash-object "/tmp/$original")"
+            if test "$source_sha" != "$sha"; then
+              echo "::error::Source recording failed integrity verification: $original"
+              exit 1
+            fi
+            ffmpeg -hide_banner -loglevel error -y -i "/tmp/$original" \
+              -t 10 -af "afade=t=in:st=0:d=0.25,loudnorm=I=-18:TP=-2:LRA=9,afade=t=out:st=9:d=1" \
+              -ar 44100 -ac 2 -codec:a libmp3lame -b:a 128k "sounds/$name.mp3"
+            test "$(stat -c%s "sounds/$name.mp3")" -gt 15000
+            echo "Prepared licensed sound $name"
+          done <<'SOURCES'
+          campanas ringtone_classic_koshichime.caf d191dcae11e2242b55302471a35fd1e42ee5b47f
+          digital ringtone_dawn_wisdominthesun.caf 697a661e24aa15c58265e993890ec82c3c533dbf
+          clasica ringtone_classic_twinbell.caf fb6ae343cfc017bec230c58e2961a566c8907f6f
+          alegre ringtone_dawn_motions.caf 9afa16f721da85ed15ebb53130a2db8671c9d999
+          energia ringtone_nature_morningbirds.caf 720f739baaee76242faf91b20baa08ee24dadeb8
+          SOURCES
+      - name: Commit verified MP3 set
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sounds/*.mp3
+          git rm -f --ignore-unmatch sounds/*.wav
+          if git diff --cached --quiet; then
+            echo "Audio collection already up to date."
+          else
+            git commit -m "assets(audio): replace notification beeps with five CC0 nature and musical alarms"
+            git push origin HEAD:main
+          fi
