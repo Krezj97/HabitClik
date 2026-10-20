@@ -580,3 +580,230 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   .topbar-actions .top-add { flex: 1 1 auto; }
   .upgrade-dialog { padding: 22px 18px; }
 }
+
+
+/* HabitClik olive edition — softer dark surfaces, warm minimalist accents.
+   Shared by the dashboard and the independent Avisos screen. */
+:root {
+  --hc-bg: #e9ece4;
+  --hc-white: #f9faf6;
+  --hc-text: #293528;
+  --hc-muted: #63715f;
+  --hc-accent: #526b40;
+  --hc-accent-dark: #405735;
+  --hc-soft: #e2e9d9;
+  --hc-border: #d5ddce;
+  --hc-olive-dark: #404d38;
+  --hc-olive-mid: #5b6c4d;
+  --hc-olive-light: #dce5ca;
+  --hc-warm-gold: #b49b6c;
+  color: var(--hc-text);
+  background: var(--hc-bg);
+}
+body { background: var(--hc-bg); color: var(--hc-text); }
+button:focus-visible, input:focus-visible, select:focus-visible,
+a:focus-visible, .alarm-tone-select:focus-visible {
+  outline: 3px solid #a9c18a;
+  outline-offset: 3px;
+}
+/* Sidebar: a distinct olive surface while preserving mobile navigation. */
+.sidebar {
+  background: var(--hc-olive-dark);
+  color: #f8f9f2;
+  border-right: 1px solid #35422e;
+  box-shadow: 5px 0 20px #28352612;
+  scrollbar-color: #728161 transparent;
+}
+.brand { color: #f8f9f2; }
+.brand-icon { background: #cedbbb; color: #34462e; }
+.brand-accent { color: #c8d9a8; }
+.sidebar-caption { color: #c3ceb8; }
+.sidebar .nav-item { color: #e1e8d9; }
+.sidebar .nav-item:hover { background: #526248; color: #ffffff; }
+.sidebar .nav-item.is-active { background: #667955; color: #ffffff; }
+.sidebar .tip-card {
+  background: #516148;
+  border-color: #637356;
+  color: #f5f7ec;
+}
+.sidebar .tip-card strong { color: #ffffff; }
+.sidebar .tip-card p { color: #e1e8d7; }
+.sidebar .tip-icon { background: #d0dcba; color: #34472d; }
+.sidebar .data-actions button,
+.sidebar .sidebar-back {
+  background: #4d5c44;
+  border-color: #7c8c70;
+  color: #f3f6ed;
+}
+.sidebar .data-actions button:hover,
+.sidebar .sidebar-back:hover { background: #617253; color: #ffffff; }
+.sidebar .privacy-note { color: #d0d9c5; }
+.sidebar .install-button { background: #e0e9d4; color: #344d31; }
+.sidebar .install-button:hover { background: #f0f5e6; }
+a.nav-item:focus-visible, a.brand-link:focus-visible,
+.sidebar-back:focus-visible { outline-color: #e0edc3; }
+
+/* Main content stays lighter for long reading sessions. */
+.main-content { color: var(--hc-text); }
+.eyebrow, .section-overline { color: #637358; }
+.topbar-title span, .main-footer span { color: #81966b; }
+.button-primary, .settings-action-primary, .custom-upload-btn {
+  background: var(--hc-accent);
+  border-color: var(--hc-accent);
+  color: #ffffff;
+  box-shadow: none;
+}
+.button-primary:hover, .settings-action-primary:hover, .custom-upload-btn:hover {
+  background: var(--hc-accent-dark);
+  border-color: var(--hc-accent-dark);
+  color: #ffffff;
+}
+.hero, .stats-hero, .settings-hero {
+  background: #596b4e;
+  color: #ffffff;
+  border: 1px solid #4d6043;
+  box-shadow: 0 12px 30px #384e2b16;
+}
+.hero::before { display: none; }
+.hero h1, .stats-hero h1, .settings-hero h1 { color: #ffffff; }
+.hero-kicker, .settings-hero .section-overline, .hero-dot { color: #e2ecc8; }
+.hero p, .stats-hero p, .settings-hero p { color: #e7eddf; }
+.date-chip { background: #738667; color: #ffffff; }
+.ring-track { stroke: #84947b; }
+.ring-fill { stroke: #e0edb9; }
+.ring-label, .ring-label strong { color: #ffffff; }
+.ring-label span { color: #e4ebdc; }
+
+/* Cards: warm light surfaces for easy readability against a deeper page. */
+.stat-card, .habit-card, .weekly-strip, .chart-card,
+.calendar-panel, .weekly-goal-card, .settings-card,
+.habit-dialog, .empty-state {
+  background: var(--hc-white);
+  border-color: var(--hc-border);
+  box-shadow: 0 4px 16px #283b230d;
+  color: var(--hc-text);
+}
+.stat-emoji { background: #e2e9d4; color: #4f6840; }
+.stat-emoji.flame { background: #f4ebdf; color: #9e7242; }
+.stat-emoji.star { background: #edebe1; color: #796d4b; }
+.stat-label, .subtle-text { color: #697963; }
+.day.today { background: #e1e9d5; }
+.day .weekday, .habit-category { color: #65755f; }
+.day .day-mark { background: #e5eade; color: #657760; }
+.day .day-mark.has-progress { background: #d2e1b8; color: #374c32; }
+.day .day-mark.full-progress { background: #66824e; color: #ffffff; }
+.count-pill { background: #e4e9dc; color: #53664c; }
+.habit-card.is-done, .weekly-goal-card.goal-met {
+  background: #f0f5e9;
+  border-color: #c9d9b9;
+}
+.habit-card.is-done .habit-title { color: #4f6845; }
+.habit-check { background: #edf1e9; border-color: #d5decb; color: #40543a; }
+.habit-check:hover { border-color: #7d976b; }
+.habit-card.is-done .habit-check { background: #d1e3ba; border-color: #bfd59f; color: #30492d; }
+.delete-habit:hover { background: #f9eae6; color: #a84d42; }
+.empty-state { border-color: #cbd5c4; }
+.chart-track { background: #e7ecdf; }
+.chart-bar, .chart-column.today .chart-bar { background: #859d63; }
+.weekly-goal-track { background: #e1e8d6; }
+.weekly-goal-fill { background: #8ba574; }
+.weekly-goal-card.goal-met .weekly-goal-fill { background: #647f50; }
+.weekly-goal-count, .weekly-goal-card.goal-met .weekly-goal-caption { color: #4b6641; }
+
+/* Motivation, calendar, streak indicators. */
+.motivation-card {
+  background: #e1e8d8;
+  border-color: #d0dac3;
+}
+.motivation-symbol { background: #cad8b9; color: #526a45; }
+.motivation-body .section-overline { color: #607851; }
+.motivation-body h2 { color: #2c422a; }
+.motivation-body p { color: #4c6349; }
+.motivation-next { background: #cadab9; color: #3e5937; }
+.motivation-next:hover { background: #bdd3a6; }
+.calendar-day.has-progress { background: #ebf0e5; border-color: #d0dcc6; }
+.calendar-day.is-complete { background: #c5d6b2; border-color: #aabf92; }
+.calendar-day.is-today:not(.is-selected) { border-color: #647e50; }
+.calendar-day.is-selected { outline-color: #4d6843; }
+.calendar-day:hover:not(:disabled) { background: #dce8cf; }
+.calendar-dot-partial { background: #a4b98b; }
+.calendar-dot-done { background: #5a774b; }
+
+/* Reminders and sound controls use the same calmer olive tones. */
+.settings-intro strong, .settings-heading h2 { color: #2c3b29; }
+.settings-intro p, .settings-heading p, .settings-note,
+.settings-disclaimer { color: #61725d; }
+.settings-mode { background: #dce9d1; color: #415e36; }
+.settings-icon { background: #e3e9d5; color: #526e43; }
+.settings-icon-blue { background: #e2e8e0; color: #536e5b; }
+.settings-icon-purple { background: #e9e6dd; color: #74664f; }
+.settings-icon-amber { background: #f0e7d6; color: #876b45; }
+.settings-toggle-track { background: #bdcbb1; }
+.settings-toggle input:checked + .settings-toggle-track { background: #647f50; }
+.settings-action {
+  background: #e5ecdc;
+  color: #3c5338;
+  border-color: #d2dcc6;
+}
+.settings-action:hover { background: #d3e1c7; color: #293f28; }
+.settings-action-primary, .custom-upload-btn {
+  background: var(--hc-accent);
+  color: #ffffff;
+  border-color: var(--hc-accent);
+}
+.settings-action-primary:hover, .custom-upload-btn:hover { background: var(--hc-accent-dark); color: #ffffff; }
+.settings-input-label, .settings-volume-row label { color: #4c6546; }
+.settings-time, .alarm-tone-select {
+  background: #fbfcf8;
+  color: #2d3f29;
+  border-color: #cbd7c1;
+}
+.settings-volume-row input { accent-color: #657d4e; }
+.settings-volume-row output { color: #3e5837; }
+.settings-status { background: #e8ece2; color: #566a50; }
+.settings-status.is-active { background: #d9e7cb; color: #395d30; }
+.settings-status.is-warning { background: #f4e8d9; color: #8e6238; }
+.custom-alarm-area { background: #f0f3ec; border-color: #bdcbb4; }
+.custom-alarm-head strong { color: #3d5335; }
+.custom-alarm-head p { color: #5f745b; }
+.custom-alarm-emblem { background: #d7e1cb; color: #4d6c40; }
+.custom-alarm-feedback { color: #4b673f; }
+.custom-alarm-area:focus-within { border-color: #6d8855; }
+
+/* Modal, quota and feedback surfaces. */
+.habit-dialog::backdrop { background: #2433229c; }
+.habit-dialog .dialog-description { color: #62725c; }
+.habit-dialog label { color: #435540; }
+.habit-dialog input, .habit-dialog select {
+  background: #f9fbf5;
+  border-color: #ced9c6;
+  color: #263723;
+}
+.button-secondary { background: #e8eddf; border-color: #dae2d0; color: #405339; }
+.button-secondary:hover { background: #d9e6cc; }
+.icon-button { background: #e8ece3; color: #50634b; }
+.free-plan-label { background: #dae6cf; color: #3b5634; border-color: #c7d8ba; }
+.free-plan-label.is-full { background: #e7e8dc; color: #5d684d; border-color: #d8dacb; }
+.plan-info-link { color: #4e6a3f; }
+.plan-info-link:hover { color: #384f2e; }
+.upgrade-plan-card { background: #e6eedc; border-color: #d0dfc2; }
+.upgrade-plan-card .upgrade-label { color: #597346; }
+.upgrade-plan-card strong { color: #314c2d; }
+.upgrade-plan-card p { color: #556b4c; }
+.upgrade-notice { background: #f4f0e6; border-color: #e4dac5; }
+.upgrade-notice strong { color: #655632; }
+.upgrade-notice p { color: #74664f; }
+.toast { background: #405a35; color: #ffffff; }
+.main-footer { color: #73806d; }
+
+/* Retain olive sidebar colors when the navigation becomes horizontal. */
+@media (max-width: 760px) {
+  .sidebar {
+    background: var(--hc-olive-dark);
+    color: #f8f9f2;
+    box-shadow: 0 2px 14px #2939271c;
+  }
+  .sidebar .nav-item { color: #e1e8d9; }
+  .sidebar .nav-item.is-active { background: #667955; color: #ffffff; }
+  .sidebar .data-actions button { background: #4d5c44; color: #f3f6ed; border-color: #7c8c70; }
+}
