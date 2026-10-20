@@ -181,7 +181,7 @@ test("PWA shell and DOM references remain consistent", () => {
   for (const [, id] of source.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(ids.has(id), "missing DOM element " + id);
   }
-  assert.match(sw, /habitclik-static-v8/);
+  assert.match(sw, /habitclik-static-v9/);
   assert.equal((css.match(/{/g) ?? []).length, (css.match(/}/g) ?? []).length);
   for (const icon of manifest.icons) {
     assert.ok(fs.existsSync(path.join(root, icon.src)), "missing icon " + icon.src);
@@ -346,15 +346,13 @@ test("large motivation library loads and rotates among hundreds of unique phrase
   assert.notEqual(element("motivation-phrase").textContent, first);
 });
 
-test("reminder settings are accessible on their own screen", () => {
-  const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
-  const { element } = boot();
-  assert.match(html, /data-view="reminders"/);
-  assert.match(html, /id="reminders-view"/);
-  assert.match(html, /id="notification-help"/);
-  assert.match(html, /id="alarm-status"/);
-  assert.match(html, /id="test-notification-btn"/);
-  assert.match(html, /id="test-alarm-btn"/);
-  assert.match(html, /id="alarm-volume"/);
-  assert.equal(element("reminder-overview").textContent, "Avisos diarios desactivados");
+test("reminder settings can be reached through a standalone native link", () => {
+  const home = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  const avisos = fs.readFileSync(path.join(root, "avisos.html"), "utf8");
+  assert.match(home, /href="\.\/avisos\.html"/);
+  assert.match(avisos, /id="notification-help"/);
+  assert.match(avisos, /id="alarm-status"/);
+  assert.match(avisos, /id="test-notification-btn"/);
+  assert.match(avisos, /id="test-alarm-btn"/);
+  assert.match(avisos, /id="alarm-volume"/);
 });
