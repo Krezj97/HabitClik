@@ -55,7 +55,7 @@ function openAvisos(options = {}) {
       start() {audioNotes.push("start");},stop(){}}; }
     createGain() {return {gain:{setValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){}};}
   }
-  if (options.audio !== false) window.AudioContext = AudioContext;
+  if (options.audio !== false) window.AudioContext = options.AudioContext ?? AudioContext;
   if (options.indexedDB) window.indexedDB = options.indexedDB;
   if (options.Audio) window.Audio = options.Audio;
   window.URL = options.URL ?? { createObjectURL: () => "blob:custom-test", revokeObjectURL() {} };
@@ -84,12 +84,12 @@ function openAvisos(options = {}) {
 test("Avisos navigation uses an independent real HTML link", () => {
   assert.match(index, /<a[^>]+href="\.\/avisos\.html"[^>]*>[\s\S]*?Avisos<\/a>/);
   assert.match(html, /<title>Avisos · HabitClik<\/title>/);
-  assert.match(html, /<script src="\.\/avisos\.js\?v=11" defer><\/script>/);
+  assert.match(html, /<script src="\.\/avisos\.js\?v=12" defer><\/script>/);
   assert.doesNotMatch(html, /src="app\.js"/);
   for (const [,id] of script.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(html.includes('id="' + id + '"'), "missing on Avisos page: " + id);
   }
-  assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /habitclik-static-v11/);
+  assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /habitclik-static-v12/);
   assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /"\.\/avisos\.html"/);
 });
 
@@ -128,9 +128,12 @@ test("Alarm test and switch respond, volume persists", async () => {
   assert.equal(page.settings().alarmEnabled,true);
   assert.equal(page.audioNotes.length,8);
   page.nodes("alarm-volume").value="80";
-  page.nodes("alarm-volume").listeners.change();
+  page.nodes("alarm-volume").listeners.input();
   assert.equal(page.settings().alarmVolume,80);
   assert.equal(page.nodes("alarm-volume-value").textContent,"80 %");
+  assert.match(page.nodes("alarm-volume-hint").textContent,/80 %/);
+  await page.nodes("alarm-volume").listeners.change();
+  assert.match(page.nodes("alarm-status").textContent,/80 %/);
 });
 
 test("Notifications request permission after direct click and send a test", async () => {
@@ -304,7 +307,8 @@ test("custom alarm file uploads, persists locally, previews and can be removed",
   assert.equal(played.length, 1);
   assert.equal(played[0].volume, 0.5);
   page.nodes("alarm-volume").value = "90";
-  page.nodes("alarm-volume").listeners.change();
+  page.nodes("alarm-volume").listeners.input();
+  await page.nodes("alarm-volume").listeners.change();
   await page.nodes("test-alarm-btn").listeners.click();
   assert.equal(played[1].volume, 0.9);
   await page.nodes("alarm-custom-remove").listeners.click();
@@ -327,4 +331,67 @@ test("oversized or unsupported files cannot replace the saved alarm", async () =
   await page.nodes("alarm-custom-file").listeners.change({ target: { files: [tooLarge] } });
   assert.match(page.nodes("alarm-custom-status").textContent, /8 MB/);
   assert.equal(indexedDB.records.has("selected"), false);
+});
+
+
+test("the volume slider audibly changes the live gain of an integrated alarm", async () => {
+  const gains=[];
+  class AudioContext {
+    constructor() { this.currentTime=0; this.state="running"; this.destination={}; }
+    createOscillator(){return{frequency:{value:0},connect(){},start(){},stop(){}};}
+    createGain(){
+      const node={gain:{value:1,setValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){}};
+      gains.push(node);
+      return node;
+    }
+  }
+  const page=openAvisos({ AudioContext });
+  await page.nodes("test-alarm-btn").listeners.click();
+  const master=gains[0];
+  assert.equal(master.gain.value, 1);
+  page.nodes("alarm-volume").value="10";
+  page.nodes("alarm-volume").listeners.input();
+  const quiet=master.gain.value;
+  page.nodes("alarm-volume").value="100";
+  page.nodes("alarm-volume").listeners.input();
+  const loud=master.gain.value;
+  assert.ok(loud > quiet * 10, "100% must be dramatically louder than 10%");
+  assert.equal(page.settings().alarmVolume,100);
+  await page.nodes("alarm-volume").listeners.change();
+  assert.match(page.nodes("alarm-status").textContent,/100 %/);
+  assert.equal(JSON.parse(page.saved.get("habitclik:settings:v1")).alarmVolume,100);
+});
+
+test("custom audio uses a gain node when mobile media volume cannot be changed", async () => {
+  const indexedDB = fakeAudioStorage();
+  const sources=[], gains=[], players=[];
+  class Audio {
+    constructor(){this.listeners={};this.currentTime=0;this.volume=0;players.push(this);}
+    addEventListener(name,handler){this.listeners[name]=handler;}
+    async play(){}
+    pause(){}
+  }
+  class AudioContext {
+    constructor(){this.state="running";this.currentTime=0;this.destination={};}
+    createMediaElementSource(player){
+      const source={player,connect(){}};sources.push(source);return source;
+    }
+    createGain(){const node={gain:{value:1},connect(){}};gains.push(node);return node;}
+    createOscillator(){return{frequency:{value:0},connect(){},start(){},stop(){}};}
+  }
+  const page=openAvisos({indexedDB,Audio,AudioContext});
+  const file=new Blob(["audio"],{type:"audio/mpeg"});
+  file.name="alarma.mp3";
+  await page.nodes("alarm-custom-file").listeners.change({target:{files:[file]}});
+  await page.nodes("test-alarm-btn").listeners.click();
+  assert.equal(sources.length,1);
+  assert.equal(players[0].volume,1);
+  const quiet=gains[0].gain.value;
+  page.nodes("alarm-volume").value="100";
+  page.nodes("alarm-volume").listeners.input();
+  const loud=gains[0].gain.value;
+  assert.ok(loud>quiet*2,"custom sound gain changes in Web Audio even if media volume is fixed");
+  assert.equal(players[0].volume,1,"the web audio graph controls playback level");
+  await page.nodes("alarm-volume").listeners.change();
+  assert.equal(page.settings().alarmVolume,100);
 });
