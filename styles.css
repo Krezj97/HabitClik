@@ -221,3 +221,64 @@ h1 { line-height: 1.06; letter-spacing: -2.3px; }
   .reminder-box input[type="time"] { max-width: 180px; }
   .reminder-help { max-width: 350px; }
 }
+
+/* Contextual motivational phrases */
+.motivation-card { margin-top: 16px; padding: 18px 21px; display: flex; align-items: center; gap: 15px; background: #eaf5e7; border: 1px solid #d6e9d1; border-radius: 16px; }
+.motivation-symbol { width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center; background: #c5edae; color: #306447; border-radius: 13px; font-size: 26px; }
+.motivation-body { flex: 1; min-width: 0; }
+.motivation-body .section-overline { color: #58916c; }
+.motivation-body h2 { margin: 5px 0 5px; font-size: 16px; letter-spacing: -.4px; }
+.motivation-body p { margin: 0; color: #537664; font-size: 13px; line-height: 1.55; }
+.motivation-next { flex: 0 0 34px; width: 34px; height: 34px; background: #d9efd0; border: 0; color: #356d4b; border-radius: 9px; font-size: 22px; }
+.motivation-next:hover { background: #c8e7bb; }
+
+/* Monthly habit history */
+.calendar-toolbar { display: flex; align-items: end; justify-content: space-between; gap: 14px; margin-bottom: 15px; }
+.calendar-toolbar h2 { margin: 5px 0 0; font-size: 23px; letter-spacing: -.7px; }
+.calendar-nav { display: flex; gap: 7px; align-items: center; }
+.calendar-nav button { border: 1px solid #e1e9eb; background: #fff; color: #344957; padding: 8px 12px; border-radius: 9px; font-size: 18px; font-weight: 700; min-width: 35px; }
+.calendar-nav button:disabled { opacity: .35; cursor: not-allowed; }
+.calendar-nav button.calendar-today-btn { font-size: 12px; padding: 11px 15px; }
+.calendar-panel { background: white; border: 1px solid #e5ecef; border-radius: 16px; padding: 18px; }
+.calendar-weekdays, .calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 7px; text-align: center; }
+.calendar-weekdays { margin-bottom: 8px; }
+.calendar-weekdays span { color: #8f9ba5; font-size: 11px; font-weight: 800; }
+.calendar-day { position: relative; min-height: 67px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 1px solid #ebeff0; border-radius: 12px; background: #f8faf9; color: #334551; font-size: 14px; font-weight: 800; }
+.calendar-day small { font-size: 10px; font-weight: 750; color: #9babb5; }
+.calendar-day.has-progress { background: #edf9e9; border-color: #d4edce; }
+.calendar-day.is-complete { background: #c6edb8; border-color: #b5e6a3; }
+.calendar-day.is-complete small { color: #3e734d; }
+.calendar-day.is-today:not(.is-selected) { border: 2px solid #65b778; }
+.calendar-day.is-selected { outline: 3px solid #466c84; outline-offset: -3px; }
+.calendar-day:hover:not(:disabled) { background: #ddf2d6; }
+.calendar-day:disabled { opacity: .36; cursor: not-allowed; }
+.calendar-pad { min-height: 67px; }
+.calendar-legend { display: flex; flex-wrap: wrap; gap: 16px; color: #8997a4; margin-top: 16px; font-size: 11px; }
+.calendar-legend span { display: inline-flex; align-items: center; gap: 7px; }
+.calendar-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.calendar-dot-partial { background: #9bd77c; }
+.calendar-dot-done { background: #61b475; }
+#calendar-selected-title { text-transform: capitalize; }
+
+/* Extra reminder preferences */
+.reminder-switch-spaced { margin-top: 15px; }
+.reminder-utility { display: block; width: 100%; background: #293f51; color: #e3f0e6; border: 1px solid #51667a; border-radius: 9px; padding: 9px; font-size: 11px; font-weight: 700; margin-top: 10px; text-align: left; }
+.reminder-utility:hover:not(:disabled) { background: #365267; }
+.reminder-utility:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 760px) {
+  .reminder-utility { max-width: 370px; }
+  .calendar-panel { padding: 10px; }
+  .calendar-day, .calendar-pad { min-height: 55px; }
+}
+@media (max-width: 470px) {
+  .motivation-card { gap: 9px; padding: 14px; }
+  .motivation-symbol { display: none; }
+  .motivation-body h2 { font-size: 15px; }
+  .calendar-weekdays, .calendar-days { gap: 3px; }
+  .calendar-day, .calendar-pad { min-height: 48px; }
+  .calendar-day { border-radius: 8px; font-size: 12px; }
+  .calendar-day small { font-size: 9px; }
+  .calendar-toolbar h2 { font-size: 19px; }
+  .calendar-nav button { padding: 7px 9px; min-width: 29px; }
+  .calendar-nav button.calendar-today-btn { padding: 10px 8px; }
+}
