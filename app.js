@@ -14,6 +14,10 @@ const dateFormat = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "num
 let toastTimer;
 let currentView = "today";
 let editingId = null;
+let calendarSelectedKey = keyForDate(new Date());
+let calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1, 12);
+let motivationShift = 0;
+let alarmAudioContext = null;
 
 function keyForDate(date) {
   const y = date.getFullYear();
@@ -49,7 +53,10 @@ function starterData() {
       { id: newId(), title: "Mover el cuerpo", category: "movimiento", createdAt: now, weeklyTarget: 7 }
     ],
     logs: {},
-    settings: { reminderEnabled: false, reminderTime: "19:00", lastRemindedAt: null }
+    settings: {
+      reminderEnabled: false, reminderTime: "19:00", lastRemindedAt: null,
+      alarmEnabled: false, notificationEnabled: false
+    }
   };
 }
 
@@ -93,7 +100,9 @@ function normalizeData(input) {
     reminderTime: isValidReminderTime(sourceSettings.reminderTime)
       ? sourceSettings.reminderTime : "19:00",
     lastRemindedAt: typeof sourceSettings.lastRemindedAt === "string" &&
-      isValidDateKey(sourceSettings.lastRemindedAt) ? sourceSettings.lastRemindedAt : null
+      isValidDateKey(sourceSettings.lastRemindedAt) ? sourceSettings.lastRemindedAt : null,
+    alarmEnabled: sourceSettings.alarmEnabled === true,
+    notificationEnabled: sourceSettings.notificationEnabled === true
   };
   return { habits, logs, settings };
 }
@@ -277,6 +286,113 @@ function renderWeeklyGoals() {
   }).join("");
 }
 
+function motivationForToday() {
+  const today = keyForDate(new Date());
+  const completed = completedCount(today);
+  const total = data.habits.length;
+  const streak = currentStreak();
+  let heading = "Un paso a la vez";
+  let phrases;
+  if (total > 0 && completed === total) {
+    heading = "¡Objetivo de hoy logrado!";
+    phrases = [
+      "Hoy lo has conseguido. Disfruta el progreso que estás construyendo.",
+      "Cada hábito completado cuenta. Mañana tendrás otra oportunidad de avanzar.",
+      "Has cumplido tus objetivos de hoy. ¡Buen trabajo con tu constancia!",
+      "Lo importante no es la perfección, sino volver a intentarlo cada día."
+    ];
+  } else if (streak >= 7) {
+    heading = streak + " días sumando constancia";
+    phrases = [
+      "Tu racha refleja pequeños esfuerzos repetidos. Sigue a tu ritmo.",
+      "Mira todo lo que has avanzado. Un nuevo día es una nueva oportunidad.",
+      "La constancia se construye con pasos sencillos, no con días perfectos.",
+      "Llevas " + streak + " días activo. Celebra lo aprendido por el camino."
+    ];
+  } else if (streak >= 3) {
+    heading = "¡Tu racha está creciendo!";
+    phrases = [
+      "Cada día cuenta, y ya estás creando tu propio ritmo.",
+      "Un pequeño gesto hoy mantiene vivo el impulso de esta semana.",
+      "No necesitas hacer más: necesitas continuar a tu manera.",
+      "Los cambios grandes nacen de hábitos pequeños."
+    ];
+  } else if (completed > 0 || streak > 0) {
+    heading = "Vas por buen camino";
+    phrases = [
+      "Ese primer paso cuenta mucho más de lo que parece.",
+      "Tu esfuerzo de hoy merece reconocimiento.",
+      "Lo estás haciendo: poco a poco, con calma y constancia.",
+      "No hace falta terminarlo todo para haber avanzado."
+    ];
+  } else {
+    phrases = [
+      "Empieza por algo pequeño. Una acción ya es progreso.",
+      "Nunca es tarde para empezar de nuevo, incluso hoy.",
+      "Ve a tu ritmo. Lo importante es dar el siguiente paso.",
+      "Un día sin marcas no borra todo lo que ya has conseguido."
+    ];
+  }
+  const daySeed = Number(today.replace(/-/g, ""));
+  return { heading, phrase: phrases[(daySeed + motivationShift) % phrases.length] };
+}
+
+function renderMotivation() {
+  const selected = motivationForToday();
+  $("motivation-heading").textContent = selected.heading;
+  $("motivation-phrase").textContent = selected.phrase;
+}
+
+function renderCalendar() {
+  const today = keyForDate(new Date());
+  const year = calendarMonth.getFullYear();
+  const month = calendarMonth.getMonth();
+  const first = new Date(year, month, 1, 12);
+  const lastDay = new Date(year, month + 1, 0, 12).getDate();
+  const offset = (first.getDay() + 6) % 7;
+  const monthText = new Intl.DateTimeFormat("es-ES", { month: "long", year: "numeric" }).format(first);
+  $("calendar-month-title").textContent = monthText.charAt(0).toUpperCase() + monthText.slice(1);
+  $("calendar-next").disabled = year === new Date().getFullYear() && month === new Date().getMonth();
+  const cells = Array.from({ length: offset }, () => '<span class="calendar-pad" aria-hidden="true"></span>');
+  for (let day = 1; day <= lastDay; day++) {
+    const date = new Date(year, month, day, 12);
+    const key = keyForDate(date);
+    const total = activeHabitsOn(key);
+    const completed = completedCount(key);
+    const selectable = key <= today && total > 0;
+    const status = completed > 0 && completed === total ? " is-complete"
+      : completed > 0 ? " has-progress" : "";
+    const name = dateFormat.format(date) + ": " + completed + " de " + total + " completados";
+    cells.push('<button type="button" class="calendar-day' + status +
+      (key === today ? ' is-today' : '') +
+      (key === calendarSelectedKey ? ' is-selected' : '') +
+      '" data-date="' + key + '" aria-pressed="' + (key === calendarSelectedKey) +
+      '" aria-label="' + escapeHtml(name) + '"' + (selectable ? '' : ' disabled') +
+      '><span>' + day + '</span><small aria-hidden="true">' +
+      (completed ? completed + '/' + total : '·') + '</small></button>');
+  }
+  $("calendar-days").innerHTML = cells.join("");
+  const selectedDate = localDate(calendarSelectedKey);
+  $("calendar-selected-title").textContent = "Hábitos del " + dateFormat.format(selectedDate);
+  const active = data.habits.filter((habit) => habit.createdAt <= calendarSelectedKey);
+  const selectedDone = completedIds(calendarSelectedKey);
+  $("calendar-selected-summary").textContent = selectedDone.length + " / " + active.length + " completados";
+  $("calendar-habits").innerHTML = active.length
+    ? active.map((habit) => {
+      const done = selectedDone.includes(habit.id);
+      const category = CATEGORIES[habit.category];
+      return '<article class="habit-card' + (done ? ' is-done' : '') + '">' +
+        '<span class="habit-symbol" style="--soft:' + category.background + '" aria-hidden="true">' +
+        category.icon + '</span><div class="habit-info"><h3 class="habit-title">' +
+        escapeHtml(habit.title) + '</h3><span class="habit-category">' + category.label +
+        '</span></div><button type="button" class="habit-check" data-action="calendar-toggle" data-id="' +
+        habit.id + '" aria-pressed="' + done + '" aria-label="' +
+        escapeHtml((done ? "Desmarcar " : "Completar ") + habit.title) +
+        '">' + (done ? "✓ Hecho" : "○ Completar") + '</button></article>';
+    }).join("")
+    : '<div class="empty-state"><p>En esta fecha todavía no tenías hábitos registrados.</p></div>';
+}
+
 function renderHabits() {
   $("habit-count").textContent = data.habits.length;
   if (!data.habits.length) {
@@ -391,15 +507,18 @@ function render() {
   renderWeek();
   renderWeeklyGoals();
   renderHabits();
+  renderCalendar();
+  renderMotivation();
   renderChart();
   renderHabitStreaks();
   renderReminderSettings();
 }
 
 function showView(view) {
-  currentView = view === "stats" ? "stats" : "today";
+  currentView = ["today", "stats", "calendar"].includes(view) ? view : "today";
   $("today-view").hidden = currentView !== "today";
   $("stats-view").hidden = currentView !== "stats";
+  $("calendar-view").hidden = currentView !== "calendar";
   document.querySelectorAll("[data-view]").forEach((button) => {
     const active = button.dataset.view === currentView;
     button.classList.toggle("is-active", active);
@@ -426,18 +545,20 @@ function openDialog(id = null) {
   $("habit-name").focus();
 }
 
-function toggleHabit(id) {
-  if (!data.habits.some((habit) => habit.id === id)) return;
-  const today = keyForDate(new Date());
-  const set = new Set(completedIds(today));
+function toggleHabit(id, day = keyForDate(new Date())) {
+  const habit = data.habits.find((entry) => entry.id === id);
+  if (!habit || !isValidDateKey(day) || day > keyForDate(new Date()) || day < habit.createdAt) return;
+  const set = new Set(completedIds(day));
   const wasDone = set.has(id);
   if (wasDone) set.delete(id);
   else set.add(id);
-  if (set.size) data.logs[today] = [...set];
-  else delete data.logs[today];
+  if (set.size) data.logs[day] = [...set];
+  else delete data.logs[day];
   persist();
   render();
-  showToast(wasDone ? "Hábito marcado como pendiente." : "¡Un paso más! Hábito completado.");
+  showToast(wasDone ? "Hábito marcado como pendiente." :
+    day === keyForDate(new Date()) ? "¡Un paso más! Hábito completado." :
+      "¡Día anterior registrado! Tu historial está actualizado.");
 }
 
 function deleteHabit(id) {
@@ -524,6 +645,41 @@ $("habit-form").addEventListener("submit", (event) => {
   $("habit-dialog").close();
   showToast(editingId ? "Hábito actualizado sin perder el progreso." : "¡Nuevo hábito creado!");
   editingId = null;
+});
+
+$("motivation-next").addEventListener("click", () => {
+  motivationShift++;
+  renderMotivation();
+});
+$("calendar-prev").addEventListener("click", () => {
+  calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1, 12);
+  renderCalendar();
+});
+$("calendar-next").addEventListener("click", () => {
+  const next = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1, 12);
+  const now = new Date();
+  if (next.getFullYear() > now.getFullYear() ||
+      (next.getFullYear() === now.getFullYear() && next.getMonth() > now.getMonth())) return;
+  calendarMonth = next;
+  renderCalendar();
+});
+$("calendar-today").addEventListener("click", () => {
+  calendarSelectedKey = keyForDate(new Date());
+  calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1, 12);
+  renderCalendar();
+});
+$("calendar-days").addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-date]");
+  if (!button || button.disabled) return;
+  const day = button.dataset.date;
+  if (isValidDateKey(day) && day <= keyForDate(new Date()) && activeHabitsOn(day) > 0) {
+    calendarSelectedKey = day;
+    renderCalendar();
+  }
+});
+$("calendar-habits").addEventListener("click", (event) => {
+  const button = event.target.closest('button[data-action="calendar-toggle"]');
+  if (button) toggleHabit(button.dataset.id, calendarSelectedKey);
 });
 
 $("habit-list").addEventListener("click", (event) => {
