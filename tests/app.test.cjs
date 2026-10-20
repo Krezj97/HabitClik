@@ -9,7 +9,7 @@ const vm = require("node:vm");
 const root = path.join(__dirname, "..");
 const source = fs.readFileSync(path.join(root, "app.js"), "utf8");
 
-function boot(seed, hour = 20) {
+function boot(seed, hour = 20, options = {}) {
   const elements = new Map();
   const storage = new Map(seed ? [["habitclik:v1", JSON.stringify(seed)]] : []);
   const intervals = [];
@@ -50,7 +50,9 @@ function boot(seed, hour = 20) {
     body: { append() {} }
   };
   const window = {
-    isSecureContext: false,
+    isSecureContext: options.secure ?? false,
+    Notification: options.Notification,
+    AudioContext: options.AudioContext,
     addEventListener(type, fn) { handlers["window:" + type] = fn; },
     scrollTo() {}
   };
@@ -66,7 +68,9 @@ function boot(seed, hour = 20) {
   const context = {
     document,
     window,
-    navigator: {},
+    navigator: options.navigator ?? {},
+    URL: options.URL ?? { createObjectURL: () => "blob:test", revokeObjectURL() {} },
+    Blob,
     localStorage,
     Date: FixedDate,
     confirm: () => true,
@@ -77,7 +81,7 @@ function boot(seed, hour = 20) {
   };
   vm.runInNewContext(source + "\nglobalThis.testApi = {" +
     "getData: () => data, normalizeData, completionsThisWeek, weeklyStreak, " +
-    "toggleHabit, showPendingReminder };", context, { filename: "app.js" });
+    "toggleHabit, showPendingReminder, renderCalendar, motivationForToday };", context, { filename: "app.js" });
 
   return { api: context.testApi, element, storage, intervals, handlers };
 }
@@ -176,9 +180,117 @@ test("PWA shell and DOM references remain consistent", () => {
   for (const [, id] of source.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(ids.has(id), "missing DOM element " + id);
   }
-  assert.match(sw, /habitclik-static-v5/);
+  assert.match(sw, /habitclik-static-v6/);
   assert.equal((css.match(/{/g) ?? []).length, (css.match(/}/g) ?? []).length);
   for (const icon of manifest.icons) {
     assert.ok(fs.existsSync(path.join(root, icon.src)), "missing icon " + icon.src);
   }
+});
+
+
+test("historical calendar can mark an existing past day but not a future day", () => {
+  const { api, element } = boot({
+    habits: [{ id: "a", title: "Pasear", category: "movimiento", createdAt: "2026-10-01", weeklyTarget: 3 }],
+    logs: {}
+  });
+  element("calendar-days").handlers.click({
+    target: { closest() { return { disabled: false, dataset: { date: "2026-10-19" } }; } }
+  });
+  assert.match(element("calendar-selected-title").textContent, /19 de octubre/);
+  element("calendar-habits").handlers.click({
+    target: { closest() { return { dataset: { action: "calendar-toggle", id: "a" } }; } }
+  });
+  assert.ok(api.getData().logs["2026-10-19"].includes("a"));
+  element("calendar-days").handlers.click({
+    target: { closest() { return { disabled: false, dataset: { date: "2026-10-22" } }; } }
+  });
+  assert.match(element("calendar-selected-title").textContent, /19 de octubre/);
+  assert.equal(api.getData().logs["2026-10-22"], undefined);
+});
+
+test("calendar ignores logs from before the habit existed", () => {
+  const { api } = boot({
+    habits: [{ id: "a", title: "Pasear", category: "movimiento", createdAt: "2026-10-20", weeklyTarget: 3 }],
+    logs: {}
+  });
+  api.toggleHabit("a", "2026-10-19");
+  assert.equal(api.getData().logs["2026-10-19"], undefined);
+  assert.equal(api.getData().habits.length, 1);
+});
+
+test("motivational message follows progress and rotates on demand", () => {
+  const seed = {
+    habits: [
+      { id: "a", title: "Agua", category: "salud", createdAt: "2026-10-01", weeklyTarget: 7 },
+      { id: "b", title: "Leer", category: "mente", createdAt: "2026-10-01", weeklyTarget: 7 }
+    ],
+    logs: { "2026-10-18": ["a"], "2026-10-19": ["a"], "2026-10-20": ["a"] }
+  };
+  const { element } = boot(seed);
+  assert.equal(element("motivation-heading").textContent, "¡Tu racha está creciendo!");
+  const first = element("motivation-phrase").textContent;
+  element("motivation-next").handlers.click();
+  assert.notEqual(element("motivation-phrase").textContent, first);
+});
+
+test("notifications need an explicit user opt-in, and can be switched off", async () => {
+  const sent = [];
+  function FakeNotification(title, options) { sent.push({ title, options }); }
+  FakeNotification.permission = "default";
+  FakeNotification.requestPermission = async () => {
+    FakeNotification.permission = "granted";
+    return "granted";
+  };
+  const { api, element } = boot({
+    habits: [{ id: "a", title: "Leer", category: "mente", createdAt: "2026-10-01", weeklyTarget: 3 }],
+    logs: {}
+  }, 20, { secure: true, Notification: FakeNotification });
+  assert.equal(api.getData().settings.notificationEnabled, false);
+  assert.equal(sent.length, 0);
+  await element("notification-permission-btn").handlers.click();
+  assert.equal(api.getData().settings.notificationEnabled, true);
+  assert.equal(api.getData().settings.reminderEnabled, true);
+  assert.equal(sent.length, 1);
+  assert.match(sent[0].title, /HabitClik/);
+  await element("notification-permission-btn").handlers.click();
+  assert.equal(api.getData().settings.notificationEnabled, false);
+});
+
+test("alarm sound is opt-in and needs an available browser audio API", () => {
+  let played = 0;
+  class FakeAudioContext {
+    constructor() { this.currentTime = 0; this.state = "running"; this.destination = {}; }
+    createOscillator() {
+      return { frequency: { value: 0 }, connect() {}, start() { played++; }, stop() {} };
+    }
+    createGain() {
+      return { gain: { setValueAtTime() {}, exponentialRampToValueAtTime() {} }, connect() {} };
+    }
+  }
+  const { api, element } = boot(null, 20, { AudioContext: FakeAudioContext });
+  assert.equal(api.getData().settings.alarmEnabled, false);
+  assert.equal(played, 0);
+  element("alarm-enabled").checked = true;
+  element("alarm-enabled").handlers.change();
+  assert.equal(api.getData().settings.alarmEnabled, true);
+  assert.equal(played, 2);
+  element("alarm-enabled").checked = false;
+  element("alarm-enabled").handlers.change();
+  assert.equal(api.getData().settings.alarmEnabled, false);
+});
+
+test("calendar export creates a daily event with an alarm", async () => {
+  let blob;
+  const fakeUrl = {
+    createObjectURL(value) { blob = value; return "blob:habitclik-test"; },
+    revokeObjectURL() {}
+  };
+  const { element } = boot(null, 20, { URL: fakeUrl });
+  element("calendar-export-btn").handlers.click();
+  const text = await blob.text();
+  assert.match(text, /BEGIN:VCALENDAR/);
+  assert.match(text, /RRULE:FREQ=DAILY/);
+  assert.match(text, /BEGIN:VALARM/);
+  assert.match(text, /ACTION:DISPLAY/);
+  assert.match(text, /DTSTART:20261021T190000/);
 });
