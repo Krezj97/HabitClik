@@ -70,3 +70,26 @@ test("four original hero scenes are local, distinct and preloaded offline", () =
   assert.match(home,/id="journey-bar"/);
   assert.match(home,/id="achievement-list"/);
 });
+
+
+test("habits, daily completion and XP are shown before artwork and secondary content", () => {
+  const start = home.indexOf('id="today-view"');
+  const end = home.indexOf('id="stats-view"', start);
+  const section = home.slice(start,end);
+  const at = (id) => section.indexOf('id="' + id + '"');
+  for(const id of ["quick-progress-percent", "quick-progress-track", "habit-list", "journey-level",
+    "journey-bar", "hero-main", "motivation-heading", "weekly-strip"]) {
+    assert.ok(at(id) >= 0,id + " is missing from today's screen");
+  }
+  assert.ok(at("quick-progress-percent") < at("habit-list"),
+    "daily summary should precede habit actions");
+  assert.ok(at("habit-list") < at("journey-level"),
+    "habits should be immediately actionable before the XP panel");
+  assert.ok(at("journey-level") < at("hero-main"),
+    "experience progression should be above the decorated hero");
+  assert.ok(at("hero-main") < at("motivation-heading"),
+    "motivation stays secondary to practical actions");
+  assert.equal((home.match(/id="habit-list"/g) || []).length,1);
+  assert.match(css,/\.today-priority\s*\{/);
+  assert.match(css,/@media\s*\(max-width:\s*1230px\)/);
+});
