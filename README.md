@@ -15,9 +15,12 @@
 - 📴 Abrir y utilizar la aplicación sin conexión **después de una primera visita con conexión**.
 - ⏰ Activar un **aviso diario opcional** dentro de la aplicación y elegir la hora; se muestra una vez al día cuando la app está activa y hay metas pendientes.
 - 🔔 Activar voluntariamente **notificaciones del navegador**, sujetas a sus permisos y a que la app esté abierta/activa.
-- ♪ Elegir entre **cinco alarmas profesionales en WAV con licencia CC0** (Aurora, Pulse, Clásica, Destellos y Horizonte) o subir **un archivo de audio propio** (MP3, M4A, WAV, OGG, AAC o WebM, máximo 8 MB), escucharlo, regular su volumen o eliminarlo. El volumen final está limitado por el navegador y el dispositivo.
+- ♪ Elegir entre **cinco alarmas naturales y musicales en MP3 con licencia CC0** (Brisa, Luz, Despertar, Buen día y Bosque) o subir **un archivo de audio propio** (MP3, M4A, WAV, OGG, AAC o WebM, máximo 8 MB), escucharlo, regular su volumen o eliminarlo. El volumen final está limitado por el navegador y el dispositivo.
 - 📆 Exportar un archivo de calendario `.ics` con un evento diario recurrente y alarma previa para recibir avisos a través del calendario del dispositivo, incluso con HabitClik cerrada si el calendario lo permite.
 - 💬 Ver **frases motivacionales** según el progreso del día y la duración de la racha, o pulsar para cambiar de frase.
+- 🖼️ Cuatro ilustraciones vectoriales originales en el encabezado: amanecer, enfoque, bosque y celebración. Cambian según el progreso, y también puedes elegir otro paisaje.
+- ✨ **Experiencia y niveles:** +10 XP por hábito, +20 XP por completar todos los hábitos activos de un día, +35 XP por cada meta semanal lograda. Una barra muestra cuánto falta para el siguiente nivel.
+- 🏅 **Once insignias** por avances reales, rachas y metas. Los logros se ven en Estadísticas. Sin tablas de clasificación, presión social ni pérdidas de XP por descansar; los puntos se calculan desde el historial.
 
 ## Plan gratuito y Premium
 
@@ -83,11 +86,11 @@ El flujo de GitHub Actions `.github/workflows/tests.yml` ejecuta automáticament
 
 En **Avisos → Sonido de alarma → Mi alarma personalizada**, selecciona un archivo de audio desde tu dispositivo. La app lo guarda en **IndexedDB dentro de ese mismo navegador**, sin subirlo a servidores ni al repositorio. Al guardarlo, queda seleccionado automáticamente; puedes escucharlo con «Escuchar prueba» o eliminarlo desde «Eliminar audio».
 
-Las copias de seguridad JSON de hábitos guardan el nombre del tono seleccionado, **pero no incluyen el archivo de audio**. Si cambias de navegador o dispositivo, necesitas volver a añadirlo. El audio personalizado puede borrarse si eliminas los datos del sitio. Si tu navegador bloquea IndexedDB, la aplicación mostrará el problema y podrás seguir utilizando los cinco tonos integrados. Las alarmas solo funcionan mientras la aplicación está activa y el navegador permite reproducir sonido. Los cinco tonos integrados se distribuyen con su documentación de origen y licencia en [SOUND-LICENSES.md](SOUND-LICENSES.md).
+Las copias de seguridad JSON de hábitos guardan el nombre del tono seleccionado, **pero no incluyen el archivo de audio**. Si cambias de navegador o dispositivo, necesitas volver a añadirlo. El audio personalizado puede borrarse si eliminas los datos del sitio. Si tu navegador bloquea IndexedDB, la aplicación mostrará el problema y podrás seguir utilizando los cinco sonidos integrados. Las alarmas solo funcionan mientras la aplicación está activa y el navegador permite reproducir sonido. Los sonidos de la biblioteca se han cambiado por mezclas de naturaleza, campanillas y música licenciadas. Los cinco tonos integrados se distribuyen con su documentación de origen y licencia en [SOUND-LICENSES.md](SOUND-LICENSES.md).
 
 ## Diseño
 
-HabitClik utiliza una **paleta minimalista grafito y azul petróleo**, con fondo claro gris niebla, tarjetas blancas y acentos turquesa. Los botones, el calendario, las estadísticas y la sección de avisos comparten esta identidad moderna, con contraste legible en escritorio y móvil.
+HabitClik utiliza una **paleta moderna grafito y azul petróleo**, con turquesa suave, tarjetas blancas y una gran cabecera ilustrada con cuatro escenas originales. El diseño se adapta al progreso del día sin entorpecer la lectura.
 
 ## Privacidad y límites
 
