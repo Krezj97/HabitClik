@@ -791,7 +791,15 @@ async function importData(file) {
 }
 
 document.querySelectorAll("[data-view]").forEach((button) =>
-  button.addEventListener("click", () => showView(button.dataset.view)));
+  button.addEventListener("click", () => {
+    const target = button.dataset.view;
+    if (target !== currentView && window.history &&
+        typeof window.history.pushState === "function") {
+      const address = target === "today" ? "./index.html" : "./index.html#" + target;
+      window.history.pushState({ view: target }, "", address);
+    }
+    showView(target);
+  }));
 $("open-add-btn").addEventListener("click", () => openDialog());
 $("hero-scene-next").addEventListener("click", () => {
   heroSceneOffset = (heroSceneOffset + 1) % HERO_SCENES.length;
@@ -1035,6 +1043,7 @@ let deferredInstallPrompt = null;
 const installButton = $("install-app-btn");
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
+  if (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) return;
   deferredInstallPrompt = event;
   installButton.hidden = false;
 });
@@ -1073,7 +1082,13 @@ showPendingReminder();
 // Support direct deep links from the independent Avisos page.
 const route = window.location && window.location.hash.slice(1);
 if (route && ["today", "stats", "calendar"].includes(route)) showView(route);
-window.addEventListener("hashchange", () => {
-  const target = window.location.hash.slice(1);
-  if (["today", "stats", "calendar"].includes(target)) showView(target);
+function restoreViewFromAddress() {
+  const hash = window.location && window.location.hash ? window.location.hash.slice(1) : "";
+  showView(["today", "stats", "calendar"].includes(hash) ? hash : "today");
+}
+window.addEventListener("hashchange", restoreViewFromAddress);
+window.addEventListener("popstate", restoreViewFromAddress);
+window.addEventListener("pageshow", () => {
+  // Refresh daily progress after returning from Android's recents or another tab.
+  render();
 });
