@@ -13,6 +13,7 @@
 - 🗑️ Eliminar hábitos y su historial tras confirmación.
 - 📲 Instalar la web como aplicación cuando el navegador admita la instalación.
 - 📴 Abrir y utilizar la aplicación sin conexión **después de una primera visita con conexión**.
+- ⏰ Activar un **aviso diario opcional** dentro de la propia aplicación: aparece después de la hora elegida, una vez al día, cuando la web está abierta o vuelve a estar activa y aún hay metas pendientes.
 
 ## Ejecutar en local
 
@@ -45,7 +46,7 @@ La instalación depende del navegador y sus criterios. Conéctate al menos una v
 
 - `index.html`: paneles, formulario y metadatos PWA.
 - `styles.css`: diseño responsive.
-- `app.js`: hábitos, rachas, estadísticas, copias de seguridad e instalación.
+- `app.js`: hábitos, rachas, estadísticas, avisos locales, copias de seguridad e instalación.
 - `manifest.webmanifest`: identidad y configuración de instalación.
 - `sw.js`: caché de los recursos estáticos y navegación sin conexión.
 - `icon.svg` y `icons/`: iconos de la aplicación.
@@ -54,14 +55,14 @@ La instalación depende del navegador y sus criterios. Conéctate al menos una v
 
 Los datos se guardan **solo en el navegador y dispositivo utilizados**, no se sincronizan con otros dispositivos ni se envían a un servidor. Borrar los datos del sitio en el navegador puede eliminar tu progreso; usa **Exportar datos** con frecuencia. La instalación como PWA **no sustituye a una copia de seguridad**.
 
-Las rachas se calculan por días consecutivos con al menos una actividad completada. La racha por hábito requiere marcar ese hábito en días consecutivos. Si todavía no has marcado nada hoy, se considera la racha que continuaba ayer. Las metas semanales se cuentan de lunes a domingo, y cambiar una meta se aplica también al cálculo de las rachas anteriores (los registros diarios permanecen). Un hábito creado a mitad de semana no reduce automáticamente su meta de esa primera semana. No hay todavía recordatorios, inicio de sesión ni sincronización en la nube.
+Las rachas se calculan por días consecutivos con al menos una actividad completada. La racha por hábito requiere marcar ese hábito en días consecutivos. Si todavía no has marcado nada hoy, se considera la racha que continuaba ayer. Las metas semanales se cuentan de lunes a domingo, y cambiar una meta se aplica también al cálculo de las rachas anteriores (los registros diarios permanecen). Un hábito creado a mitad de semana no reduce automáticamente su meta de esa primera semana. Los avisos diarios **no son notificaciones push**: solo aparecen si HabitClik está abierta o vuelve a estar activa, y pueden no aparecer si el navegador suspende la pestaña. Están desactivados por defecto y no necesitan permisos del sistema. No hay notificaciones con la app cerrada, inicio de sesión ni sincronización en la nube.
 
 La primera vez se muestran tres hábitos de ejemplo que puedes eliminar o reemplazar.
 
 ## Próximos pasos sugeridos
 
 - Mejoras de historial y posibilidad de marcar días anteriores.
-- Recordatorios opcionales y mejoras adicionales de accesibilidad.
+- Notificaciones reales con la app cerrada (requerirían soporte de notificaciones push y una infraestructura adicional), y mejoras adicionales de accesibilidad.
 - Sincronización entre dispositivos con cuenta, si se necesita.
 - Pruebas automatizadas de flujos completos en distintos navegadores.
 
