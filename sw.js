@@ -1,17 +1,18 @@
 "use strict";
 
-const CACHE_NAME = "habitclik-static-v18";
+const CACHE_NAME = "habitclik-static-v19";
 const CACHE_PREFIX = "habitclik-static-";
 const ASSETS = [
   "./",
   "./index.html",
   "./avisos.html",
-  "./styles.css?v=18",
-  "./alarm-sounds.js?v=18",
-  "./progress.js?v=18",
-  "./app.js?v=18",
-  "./avisos.js?v=18",
-  "./phrases.js?v=18",
+  "./privacy.html",
+  "./styles.css?v=19",
+  "./alarm-sounds.js?v=19",
+  "./progress.js?v=19",
+  "./app.js?v=19",
+  "./avisos.js?v=19",
+  "./phrases.js?v=19",
   "./sounds/campanas.mp3",
   "./sounds/digital.mp3",
   "./sounds/clasica.mp3",
@@ -53,19 +54,17 @@ self.addEventListener("fetch", (event) => {
 
   // Try the network for documents; retain the last successful shell for offline access.
   if (request.mode === "navigate") {
+    const path = new URL(request.url).pathname;
+    const documentKey = path.endsWith("/avisos.html") ? "./avisos.html"
+      : path.endsWith("/privacy.html") ? "./privacy.html" : "./index.html";
     event.respondWith(
       fetch(request).then((response) => {
         if (response.ok) {
           const copy = response.clone();
-          event.waitUntil(caches.open(CACHE_NAME) .then((cache) => cache.put(
-            new URL(request.url).pathname.endsWith("/avisos.html") ? "./avisos.html" : "./index.html",
-            copy
-          )));
+          event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.put(documentKey, copy)));
         }
         return response;
-      }) .catch(() => caches.match(
-        new URL(request.url).pathname.endsWith("/avisos.html") ? "./avisos.html" : "./index.html"
-      ))
+      }).catch(() => caches.match(documentKey))
     );
     return;
   }
