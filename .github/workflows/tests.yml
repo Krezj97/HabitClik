@@ -19,6 +19,7 @@ jobs:
       - name: Check JavaScript syntax
         run: |
           node --check app.js
+          node --check progress.js
           node --check avisos.js
           node --check alarm-sounds.js
           node --check phrases.js
