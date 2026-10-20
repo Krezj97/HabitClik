@@ -9,9 +9,9 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-    <link rel="stylesheet" href="./styles.css?v=11" />
-    <script src="./alarm-sounds.js?v=11" defer></script>
-    <script src="./avisos.js?v=11" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=12" />
+    <script src="./alarm-sounds.js?v=12" defer></script>
+    <script src="./avisos.js?v=12" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -116,7 +116,8 @@
                 <input type="range" id="alarm-volume" min="10" max="100" step="10" value="50" />
                 <output for="alarm-volume" id="alarm-volume-value">50 %</output>
               </div>
-              <p class="settings-note">El nivel máximo ahora es más intenso. No aumenta el volumen general del móvil, y el modo silencio puede limitarlo.</p>
+              <p class="settings-note" id="alarm-volume-hint" role="status">Mueve el control y suéltalo para escuchar una prueba al volumen elegido.</p>
+              <p class="settings-note">El control modifica el sonido de HabitClik, no el volumen del sistema. El modo silencio puede limitarlo.</p>
               <div class="settings-actions">
                 <button type="button" class="settings-action" id="test-alarm-btn">♪ Escuchar prueba</button>
               </div>
