@@ -4,7 +4,7 @@
 
 ## Funcionalidades
 
-- ✅ Crear hábitos diarios y organizarlos por categoría.
+- ✅ Crear y **editar** hábitos diarios y organizarlos por categoría, conservando su historial al modificarlos.
 - 📅 Marcar o desmarcar los hábitos completados hoy.
 - 📊 Visualizar el progreso del día, la actividad semanal y las estadísticas de los últimos 7 días.
 - 🔥 Consultar la racha actual, la mejor racha general y las rachas de cada hábito.
