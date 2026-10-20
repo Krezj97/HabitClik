@@ -1,6 +1,7 @@
 "use strict";
 
 const STORAGE_KEY = "habitclik:v1";
+const FREE_HABIT_LIMIT = 3;
 const CATEGORIES = {
   salud: { label: "Salud", icon: "💧", background: "#e6f7ff" },
   movimiento: { label: "Movimiento", icon: "🏃", background: "#fff0de" },
@@ -47,11 +48,8 @@ function newId() {
 function starterData() {
   const now = keyForDate(new Date());
   return {
-    habits: [
-      { id: newId(), title: "Beber suficiente agua", category: "salud", createdAt: now, weeklyTarget: 7 },
-      { id: newId(), title: "Leer 15 minutos", category: "mente", createdAt: now, weeklyTarget: 7 },
-      { id: newId(), title: "Mover el cuerpo", category: "movimiento", createdAt: now, weeklyTarget: 7 }
-    ],
+    // Start with empty slots so a new user can choose all three free habits.
+    habits: [],
     logs: {},
     settings: {
       reminderEnabled: false, reminderTime: "19:00", lastRemindedAt: null,
@@ -402,7 +400,7 @@ function renderHabits() {
   $("habit-count").textContent = data.habits.length;
   if (!data.habits.length) {
     $("habit-list").innerHTML = '<div class="empty-state"><span class="empty-icon" aria-hidden="true">🌿</span>' +
-      '<h3>Todo gran cambio empieza aquí</h3><p>Crea tu primer hábito y da el paso de hoy.</p>' +
+      '<h3>Todo gran cambio empieza aquí</h3><p>Elige hasta 3 hábitos gratis y da el primer paso hoy.</p>' +
       '<button type="button" class="button-primary" data-action="new">Crear mi primer hábito</button></div>';
     return;
   }
@@ -619,6 +617,10 @@ function render() {
   $("stats-total").textContent = totalCompletions();
   $("stats-best").textContent = bestStreak() + " días";
   $("stats-count").textContent = total;
+  $("free-plan-count").textContent = total > FREE_HABIT_LIMIT
+    ? "Plan gratis · " + total + " existentes"
+    : "Plan gratis · " + total + "/" + FREE_HABIT_LIMIT;
+  $("free-plan-count").classList.toggle("is-full", total >= FREE_HABIT_LIMIT);
   renderWeek();
   renderWeeklyGoals();
   renderHabits();
@@ -644,9 +646,26 @@ function showView(view) {
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
+function showUpgradeDialog() {
+  const count = data.habits.length;
+  $("upgrade-plan-count").textContent = count + " de " + FREE_HABIT_LIMIT +
+    " hábitos" + (count > FREE_HABIT_LIMIT ? " existentes" : " utilizados");
+  $("upgrade-dialog").showModal();
+}
+
+function canAddHabit() {
+  // No paid entitlement is issued by the static site; a trustworthy
+  // Premium unlock will need server-side payment/identity verification.
+  return data.habits.length < FREE_HABIT_LIMIT;
+}
+
 function openDialog(id = null) {
-  $("habit-form").reset();
   const habit = typeof id === "string" ? data.habits.find((entry) => entry.id === id) : null;
+  if (!habit && !canAddHabit()) {
+    showUpgradeDialog();
+    return;
+  }
+  $("habit-form").reset();
   editingId = habit ? habit.id : null;
   $("dialog-title").textContent = habit ? "Edita tu hábito" : "Crea un hábito";
   $("save-habit-btn").innerHTML = habit
@@ -712,6 +731,12 @@ async function importData(file) {
   }
   try {
     const imported = normalizeData(JSON.parse(await file.text()));
+    if (imported.habits.length > FREE_HABIT_LIMIT) {
+      // Never drop history or silently remove habits from a backup.
+      showToast("La copia tiene más de 3 hábitos. No se puede importar en el plan gratis.");
+      showUpgradeDialog();
+      return;
+    }
     if (!confirm("¿Reemplazar todos tus hábitos y registros actuales por los de esta copia?")) return;
     data = imported;
     persist();
@@ -726,6 +751,9 @@ async function importData(file) {
 document.querySelectorAll("[data-view]").forEach((button) =>
   button.addEventListener("click", () => showView(button.dataset.view)));
 $("open-add-btn").addEventListener("click", () => openDialog());
+$("upgrade-info-btn").addEventListener("click", showUpgradeDialog);
+$("upgrade-close").addEventListener("click", () => $("upgrade-dialog").close());
+$("upgrade-dismiss").addEventListener("click", () => $("upgrade-dialog").close());
 $("close-dialog").addEventListener("click", () => $("habit-dialog").close());
 $("cancel-dialog").addEventListener("click", () => $("habit-dialog").close());
 
@@ -749,8 +777,11 @@ $("habit-form").addEventListener("submit", (event) => {
     habit.category = category;
     habit.weeklyTarget = weeklyTarget;
   } else {
-    if (data.habits.length >= 200) {
-      showToast("Has alcanzado el límite de 200 hábitos.");
+    // Guard the write as well as the add button: a previously opened form
+    // must not bypass the free quota.
+    if (!canAddHabit()) {
+      $("habit-dialog").close();
+      showUpgradeDialog();
       return;
     }
     data.habits.push({ id: newId(), title, category, createdAt: keyForDate(new Date()), weeklyTarget });
