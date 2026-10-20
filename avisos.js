@@ -11,7 +11,8 @@ const DEFAULTS = {
   lastRemindedAt: null,
   notificationEnabled: false,
   alarmEnabled: false,
-  alarmVolume: 50
+  alarmVolume: 50,
+  alarmTone: "campanas"
 };
 let settings = { ...DEFAULTS };
 let audioContext = null;
@@ -37,7 +38,9 @@ function sanitizedSettings(input) {
     notificationEnabled: s.notificationEnabled === true,
     alarmEnabled: s.alarmEnabled === true,
     alarmVolume: Number.isInteger(s.alarmVolume) && s.alarmVolume >= 10 &&
-      s.alarmVolume <= 100 ? s.alarmVolume : 50
+      s.alarmVolume <= 100 ? s.alarmVolume : 50,
+    alarmTone: window.HABITCLIK_SOUNDS &&
+      window.HABITCLIK_SOUNDS.isValid(s.alarmTone) ? s.alarmTone : "campanas"
   };
 }
 
@@ -102,6 +105,8 @@ function render() {
   $("reminder-enabled").checked = settings.reminderEnabled;
   $("reminder-time").value = settings.reminderTime;
   $("alarm-enabled").checked = settings.alarmEnabled;
+  $("alarm-tone").value = settings.alarmTone;
+  renderToneDescription();
   $("alarm-volume").value = String(settings.alarmVolume);
   $("alarm-volume-value").textContent = settings.alarmVolume + " %";
   $("reminder-overview").textContent = settings.reminderEnabled
@@ -131,36 +136,17 @@ function render() {
     : "Actívalas y concede el permiso. Después pulsa «Enviar prueba» para verificarlo.";
 }
 
+function renderToneDescription() {
+  const voices = window.HABITCLIK_SOUNDS && window.HABITCLIK_SOUNDS.choices;
+  const chosen = voices && voices.find((voice) => voice.id === settings.alarmTone);
+  $("alarm-tone-description").textContent = chosen
+    ? chosen.title + ": " + chosen.description + "."
+    : "Elige el sonido que más te guste y pulsa «Escuchar prueba».";
+}
+
 async function playSound() {
-  const Context = window.AudioContext || window.webkitAudioContext;
-  if (!Context) return false;
-  try {
-    if (!audioContext) audioContext = new Context();
-    if (audioContext.state === "suspended") {
-      if (typeof audioContext.resume !== "function") return false;
-      await audioContext.resume();
-      if (audioContext.state === "suspended") return false;
-    }
-    const gain = 0.18 * settings.alarmVolume / 100;
-    for (let i = 0; i < 3; i++) {
-      const start = audioContext.currentTime + 0.04 + i * 0.29;
-      const tone = audioContext.createOscillator();
-      const volume = audioContext.createGain();
-      tone.type = "sine";
-      tone.frequency.value = [659.25, 783.99, 987.77][i];
-      volume.gain.setValueAtTime(0.0001, start);
-      volume.gain.exponentialRampToValueAtTime(gain, start + 0.03);
-      volume.gain.exponentialRampToValueAtTime(0.0001, start + 0.24);
-      tone.connect(volume);
-      volume.connect(audioContext.destination);
-      tone.start(start);
-      tone.stop(start + 0.26);
-    }
-    return true;
-  } catch (error) {
-    console.warn("HabitClik: no se pudo reproducir el sonido.", error);
-    return false;
-  }
+  if (!window.HABITCLIK_SOUNDS) return false;
+  return window.HABITCLIK_SOUNDS.play(settings.alarmTone, settings.alarmVolume);
 }
 
 async function notify(message) {
@@ -302,6 +288,19 @@ $("reminder-time").addEventListener("change", () => {
   maybeRemind();
 });
 
+$("alarm-tone").addEventListener("change", () => {
+  const tone = $("alarm-tone").value;
+  if (!window.HABITCLIK_SOUNDS || !window.HABITCLIK_SOUNDS.isValid(tone)) {
+    render();
+    showToast("Selecciona uno de los cinco sonidos disponibles.");
+    return;
+  }
+  settings.alarmTone = tone;
+  saveSettings();
+  renderToneDescription();
+  showToast("Sonido seleccionado. Pulsa «Escuchar prueba» para oírlo.");
+});
+
 $("alarm-volume").addEventListener("input", () => {
   $("alarm-volume-value").textContent = $("alarm-volume").value + " %";
 });
@@ -317,7 +316,7 @@ $("test-alarm-btn").addEventListener("click", async () => {
   $("alarm-status").textContent = "Comprobando sonido…";
   const played = await playSound();
   $("alarm-status").textContent = played
-    ? "Prueba reproducida. Si no la oyes, revisa el volumen y el modo silencio."
+    ? "Sonido seleccionado reproducido. Si no lo oyes, comprueba el volumen y el modo silencio."
     : "El navegador no permitió el audio. Prueba otra vez o revisa el dispositivo.";
   showToast(played ? "♪ Prueba de sonido enviada." : "No fue posible reproducir la prueba.");
 });
