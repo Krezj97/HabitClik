@@ -1,21 +1,26 @@
 "use strict";
 
-const CACHE_NAME = "habitclik-static-v16";
+const CACHE_NAME = "habitclik-static-v17";
 const CACHE_PREFIX = "habitclik-static-";
 const ASSETS = [
   "./",
   "./index.html",
   "./avisos.html",
-  "./styles.css?v=16",
-  "./alarm-sounds.js?v=16",
-  "./app.js?v=16",
-  "./avisos.js?v=16",
-  "./phrases.js?v=16",
-  "./sounds/campanas.wav",
-  "./sounds/digital.wav",
-  "./sounds/clasica.wav",
-  "./sounds/alegre.wav",
-  "./sounds/energia.wav",
+  "./styles.css?v=17",
+  "./alarm-sounds.js?v=17",
+  "./progress.js?v=17",
+  "./app.js?v=17",
+  "./avisos.js?v=17",
+  "./phrases.js?v=17",
+  "./sounds/campanas.mp3",
+  "./sounds/digital.mp3",
+  "./sounds/clasica.mp3",
+  "./sounds/alegre.mp3",
+  "./sounds/energia.mp3",
+  "./art/amanecer.svg",
+  "./art/enfoque.svg",
+  "./art/bosque.svg",
+  "./art/celebracion.svg",
   "./manifest.webmanifest",
   "./icon.svg",
   "./icons/icon-192.png",
