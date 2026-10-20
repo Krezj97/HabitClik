@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#111b2b" />
+    <meta name="description" content="HabitClik: registra tus hábitos, celebra tus rachas y avanza cada día." />
+    <title>HabitClik · Pequeños pasos, grandes cambios</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navegación principal">
+        <div class="brand"><div class="brand-icon" aria-hidden="true">✓</div><span>Habit<span class="brand-accent">Clik</span></span></div>
+        <div class="sidebar-caption">TU ESPACIO DE CRECIMIENTO</div>
+        <nav class="main-nav" aria-label="Secciones">
+          <button class="nav-item is-active" type="button" data-view="today" aria-current="page"><span aria-hidden="true">◫</span> Mi día</button>
+          <button class="nav-item" type="button" data-view="stats"><span aria-hidden="true">▥</span> Estadísticas</button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="tip-card"><span class="tip-icon" aria-hidden="true">✦</span><strong>La constancia gana.</strong><p>No necesitas un día perfecto. Solo dar un paso más.</p></div>
+          <div class="data-actions"><button type="button" id="export-btn">↓ Exportar datos</button><button type="button" id="import-btn">↑ Importar datos</button></div>
+          <p class="privacy-note">Tus datos se guardan en este dispositivo.</p>
+        </div>
+      </aside>
+      <main class="main-content">
+        <header class="topbar">
+          <div><div class="eyebrow" id="greeting">TU RUTINA, TU RITMO</div><div class="topbar-title">Tu espacio para avanzar <span aria-hidden="true">✳</span></div></div>
+          <button class="button-primary top-add" type="button" id="open-add-btn"><span aria-hidden="true">＋</span> Nuevo hábito</button>
+        </header>
+
+        <section class="view" id="today-view" aria-labelledby="today-title">
+          <div class="hero">
+            <div class="hero-copy"><span class="hero-kicker">UN DÍA A LA VEZ <span aria-hidden="true">↗</span></span><h1 id="today-title">Haz que hoy cuente<span class="hero-dot">.</span></h1><p>Cada pequeño paso que das es parte de algo grande.</p><span id="current-date" class="date-chip"></span></div>
+            <div class="ring-panel"><svg class="progress-ring" viewBox="0 0 140 140" role="img" aria-labelledby="ring-title"><title id="ring-title">Progreso de hoy</title><circle class="ring-track" cx="70" cy="70" r="54"></circle><circle class="ring-fill" id="progress-circle" cx="70" cy="70" r="54"></circle></svg><div class="ring-label"><strong id="progress-number">0%</strong><span>completado</span></div></div>
+          </div>
+          <div class="stats-grid" aria-label="Resumen de hábitos">
+            <div class="stat-card"><span class="stat-emoji" aria-hidden="true">✓</span><div><span class="stat-label">Completados hoy</span><strong id="today-completed">0 / 0</strong></div></div>
+            <div class="stat-card"><span class="stat-emoji flame" aria-hidden="true">♨</span><div><span class="stat-label">Racha activa</span><strong id="current-streak">0 días</strong></div></div>
+            <div class="stat-card"><span class="stat-emoji star" aria-hidden="true">✳</span><div><span class="stat-label">Total de logros</span><strong id="total-completed">0</strong></div></div>
+          </div>
+          <section class="content-section" aria-labelledby="week-title"><div class="section-heading"><div><span class="section-overline">MIRA TU RECORRIDO</span><h2 id="week-title">Tu semana</h2></div><span class="subtle-text">Lunes a domingo</span></div><div class="weekly-strip" id="weekly-strip"></div></section>
+          <section class="content-section habit-section" aria-labelledby="habits-title"><div class="section-heading"><div><span class="section-overline">PEQUEÑOS COMPROMISOS</span><h2 id="habits-title">Tus hábitos <span class="count-pill" id="habit-count">0</span></h2></div><span class="subtle-text">Marca los que completes hoy</span></div><div id="habit-list" class="habit-list"></div></section>
+        </section>
+
+        <section class="view" id="stats-view" aria-labelledby="stats-title" hidden>
+          <div class="stats-hero"><span class="section-overline">CADA PASO IMPORTA</span><h1 id="stats-title">Tu progreso en perspectiva<span class="hero-dot">.</span></h1><p>Una mirada a los avances que has construido con constancia.</p></div>
+          <div class="stats-grid stats-page-grid">
+            <div class="stat-card"><span class="stat-emoji" aria-hidden="true">✓</span><div><span class="stat-label">Veces completados</span><strong id="stats-total">0</strong></div></div>
+            <div class="stat-card"><span class="stat-emoji flame" aria-hidden="true">♨</span><div><span class="stat-label">Mejor racha general</span><strong id="stats-best">0 días</strong></div></div>
+            <div class="stat-card"><span class="stat-emoji star" aria-hidden="true">✳</span><div><span class="stat-label">Hábitos activos</span><strong id="stats-count">0</strong></div></div>
+          </div>
+          <section class="content-section"><div class="section-heading"><div><span class="section-overline">ÚLTIMOS 7 DÍAS</span><h2>Actividad diaria</h2></div></div><div class="chart-card" id="weekly-chart"></div></section>
+          <section class="content-section"><div class="section-heading"><div><span class="section-overline">LO QUE ESTÁS CONSTRUYENDO</span><h2>Rachas por hábito</h2></div></div><div class="habit-list" id="habit-streak-list"></div></section>
+        </section>
+
+        <footer class="main-footer">Hecho para avanzar, a tu manera. <span aria-hidden="true">♥</span></footer>
+      </main>
+    </div>
+
+    <dialog id="habit-dialog" class="habit-dialog" aria-labelledby="dialog-title">
+      <form id="habit-form">
+        <div class="dialog-heading"><div><span class="section-overline">NUEVO COMIENZO</span><h2 id="dialog-title">Crea un hábito</h2></div><button class="icon-button" id="close-dialog" type="button" aria-label="Cerrar">×</button></div>
+        <p class="dialog-description">Elige algo pequeño que quieras repetir cada día.</p>
+        <label for="habit-name">Nombre del hábito</label><input id="habit-name" name="name" maxlength="60" minlength="2" required placeholder="Ej. Leer durante 15 minutos" autocomplete="off" />
+        <label for="habit-category">Categoría</label><select id="habit-category" name="category"><option value="salud">Salud</option><option value="movimiento">Movimiento</option><option value="mente">Mente</option><option value="productividad">Productividad</option><option value="bienestar">Bienestar</option><option value="otros">Otros</option></select>
+        <div class="dialog-actions"><button type="button" class="button-secondary" id="cancel-dialog">Cancelar</button><button type="submit" class="button-primary">Crear hábito <span aria-hidden="true">↗</span></button></div>
+      </form>
+    </dialog>
+    <input id="import-file" type="file" accept=".json,application/json" hidden />
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
