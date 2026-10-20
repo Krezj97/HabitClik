@@ -130,7 +130,15 @@ function showToast(message) {
 function loadData() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? normalizeData(JSON.parse(raw)) : starterData();
+    if (raw) return normalizeData(JSON.parse(raw));
+    const initial = starterData();
+    // A user can configure Avisos before opening the main dashboard.
+    const savedSettings = localStorage.getItem("habitclik:settings:v1");
+    if (savedSettings) {
+      const parsed = JSON.parse(savedSettings);
+      initial.settings = normalizeData({ habits: [], logs: {}, settings: parsed }).settings;
+    }
+    return initial;
   } catch (error) {
     console.warn("HabitClik: no se pudieron leer los datos locales.", error);
     return starterData();
@@ -1005,3 +1013,11 @@ if ("serviceWorker" in navigator && window.isSecureContext) {
 persist();
 render();
 showPendingReminder();
+
+// Support direct deep links from the independent Avisos page.
+const route = window.location && window.location.hash.slice(1);
+if (route && ["today", "stats", "calendar"].includes(route)) showView(route);
+window.addEventListener("hashchange", () => {
+  const target = window.location.hash.slice(1);
+  if (["today", "stats", "calendar"].includes(target)) showView(target);
+});
