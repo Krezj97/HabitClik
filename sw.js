@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "habitclik-static-v5";
+const CACHE_NAME = "habitclik-static-v6";
 const CACHE_PREFIX = "habitclik-static-";
 const ASSETS = [
   "./",
@@ -60,5 +60,16 @@ self.addEventListener("fetch", (event) => {
       }
       return response;
     }))
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(async (tabs) => {
+      const existing = tabs.find((tab) => tab.url.startsWith(self.registration.scope));
+      if (existing && "focus" in existing) return existing.focus();
+      if (self.clients.openWindow) return self.clients.openWindow(self.registration.scope);
+    })
   );
 });
