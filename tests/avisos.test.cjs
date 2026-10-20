@@ -84,12 +84,12 @@ function openAvisos(options = {}) {
 test("Avisos navigation uses an independent real HTML link", () => {
   assert.match(index, /<a[^>]+href="\.\/avisos\.html"[^>]*>[\s\S]*?Avisos<\/a>/);
   assert.match(html, /<title>Avisos · HabitClik<\/title>/);
-  assert.match(html, /<script src="\.\/avisos\.js\?v=15" defer><\/script>/);
+  assert.match(html, /<script src="\.\/avisos\.js\?v=16" defer><\/script>/);
   assert.doesNotMatch(html, /src="app\.js"/);
   for (const [,id] of script.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(html.includes('id="' + id + '"'), "missing on Avisos page: " + id);
   }
-  assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /habitclik-static-v15/);
+  assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /habitclik-static-v16/);
   assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /"\.\/avisos\.html"/);
 });
 
@@ -394,4 +394,62 @@ test("custom audio uses a gain node when mobile media volume cannot be changed",
   assert.equal(players[0].volume,1,"the web audio graph controls playback level");
   await page.nodes("alarm-volume").listeners.change();
   assert.equal(page.settings().alarmVolume,100);
+});
+
+
+test("licensed WAV recordings play as real audio while retaining the volume control", async () => {
+  const heard = [];
+  class FakeAudio {
+    constructor(path) {
+      this.path = path;
+      this.volume = -1;
+      this.listeners = {};
+    }
+    addEventListener(name, callback) { this.listeners[name] = callback; }
+    async play() { heard.push({ path: this.path, volume: this.volume }); }
+    pause() {}
+  }
+  const page = openAvisos({ Audio: FakeAudio, audio: false });
+  const expected = ["campanas", "digital", "clasica", "alegre", "energia"];
+  for (const name of expected) {
+    page.nodes("alarm-tone").value = name;
+    page.nodes("alarm-tone").listeners.change();
+    await page.nodes("test-alarm-btn").listeners.click();
+    const last = heard.at(-1);
+    assert.equal(last.path, "./sounds/" + name + ".wav");
+    assert.equal(last.volume, 0.5);
+  }
+  assert.equal(heard.length, 5);
+  page.nodes("alarm-volume").value = "90";
+  page.nodes("alarm-volume").listeners.input();
+  await page.nodes("alarm-volume").listeners.change();
+  assert.equal(heard.at(-1).volume, 0.9);
+});
+
+test("real WAV alarms feed a Web Audio gain node on mobile browsers", async () => {
+  const gainValues = [], played = [];
+  class Audio {
+    constructor(path) { this.path = path; this.listeners={}; this.volume=0; }
+    addEventListener(name,callback){this.listeners[name]=callback;}
+    async play(){played.push(this.path);}
+    pause(){}
+  }
+  class AudioContext {
+    constructor() {this.state="running"; this.currentTime=0; this.destination={};}
+    createMediaElementSource() {return {connect(){}};}
+    createGain() {
+      const node = {gain:{value:1},connect(){}};
+      gainValues.push(node);
+      return node;
+    }
+  }
+  const page = openAvisos({Audio, AudioContext});
+  await page.nodes("test-alarm-btn").listeners.click();
+  assert.equal(played.length,1);
+  assert.equal(gainValues.length,1);
+  const quiet = gainValues[0].gain.value;
+  page.nodes("alarm-volume").value="100";
+  page.nodes("alarm-volume").listeners.input();
+  const loud = gainValues[0].gain.value;
+  assert.ok(loud > quiet, "gain must change while playing a licensed WAV");
 });
