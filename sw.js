@@ -1,13 +1,15 @@
 "use strict";
 
-const CACHE_NAME = "habitclik-static-v8";
+const CACHE_NAME = "habitclik-static-v9";
 const CACHE_PREFIX = "habitclik-static-";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=8",
-  "./app.js?v=8",
-  "./phrases.js?v=8",
+  "./avisos.html",
+  "./styles.css?v=9",
+  "./app.js?v=9",
+  "./avisos.js?v=9",
+  "./phrases.js?v=9",
   "./manifest.webmanifest",
   "./icon.svg",
   "./icons/icon-192.png",
@@ -44,10 +46,15 @@ self.addEventListener("fetch", (event) => {
       fetch(request).then((response) => {
         if (response.ok) {
           const copy = response.clone();
-          event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.put("./index.html", copy)));
+          event.waitUntil(caches.open(CACHE_NAME) .then((cache) => cache.put(
+            new URL(request.url).pathname.endsWith("/avisos.html") ? "./avisos.html" : "./index.html",
+            copy
+          )));
         }
         return response;
-      }).catch(() => caches.match("./index.html"))
+      }) .catch(() => caches.match(
+        new URL(request.url).pathname.endsWith("/avisos.html") ? "./avisos.html" : "./index.html"
+      ))
     );
     return;
   }
