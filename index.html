@@ -6,6 +6,11 @@
     <meta name="theme-color" content="#111b2b" />
     <meta name="description" content="HabitClik: registra tus hábitos, celebra tus rachas y avanza cada día." />
     <title>HabitClik · Pequeños pasos, grandes cambios</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="stylesheet" href="styles.css" />
     <script src="app.js" defer></script>
   </head>
@@ -20,6 +25,7 @@
         </nav>
         <div class="sidebar-bottom">
           <div class="tip-card"><span class="tip-icon" aria-hidden="true">✦</span><strong>La constancia gana.</strong><p>No necesitas un día perfecto. Solo dar un paso más.</p></div>
+          <button type="button" id="install-app-btn" class="install-button" hidden>↧ Instalar HabitClik</button>
           <div class="data-actions"><button type="button" id="export-btn">↓ Exportar datos</button><button type="button" id="import-btn">↑ Importar datos</button></div>
           <p class="privacy-note">Tus datos se guardan en este dispositivo.</p>
         </div>
