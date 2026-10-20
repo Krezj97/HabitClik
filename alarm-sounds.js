@@ -55,6 +55,48 @@
   let customCache = null;
   let activeCustomAudio = null;
   let activeCustomUrl = null;
+  let activeGain = null;
+  let activeLevel = 50;
+  let activeBuiltinOscillators = [];
+
+  function clampLevel(value) {
+    return Number.isFinite(Number(value))
+      ? Math.min(100, Math.max(0, Number(value))) : 50;
+  }
+
+  // Wider perceived dynamic range than the original near-flat slider.
+  function loudness(level) {
+    return 0.008 + 0.492 * Math.pow(clampLevel(level) / 100, 2.2);
+  }
+
+  function setVolume(value) {
+    const level = clampLevel(value);
+    if (activeGain) {
+      const relative = loudness(level) / loudness(activeLevel);
+      activeGain.gain.value = relative;
+    }
+    if (activeCustomAudio && !activeGain) {
+      // Fallback for browsers without a Web Audio media-element source.
+      activeCustomAudio.volume = level / 100;
+    }
+    return level;
+  }
+
+  function stopPrevious() {
+    if (activeCustomAudio) {
+      activeCustomAudio.pause();
+      activeCustomAudio = null;
+    }
+    if (activeCustomUrl) {
+      window.URL.revokeObjectURL(activeCustomUrl);
+      activeCustomUrl = null;
+    }
+    for (const oscillator of activeBuiltinOscillators) {
+      try { oscillator.stop(); } catch (error) { /* already stopped */ }
+    }
+    activeBuiltinOscillators = [];
+    activeGain = null;
+  }
 
   function validateCustom(file) {
     if (!file || typeof file.size !== "number" || file.size < 1) {
@@ -136,14 +178,7 @@
   async function removeCustom() {
     await customTransaction("delete");
     customCache = null;
-    if (activeCustomAudio) {
-      activeCustomAudio.pause();
-      activeCustomAudio = null;
-    }
-    if (activeCustomUrl) {
-      URL.revokeObjectURL(activeCustomUrl);
-      activeCustomUrl = null;
-    }
+    stopPrevious();
   }
 
   async function getCustomInfo() {
@@ -152,26 +187,50 @@
   }
 
   async function playCustom(volume) {
+    // IndexedDB survives page reloads. A Web Audio gain node is essential here:
+    // several mobile browsers ignore changes to HTMLMediaElement.volume.
     const record = await getCustom();
     if (!record || !window.Audio || !window.URL || !window.URL.createObjectURL) return false;
+    let objectUrl = null;
+    let player = null;
+    stopPrevious();
     try {
-      if (activeCustomAudio) activeCustomAudio.pause();
-      if (activeCustomUrl) URL.revokeObjectURL(activeCustomUrl);
-      const objectUrl = window.URL.createObjectURL(record.blob);
-      const player = new window.Audio(objectUrl);
+      objectUrl = window.URL.createObjectURL(record.blob);
+      player = new window.Audio(objectUrl);
       activeCustomAudio = player;
       activeCustomUrl = objectUrl;
-      player.volume = Math.min(1, Math.max(0.1, Number(volume) / 100 || 0.5));
+      activeLevel = clampLevel(volume);
+
+      const Context = window.AudioContext || window.webkitAudioContext;
+      if (Context) {
+        if (!audioContext || audioContext.state === "closed") audioContext = new Context();
+        if (audioContext.state === "suspended" && typeof audioContext.resume === "function") {
+          await audioContext.resume();
+        }
+        if (audioContext.state !== "suspended" &&
+            typeof audioContext.createMediaElementSource === "function") {
+          const source = audioContext.createMediaElementSource(player);
+          const master = audioContext.createGain();
+          master.gain.value = loudness(activeLevel) / loudness(100);
+          source.connect(master);
+          master.connect(audioContext.destination);
+          activeGain = master;
+          // Route through Web Audio rather than iOS's fixed media volume.
+          player.volume = 1;
+        }
+      }
+      if (!activeGain) player.volume = clampLevel(volume) / 100;
+
       const release = () => {
         if (activeCustomAudio === player) {
           activeCustomAudio = null;
+          activeGain = null;
           activeCustomUrl = null;
           window.URL.revokeObjectURL(objectUrl);
         }
       };
       player.addEventListener("ended", release, { once: true });
       player.addEventListener("error", release, { once: true });
-      // User files can be much longer than the built-in alarms.
       player.addEventListener("timeupdate", () => {
         if (player.currentTime >= 12) {
           player.pause();
@@ -181,19 +240,22 @@
       await player.play();
       return true;
     } catch (error) {
-      console.warn("HabitClik: el formato del archivo no se pudo reproducir.", error);
+      console.warn("HabitClik: no se pudo reproducir el archivo.", error);
+      if (player) player.pause();
+      if (objectUrl) window.URL.revokeObjectURL(objectUrl);
+      activeCustomAudio = null;
+      activeCustomUrl = null;
+      activeGain = null;
       return false;
     }
   }
-
 
   async function play(id, volume = 50) {
     if (id === CUSTOM_ID) return playCustom(volume);
     const Context = window.AudioContext || window.webkitAudioContext;
     if (!Context) return false;
     const pattern = Object.hasOwn(patterns, id) ? patterns[id] : patterns.campanas;
-    const level = Number.isFinite(Number(volume))
-      ? Math.min(100, Math.max(10, Number(volume))) : 50;
+    const level = clampLevel(volume);
 
     try {
       if (!audioContext || audioContext.state === "closed") audioContext = new Context();
@@ -203,9 +265,13 @@
         if (audioContext.state === "suspended") return false;
       }
 
-      // Significantly louder than the old 0.18 * volume implementation,
-      // while keeping each oscillator below 0.5 amplitude to limit clipping.
-      const peakGain = (0.08 + 0.42 * level / 100) * pattern.strength;
+      stopPrevious();
+      activeLevel = level;
+      const peakGain = loudness(level) * pattern.strength;
+      const master = audioContext.createGain();
+      master.gain.value = 1;
+      master.connect(audioContext.destination);
+      activeGain = master;
       let when = audioContext.currentTime + 0.035;
       for (const [frequency, duration, advance] of pattern.notes) {
         const oscillator = audioContext.createOscillator();
@@ -216,7 +282,8 @@
         envelope.gain.exponentialRampToValueAtTime(peakGain, when + 0.02);
         envelope.gain.exponentialRampToValueAtTime(0.0001, when + duration);
         oscillator.connect(envelope);
-        envelope.connect(audioContext.destination);
+        envelope.connect(master);
+        activeBuiltinOscillators.push(oscillator);
         oscillator.start(when);
         oscillator.stop(when + duration + 0.01);
         when += advance;
@@ -229,7 +296,7 @@
   }
 
   window.HABITCLIK_SOUNDS = Object.freeze({
-    choices, play, customId: CUSTOM_ID, saveCustom, getCustomInfo, removeCustom,
+    choices, play, setVolume, customId: CUSTOM_ID, saveCustom, getCustomInfo, removeCustom,
     isValid: (value) => value === CUSTOM_ID || choices.some((choice) => choice.id === value)
   });
 })();
