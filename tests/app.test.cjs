@@ -32,8 +32,8 @@ function boot(seed, hour = 20, options = {}) {
         setAttribute() {},
         removeAttribute() {},
         reset() { element("habit-target").value = "7"; },
-        showModal() {},
-        close() {},
+        showModal() { this.isOpen = true; },
+        close() { this.isOpen = false; },
         focus() {},
         click() {},
         remove() {}
@@ -183,7 +183,7 @@ test("PWA shell and DOM references remain consistent", () => {
   for (const [, id] of source.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(ids.has(id), "missing DOM element " + id);
   }
-  assert.match(sw, /habitclik-static-v12/);
+  assert.match(sw, /habitclik-static-v13/);
   assert.equal((css.match(/{/g) ?? []).length, (css.match(/}/g) ?? []).length);
   for (const icon of manifest.icons) {
     assert.ok(fs.existsSync(path.join(root, icon.src)), "missing icon " + icon.src);
@@ -373,4 +373,104 @@ test("older habits receive the default alarm without overwriting other preferenc
   assert.equal(imported.settings.alarmTone, "digital");
   assert.equal(imported.settings.alarmEnabled, true);
   assert.equal(imported.settings.alarmVolume, 70);
+});
+
+test("new users have three usable free slots rather than three pre-filled demo habits", () => {
+  const { api, element } = boot();
+  assert.equal(api.getData().habits.length, 0);
+  assert.equal(element("free-plan-count").textContent, "Plan gratis · 0/3");
+  element("open-add-btn").handlers.click();
+  assert.equal(element("habit-dialog").isOpen, true);
+});
+
+test("free plan allows exactly three new habits and blocks the fourth", () => {
+  const { api, element, storage } = boot();
+  for (let n = 1; n <= 3; n++) {
+    element("open-add-btn").handlers.click();
+    element("habit-name").value = "Nuevo hábito " + n;
+    element("habit-category").value = "mente";
+    element("habit-target").value = "5";
+    element("habit-form").handlers.submit({ preventDefault() {} });
+    assert.equal(api.getData().habits.length, n);
+    assert.equal(element("free-plan-count").textContent, "Plan gratis · " + n + "/3");
+  }
+  element("open-add-btn").handlers.click();
+  assert.equal(element("upgrade-dialog").isOpen, true);
+  assert.equal(element("habit-dialog").isOpen, false);
+  assert.equal(api.getData().habits.length, 3);
+
+  // Guard at submit too: a stale/open developer-triggered form cannot add a fourth.
+  element("habit-name").value = "Intento de cuarto";
+  element("habit-category").value = "mente";
+  element("habit-target").value = "7";
+  element("habit-form").handlers.submit({ preventDefault() {} });
+  assert.equal(api.getData().habits.length, 3);
+  assert.equal(JSON.parse(storage.get("habitclik:v1")).habits.length, 3);
+  assert.equal(element("upgrade-dialog").isOpen, true);
+  element("upgrade-dismiss").handlers.click();
+  assert.equal(element("upgrade-dialog").isOpen, false);
+});
+
+test("editing and completing existing habits remain free when quota is full", () => {
+  const habits = Array.from({ length: 3 }, (_, i) => ({
+    id: "h" + i, title: "Hábito " + i, category: "salud",
+    createdAt: "2026-10-01", weeklyTarget: 7
+  }));
+  const { api, element } = boot({ habits, logs: {} });
+  element("habit-list").handlers.click({
+    target: { closest() { return { dataset: { action: "edit", id: "h1" } }; } }
+  });
+  assert.equal(element("habit-dialog").isOpen, true);
+  element("habit-name").value = "Hábito actualizado";
+  element("habit-target").value = "4";
+  element("habit-form").handlers.submit({ preventDefault() {} });
+  assert.equal(api.getData().habits.length, 3);
+  assert.equal(api.getData().habits[1].title, "Hábito actualizado");
+  api.toggleHabit("h1");
+  assert.ok(api.getData().logs["2026-10-20"].includes("h1"));
+});
+
+test("existing users with more than three habits keep their history without gaining new slots", () => {
+  const habits = Array.from({ length: 4 }, (_, i) => ({
+    id: "h" + i, title: "Hábito " + i, category: "salud",
+    createdAt: "2026-10-01", weeklyTarget: 7
+  }));
+  const { api, element } = boot({ habits, logs: { "2026-10-19": ["h3"] } });
+  assert.equal(api.getData().habits.length, 4);
+  assert.deepEqual(Array.from(api.getData().logs["2026-10-19"]), ["h3"]);
+  assert.match(element("free-plan-count").textContent, /4 existentes/);
+  element("open-add-btn").handlers.click();
+  assert.equal(element("upgrade-dialog").isOpen, true);
+  assert.equal(api.getData().habits.length, 4);
+  api.toggleHabit("h3");
+  assert.ok(api.getData().logs["2026-10-20"].includes("h3"));
+});
+
+test("backup imports cannot bypass the free limit or silently delete imported history", async () => {
+  const { api, element } = boot();
+  const makeBackup = (count) => ({
+    habits: Array.from({ length: count }, (_, i) => ({
+      id: "h" + i, title: "Hábito " + i, category: "salud",
+      createdAt: "2026-10-01", weeklyTarget: 7
+    })),
+    logs: { "2026-10-19": ["h0"] }
+  });
+  await element("import-file").handlers.change({
+    target: { files: [{ size: 2000, text: async () => JSON.stringify(makeBackup(4)) }], value: "" }
+  });
+  assert.equal(api.getData().habits.length, 0);
+  assert.equal(element("upgrade-dialog").isOpen, true);
+  assert.match(element("toast").textContent, /más de 3 hábitos/);
+  await element("import-file").handlers.change({
+    target: { files: [{ size: 2000, text: async () => JSON.stringify(makeBackup(3)) }], value: "" }
+  });
+  assert.equal(api.getData().habits.length, 3);
+  assert.ok(api.getData().logs["2026-10-19"].includes("h0"));
+});
+
+test("the Premium dialog discloses that billing is not enabled", () => {
+  const html = require("node:fs").readFileSync(require("node:path").join(root, "index.html"), "utf8");
+  assert.match(html, /id="upgrade-dialog"/);
+  assert.match(html, /Premium todavía no está disponible/);
+  assert.match(html, /No es posible comprar o desbloquear Premium/);
 });
