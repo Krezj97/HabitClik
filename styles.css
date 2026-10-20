@@ -547,3 +547,36 @@ button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible
   .custom-alarm-area { padding: 14px; }
   .custom-upload-btn { width: 100%; }
 }
+
+/* Small, clear free-plan quota and upgrade info */
+.topbar-actions { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; justify-content: flex-end; }
+.free-plan-label {
+  display: inline-flex; align-items: center; min-height: 34px;
+  padding: 7px 11px; background: #edf5ef; color: #426a56;
+  border: 1px solid #daeadd; border-radius: 999px;
+  font-size: 11px; font-weight: 800; white-space: nowrap;
+}
+.free-plan-label.is-full { background: #f2f2ee; border-color: #e6e9e0; color: #647267; }
+.plan-info-link { background: transparent; color: #427668; border: 0; padding: 8px; font-size: 12px; font-weight: 750; text-decoration: underline; text-underline-offset: 3px; }
+.plan-info-link:hover { color: #244b3f; }
+.upgrade-dialog { max-width: 480px; }
+.upgrade-plan-card {
+  background: #f0f6f1; border: 1px solid #deecdf;
+  border-radius: 14px; padding: 19px; margin-top: 18px;
+}
+.upgrade-plan-card .upgrade-label { color: #54796a; letter-spacing: 1.6px; font-weight: 850; font-size: 10px; }
+.upgrade-plan-card strong { display: block; margin-top: 10px; color: #315647; font-size: 19px; letter-spacing: -.5px; }
+.upgrade-plan-card p { color: #6b8276; line-height: 1.6; font-size: 12px; margin: 10px 0 0; }
+.upgrade-notice { margin-top: 15px; padding: 15px 18px; border: 1px solid #ebe9dc; background: #faf9f3; border-radius: 13px; }
+.upgrade-notice strong { font-size: 13px; color: #6b613f; }
+.upgrade-notice p { font-size: 12px; line-height: 1.65; color: #8b826b; margin: 8px 0 0; }
+@media (max-width: 760px) {
+  .topbar-actions { gap: 7px; }
+  .free-plan-label { min-height: 30px; font-size: 10px; padding: 6px 9px; }
+}
+@media (max-width: 470px) {
+  .topbar { flex-wrap: wrap; }
+  .topbar-actions { width: 100%; justify-content: space-between; }
+  .topbar-actions .top-add { flex: 1 1 auto; }
+  .upgrade-dialog { padding: 22px 18px; }
+}
