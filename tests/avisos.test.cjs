@@ -56,6 +56,9 @@ function openAvisos(options = {}) {
     createGain() {return {gain:{setValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){}};}
   }
   if (options.audio !== false) window.AudioContext = AudioContext;
+  if (options.indexedDB) window.indexedDB = options.indexedDB;
+  if (options.Audio) window.Audio = options.Audio;
+  window.URL = options.URL ?? { createObjectURL: () => "blob:custom-test", revokeObjectURL() {} };
 
   const localStorage = {
     getItem(k) {return saved.get(k) ?? null;},
@@ -68,7 +71,7 @@ function openAvisos(options = {}) {
   const context = {
     window,document,localStorage,Date:FixedDate,
     navigator:options.navigator ?? {},
-    URL:{ createObjectURL:()=>"blob:test", revokeObjectURL(){} },
+    URL:window.URL,
     Blob,
     clearTimeout(){},setTimeout(){return 1;},setInterval(){},
     console:{warn(){}}
@@ -81,12 +84,12 @@ function openAvisos(options = {}) {
 test("Avisos navigation uses an independent real HTML link", () => {
   assert.match(index, /<a[^>]+href="\.\/avisos\.html"[^>]*>[\s\S]*?Avisos<\/a>/);
   assert.match(html, /<title>Avisos · HabitClik<\/title>/);
-  assert.match(html, /<script src="\.\/avisos\.js\?v=10" defer><\/script>/);
+  assert.match(html, /<script src="\.\/avisos\.js\?v=11" defer><\/script>/);
   assert.doesNotMatch(html, /src="app\.js"/);
   for (const [,id] of script.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(html.includes('id="' + id + '"'), "missing on Avisos page: " + id);
   }
-  assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /habitclik-static-v10/);
+  assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /habitclik-static-v11/);
   assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /"\.\/avisos\.html"/);
 });
 
@@ -232,4 +235,96 @@ test("maximum slider setting generates a stronger signal than the old alarm", as
   assert.ok(high>low);
   assert.ok(high>0.18,"the new 100% output should exceed old maximum gain");
   assert.ok(high<=0.5,"do not exceed the intended per-voice output cap");
+});
+
+
+function fakeAudioStorage() {
+  const records = new Map();
+  let ready = false;
+  return {
+    records,
+    open() {
+      const request = { result: null, error: null };
+      queueMicrotask(() => {
+        const db = {
+          objectStoreNames: { contains: () => ready },
+          createObjectStore() { ready = true; },
+          close() {},
+          transaction() {
+            const tx = {
+              error: null, oncomplete: null, onerror: null, onabort: null,
+              objectStore() {
+                return {
+                  get(key) { return requestFor(records.get(key)); },
+                  put(value, key) { records.set(key, value); return requestFor(key); },
+                  delete(key) { records.delete(key); return requestFor(undefined); }
+                };
+              }
+            };
+            function requestFor(value) {
+              const req = { result: undefined, error: null, onsuccess: null };
+              queueMicrotask(() => {
+                req.result = value;
+                req.onsuccess?.();
+                queueMicrotask(() => tx.oncomplete?.());
+              });
+              return req;
+            }
+            return tx;
+          }
+        };
+        request.result = db;
+        if (!ready) request.onupgradeneeded?.();
+        request.onsuccess?.();
+      });
+      return request;
+    }
+  };
+}
+
+test("custom alarm file uploads, persists locally, previews and can be removed", async () => {
+  const indexedDB = fakeAudioStorage();
+  const played = [];
+  class Audio {
+    constructor(url) { this.url = url; this.volume = 0; this.listeners = {}; }
+    addEventListener(name, handler) { this.listeners[name] = handler; }
+    async play() { played.push({ url: this.url, volume: this.volume }); }
+    pause() {}
+  }
+  const page = openAvisos({ indexedDB, Audio });
+  const file = new Blob(["local audio data"], { type: "audio/mpeg" });
+  file.name = "mi-cancion.mp3";
+  await page.nodes("alarm-custom-file").listeners.change({ target: { files: [file] } });
+  assert.equal(page.settings().alarmTone, "personalizada");
+  assert.ok(indexedDB.records.has("selected"));
+  assert.match(page.nodes("alarm-custom-status").textContent, /mi-cancion\.mp3/);
+  assert.equal(page.nodes("alarm-custom-choice").disabled, false);
+  assert.equal(page.nodes("alarm-custom-remove").hidden, false);
+  await page.nodes("test-alarm-btn").listeners.click();
+  assert.equal(played.length, 1);
+  assert.equal(played[0].volume, 0.5);
+  page.nodes("alarm-volume").value = "90";
+  page.nodes("alarm-volume").listeners.change();
+  await page.nodes("test-alarm-btn").listeners.click();
+  assert.equal(played[1].volume, 0.9);
+  await page.nodes("alarm-custom-remove").listeners.click();
+  assert.equal(page.settings().alarmTone, "campanas");
+  assert.equal(indexedDB.records.has("selected"), false);
+  assert.equal(page.nodes("alarm-custom-choice").disabled, true);
+  assert.equal(page.nodes("alarm-custom-remove").hidden, true);
+});
+
+test("oversized or unsupported files cannot replace the saved alarm", async () => {
+  const indexedDB = fakeAudioStorage();
+  const page = openAvisos({ indexedDB });
+  const invalid = new Blob(["not audio"], { type: "text/plain" });
+  invalid.name = "a.txt";
+  await page.nodes("alarm-custom-file").listeners.change({ target: { files: [invalid] } });
+  assert.equal(page.settings().alarmTone, "campanas");
+  assert.match(page.nodes("alarm-custom-status").textContent, /MP3|audio/i);
+  assert.equal(indexedDB.records.has("selected"), false);
+  const tooLarge = { name: "long.wav", type: "audio/wav", size: 9 * 1024 * 1024 };
+  await page.nodes("alarm-custom-file").listeners.change({ target: { files: [tooLarge] } });
+  assert.match(page.nodes("alarm-custom-status").textContent, /8 MB/);
+  assert.equal(indexedDB.records.has("selected"), false);
 });
