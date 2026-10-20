@@ -760,18 +760,21 @@ $("motivation-next").addEventListener("click", () => {
   motivationShift++;
   renderMotivation();
 });
-$("calendar-prev").addEventListener("click", () => {
-  calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1, 12);
-  renderCalendar();
-});
-$("calendar-next").addEventListener("click", () => {
-  const next = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1, 12);
+function moveCalendarMonth(direction) {
+  const next = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + direction, 1, 12);
   const now = new Date();
   if (next.getFullYear() > now.getFullYear() ||
       (next.getFullYear() === now.getFullYear() && next.getMonth() > now.getMonth())) return;
+  const desiredDay = localDate(calendarSelectedKey).getDate();
+  const lastDay = new Date(next.getFullYear(), next.getMonth() + 1, 0, 12).getDate();
+  const candidate = keyForDate(new Date(next.getFullYear(), next.getMonth(),
+    Math.min(desiredDay, lastDay), 12));
   calendarMonth = next;
+  calendarSelectedKey = candidate > keyForDate(now) ? keyForDate(now) : candidate;
   renderCalendar();
-});
+}
+$("calendar-prev").addEventListener("click", () => moveCalendarMonth(-1));
+$("calendar-next").addEventListener("click", () => moveCalendarMonth(1));
 $("calendar-today").addEventListener("click", () => {
   calendarSelectedKey = keyForDate(new Date());
   calendarMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1, 12);
