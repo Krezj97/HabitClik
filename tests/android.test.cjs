@@ -52,6 +52,7 @@ test("public privacy document and offline navigation fallback are present", () =
   assert.match(sw,/"\.\/privacy\.html"/);
   assert.match(sw,/path\.endsWith\("\/privacy\.html"\)/);
   assert.match(sw,/habitclik-static-v19/);
+  assert.match(read("avisos.js"),/navigator\.serviceWorker\.register\("\.\/sw\.js"\)/);
 });
 
 test("Android back/forward navigation and resume refresh are handled in dashboard", () => {
