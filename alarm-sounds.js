@@ -211,15 +211,22 @@
         }
         if (audioContext.state !== "suspended" &&
             typeof audioContext.createMediaElementSource === "function") {
-          const source = audioContext.createMediaElementSource(player);
-          const master = audioContext.createGain();
-          master.gain.value = loudness(activeLevel) / loudness(100);
-          source.connect(master);
-          master.connect(audioContext.destination);
-          activeGain = master;
-          activeGainBase = master.gain.value;
-          // Route through Web Audio rather than iOS's fixed media volume.
-          player.volume = 1;
+          try {
+            const source = audioContext.createMediaElementSource(player);
+            const master = audioContext.createGain();
+            master.gain.value = loudness(activeLevel) / loudness(100);
+            source.connect(master);
+            master.connect(audioContext.destination);
+            activeGain = master;
+            activeGainBase = master.gain.value;
+            // Route through Web Audio rather than mobile's fixed media volume.
+            player.volume = 1;
+          } catch (error) {
+            // Some browsers do not expose this routing for their audio element.
+            console.warn("HabitClik: ruta Web Audio no disponible; usando el reproductor.", error);
+            activeGain = null;
+            activeGainBase = 1;
+          }
         }
       }
       if (!activeGain) player.volume = clampLevel(volume) / 100;
