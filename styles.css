@@ -207,3 +207,17 @@ h1 { line-height: 1.06; letter-spacing: -2.3px; }
 .field-hint { margin: 8px 0 0; color: #7d8a95; font-size: 11px; line-height: 1.5; }
 @media (max-width: 960px) { .weekly-goals-list { grid-template-columns: 1fr; } }
 @media (max-width: 470px) { .weekly-goal-card { padding: 14px; } }
+
+/* Opt-in foreground reminders */
+.reminder-box { border: 1px solid #435566; background: #1a2b3d; padding: 14px 15px; margin-top: 14px; border-radius: 13px; }
+.reminder-title { color: #d2ecce; font-size: 12px; font-weight: 800; margin-bottom: 13px; }
+.reminder-switch { display: flex; gap: 9px; align-items: center; font-size: 11px; color: #dfebef; font-weight: 650; cursor: pointer; }
+.reminder-switch input { width: 16px; height: 16px; accent-color: #b7ef82; margin: 0; }
+.reminder-time-label { display: block; margin: 12px 0 5px; color: #a5b7c7; font-size: 11px; }
+.reminder-box input[type="time"] { width: 100%; color: white; background: #283b4b; border: 1px solid #4a6273; border-radius: 9px; padding: 9px 10px; color-scheme: dark; }
+.reminder-help { color: #90a1b4; font-size: 10px; line-height: 1.5; margin: 8px 0 0; }
+@media (max-width: 760px) {
+  .reminder-box { margin: 12px 0 0; padding: 12px; }
+  .reminder-box input[type="time"] { max-width: 180px; }
+  .reminder-help { max-width: 350px; }
+}
