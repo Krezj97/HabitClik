@@ -77,7 +77,7 @@ test("levels are monotonic and badges arise from historical milestones", () => {
     logs[date]=["a"];
   }
   const p=e.calculate({habits:[habit("a")],logs},DATE);
-  assert.equal(p.xp,635); // 20*10 + 20*20 + weekly goals: 1 week target 7? 20 days spans 3 weeks; 1? see below
+  assert.equal(p.xp,670); // 20*10 + 20*20 + two full 7-day weekly goals
   assert.ok(p.level>=3);
   assert.equal(p.metrics.bestStreak,20);
   assert.ok(p.badges.find(x=>x.id==="siete-rachas").unlocked);
