@@ -4,10 +4,10 @@
 
 ## Funcionalidades
 
-- ✅ Crear y **editar** hábitos diarios y organizarlos por categoría, conservando su historial al modificarlos.
+- ✅ Crear y **editar** hábitos diarios o con objetivo de **1 a 7 días por semana**, conservando el historial al modificarlos.
 - 📅 Marcar o desmarcar los hábitos completados hoy.
-- 📊 Visualizar el progreso del día, la actividad semanal y las estadísticas de los últimos 7 días.
-- 🔥 Consultar la racha actual, la mejor racha general y las rachas de cada hábito.
+- 📊 Visualizar el progreso del día, las metas semanales de lunes a domingo, la actividad semanal y las estadísticas de los últimos 7 días.
+- 🔥 Consultar la racha general de días activos y las rachas por hábito: en días para hábitos diarios y en semanas completas con la meta alcanzada para los demás.
 - 💾 Guardar automáticamente los datos en el navegador (`localStorage`).
 - ⬇️ Exportar una copia de seguridad JSON e importar datos previamente exportados.
 - 🗑️ Eliminar hábitos y su historial tras confirmación.
@@ -54,13 +54,13 @@ La instalación depende del navegador y sus criterios. Conéctate al menos una v
 
 Los datos se guardan **solo en el navegador y dispositivo utilizados**, no se sincronizan con otros dispositivos ni se envían a un servidor. Borrar los datos del sitio en el navegador puede eliminar tu progreso; usa **Exportar datos** con frecuencia. La instalación como PWA **no sustituye a una copia de seguridad**.
 
-Las rachas se calculan por días consecutivos con al menos una actividad completada. La racha por hábito requiere marcar ese hábito en días consecutivos. Si todavía no has marcado nada hoy, se considera la racha que continuaba ayer. Por ahora todos los hábitos son diarios; no hay recordatorios, inicio de sesión ni sincronización en la nube.
+Las rachas se calculan por días consecutivos con al menos una actividad completada. La racha por hábito requiere marcar ese hábito en días consecutivos. Si todavía no has marcado nada hoy, se considera la racha que continuaba ayer. Las metas semanales se cuentan de lunes a domingo, y cambiar una meta se aplica también al cálculo de las rachas anteriores (los registros diarios permanecen). Un hábito creado a mitad de semana no reduce automáticamente su meta de esa primera semana. No hay todavía recordatorios, inicio de sesión ni sincronización en la nube.
 
 La primera vez se muestran tres hábitos de ejemplo que puedes eliminar o reemplazar.
 
 ## Próximos pasos sugeridos
 
-- Edición de hábitos y metas personalizadas (por ejemplo, tres veces por semana).
+- Mejoras de historial y posibilidad de marcar días anteriores.
 - Recordatorios opcionales y mejoras adicionales de accesibilidad.
 - Sincronización entre dispositivos con cuenta, si se necesita.
 - Pruebas automatizadas de flujos completos en distintos navegadores.
