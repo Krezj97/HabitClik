@@ -1,16 +1,16 @@
 "use strict";
 
-const CACHE_NAME = "habitclik-static-v10";
+const CACHE_NAME = "habitclik-static-v11";
 const CACHE_PREFIX = "habitclik-static-";
 const ASSETS = [
   "./",
   "./index.html",
   "./avisos.html",
-  "./styles.css?v=10",
-  "./alarm-sounds.js?v=10",
-  "./app.js?v=10",
-  "./avisos.js?v=10",
-  "./phrases.js?v=10",
+  "./styles.css?v=11",
+  "./alarm-sounds.js?v=11",
+  "./app.js?v=11",
+  "./avisos.js?v=11",
+  "./phrases.js?v=11",
   "./manifest.webmanifest",
   "./icon.svg",
   "./icons/icon-192.png",
