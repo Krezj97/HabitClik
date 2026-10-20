@@ -5,7 +5,7 @@
 ## Funcionalidades
 
 - ✅ Crear y **editar** hábitos diarios o con objetivo de **1 a 7 días por semana**, conservando el historial al modificarlos.
-- 📅 Marcar o desmarcar los hábitos completados hoy.
+- 📅 Marcar o desmarcar hábitos hoy o desde la sección **Calendario** para completar días pasados (nunca días futuros ni anteriores a la creación del hábito).
 - 📊 Visualizar el progreso del día, las metas semanales de lunes a domingo, la actividad semanal y las estadísticas de los últimos 7 días.
 - 🔥 Consultar la racha general de días activos y las rachas por hábito: en días para hábitos diarios y en semanas completas con la meta alcanzada para los demás.
 - 💾 Guardar automáticamente los datos en el navegador (`localStorage`).
@@ -13,7 +13,11 @@
 - 🗑️ Eliminar hábitos y su historial tras confirmación.
 - 📲 Instalar la web como aplicación cuando el navegador admita la instalación.
 - 📴 Abrir y utilizar la aplicación sin conexión **después de una primera visita con conexión**.
-- ⏰ Activar un **aviso diario opcional** dentro de la propia aplicación: aparece después de la hora elegida, una vez al día, cuando la web está abierta o vuelve a estar activa y aún hay metas pendientes.
+- ⏰ Activar un **aviso diario opcional** dentro de la aplicación y elegir la hora; se muestra una vez al día cuando la app está activa y hay metas pendientes.
+- 🔔 Activar voluntariamente **notificaciones del navegador**, sujetas a sus permisos y a que la app esté abierta/activa.
+- ♪ Activar y probar una **alarma sonora** dentro de la aplicación; el navegador puede requerir una interacción previa para permitir audio.
+- 📆 Exportar un archivo de calendario `.ics` con un evento diario recurrente y alarma previa para recibir avisos a través del calendario del dispositivo, incluso con HabitClik cerrada si el calendario lo permite.
+- 💬 Ver **frases motivacionales** según el progreso del día y la duración de la racha, o pulsar para cambiar de frase.
 
 ## Ejecutar en local
 
@@ -67,14 +71,14 @@ El flujo de GitHub Actions `.github/workflows/tests.yml` ejecuta automáticament
 
 Los datos se guardan **solo en el navegador y dispositivo utilizados**, no se sincronizan con otros dispositivos ni se envían a un servidor. Borrar los datos del sitio en el navegador puede eliminar tu progreso; usa **Exportar datos** con frecuencia. La instalación como PWA **no sustituye a una copia de seguridad**.
 
-Las rachas se calculan por días consecutivos con al menos una actividad completada. La racha por hábito requiere marcar ese hábito en días consecutivos. Si todavía no has marcado nada hoy, se considera la racha que continuaba ayer. Las metas semanales se cuentan de lunes a domingo, y cambiar una meta se aplica también al cálculo de las rachas anteriores (los registros diarios permanecen). Un hábito creado a mitad de semana no reduce automáticamente su meta de esa primera semana. Los avisos diarios **no son notificaciones push**: solo aparecen si HabitClik está abierta o vuelve a estar activa, y pueden no aparecer si el navegador suspende la pestaña. Están desactivados por defecto y no necesitan permisos del sistema. No hay notificaciones con la app cerrada, inicio de sesión ni sincronización en la nube.
+Las rachas se calculan por días consecutivos con al menos una actividad completada. La racha por hábito requiere marcar ese hábito en días consecutivos. Si todavía no has marcado nada hoy, se considera la racha que continuaba ayer. Las metas semanales se cuentan de lunes a domingo, y cambiar una meta se aplica también al cálculo de las rachas anteriores (los registros diarios permanecen). Un hábito creado a mitad de semana no reduce automáticamente su meta de esa primera semana. Los avisos y las alarmas propias de HabitClik **no son notificaciones push en segundo plano**: funcionan con la página abierta o activa y pueden retrasarse si el navegador suspende la pestaña. Están desactivados por defecto. Las notificaciones del navegador solicitan permiso solo al pulsar el botón correspondiente; el sonido requiere que el navegador permita reproducir audio. Para alertas con la aplicación cerrada, usa el archivo `.ics` e impórtalo a un calendario compatible, habilita las notificaciones de ese calendario y comprueba que acepte las alarmas `VALARM`. El evento se repetirá **todos los días** hasta que lo elimines del calendario y es independiente de las metas semanales. No hay todavía sincronización entre dispositivos ni un servidor de notificaciones push.
 
 La primera vez se muestran tres hábitos de ejemplo que puedes eliminar o reemplazar.
 
 ## Próximos pasos sugeridos
 
 - Mejoras de historial y posibilidad de marcar días anteriores.
-- Notificaciones reales con la app cerrada (requerirían soporte de notificaciones push y una infraestructura adicional), y mejoras adicionales de accesibilidad.
+- Notificaciones push auténticas para usuarios suscritos con la aplicación cerrada (requieren un servicio servidor/push y configuración de permisos), además de mejoras adicionales de accesibilidad.
 - Sincronización entre dispositivos con cuenta, si se necesita.
 - Pruebas automatizadas de flujos completos en distintos navegadores.
 
