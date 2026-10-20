@@ -32,7 +32,7 @@ jobs:
               echo "::error::Source recording failed integrity verification: $original"
               exit 1
             fi
-            ffmpeg -hide_banner -loglevel error -y -i "/tmp/$original" \
+            ffmpeg -nostdin -hide_banner -loglevel error -y -i "/tmp/$original" \
               -t 10 -af "afade=t=in:st=0:d=0.25,loudnorm=I=-18:TP=-2:LRA=9,afade=t=out:st=9:d=1" \
               -ar 44100 -ac 2 -codec:a libmp3lame -b:a 128k "sounds/$name.mp3"
             test "$(stat -c%s "sounds/$name.mp3")" -gt 15000
@@ -50,6 +50,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f --ignore-unmatch sounds/gia.mp3 sounds/gre.mp3 sounds/tal.mp3
           git add sounds/*.mp3
           git rm -f --ignore-unmatch sounds/*.wav
           if git diff --cached --quiet; then
