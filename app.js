@@ -55,7 +55,7 @@ function starterData() {
     logs: {},
     settings: {
       reminderEnabled: false, reminderTime: "19:00", lastRemindedAt: null,
-      alarmEnabled: false, notificationEnabled: false, alarmVolume: 50
+      alarmEnabled: false, notificationEnabled: false, alarmVolume: 50, alarmTone: "campanas"
     }
   };
 }
@@ -105,7 +105,9 @@ function normalizeData(input) {
     notificationEnabled: sourceSettings.notificationEnabled === true,
     alarmVolume: Number.isInteger(sourceSettings.alarmVolume) &&
       sourceSettings.alarmVolume >= 10 && sourceSettings.alarmVolume <= 100
-      ? sourceSettings.alarmVolume : 50
+      ? sourceSettings.alarmVolume : 50,
+    alarmTone: window.HABITCLIK_SOUNDS && window.HABITCLIK_SOUNDS.isValid(sourceSettings.alarmTone)
+      ? sourceSettings.alarmTone : "campanas"
   };
   return { habits, logs, settings };
 }
@@ -506,37 +508,10 @@ function renderReminderSettings() {
 }
 
 async function playAlarm() {
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContextClass) return false;
-  try {
-    if (!alarmAudioContext) alarmAudioContext = new AudioContextClass();
-    const context = alarmAudioContext;
-    if (context.state === "suspended") {
-      if (typeof context.resume !== "function") return false;
-      await context.resume();
-      if (context.state === "suspended") return false;
-    }
-    const start = context.currentTime + 0.04;
-    const gain = 0.18 * (data.settings.alarmVolume / 100);
-    for (let i = 0; i < 3; i++) {
-      const at = start + i * 0.29;
-      const osc = context.createOscillator();
-      const volume = context.createGain();
-      osc.type = "sine";
-      osc.frequency.value = [659.25, 783.99, 987.77][i];
-      volume.gain.setValueAtTime(0.0001, at);
-      volume.gain.exponentialRampToValueAtTime(gain, at + 0.035);
-      volume.gain.exponentialRampToValueAtTime(0.0001, at + 0.245);
-      osc.connect(volume);
-      volume.connect(context.destination);
-      osc.start(at);
-      osc.stop(at + 0.255);
-    }
-    return true;
-  } catch (error) {
-    console.warn("HabitClik: la reproducción de audio no está disponible.", error);
-    return false;
-  }
+  // Shared audio engine for the dashboard and the independent Avisos page.
+  return window.HABITCLIK_SOUNDS
+    ? window.HABITCLIK_SOUNDS.play(data.settings.alarmTone, data.settings.alarmVolume)
+    : false;
 }
 
 async function sendDeviceNotification(message) {
