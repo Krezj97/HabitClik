@@ -942,3 +942,175 @@ a.nav-item:focus-visible, a.brand-link:focus-visible,
 @media (prefers-reduced-motion: reduce) {
   .quick-daily-track span { transition: none; }
 }
+
+
+/* Android first: ergonomics, safe-area spacing, and stable compact navigation. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: 20px;
+}
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  overscroll-behavior-y: contain;
+}
+.app-shell { min-height: 100vh; min-height: 100dvh; }
+button, a, input, select, summary {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+button, .nav-item, .habit-check, .settings-action { user-select: none; -webkit-user-select: none; }
+input, select, textarea { min-width: 0; max-width: 100%; }
+.main-content, .view, .today-priority, .today-priority-habits { min-width: 0; }
+.main-footer a, .privacy-note a { color: #286b67; text-underline-offset: 3px; }
+.sidebar .privacy-note a { color: #d9f4e7; }
+.habit-dialog { max-height: min(90dvh, 780px); overflow-y: auto; overscroll-behavior: contain; }
+.habit-dialog input, .habit-dialog select { font-size: 16px; }
+@media (max-width: 760px) {
+  :root { --android-tabs-height: 67px; }
+  .app-shell { display: block; }
+  .sidebar {
+    height: auto;
+    min-height: 0;
+    position: relative;
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 10px;
+  }
+  .sidebar .brand { padding-left: 0; font-size: 21px; min-height: 46px; }
+  .sidebar .brand-icon { width: 37px; height: 37px; }
+  .sidebar-caption { display: none; }
+  .sidebar-bottom { margin-top: 8px; }
+  .sidebar .data-actions { display: flex; gap: 8px; }
+  .sidebar .data-actions > button, .sidebar .data-actions > a {
+    min-height: 44px; display: inline-flex; align-items: center; justify-content: center;
+    flex: 1 1 0; font-size: 12px; padding: 9px 12px;
+    border-radius: 11px;
+  }
+  .sidebar .sidebar-back { min-height: 44px; justify-content: center; font-size: 12px; }
+  .sidebar .install-button { min-height: 44px; }
+  .sidebar .main-nav {
+    position: fixed; z-index: 50; left: 0; right: 0; bottom: 0;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin: 0; gap: 3px; padding: 7px 8px calc(7px + env(safe-area-inset-bottom, 0px));
+    background: #203943f5;
+    border-top: 1px solid #6b899035;
+    box-shadow: 0 -8px 24px #153b4638;
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+  }
+  .sidebar .main-nav .nav-item {
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    gap: 5px; min-width: 0; min-height: 54px;
+    padding: 8px 3px 6px; margin: 0; border-radius: 12px;
+    color: #dfedeb; font-size: clamp(10px, 2.7vw, 12px);
+    line-height: 1.15; font-weight: 730; text-align: center;
+    white-space: nowrap;
+  }
+  .sidebar .main-nav .nav-item span {
+    min-width: 0; line-height: 1; font-size: 23px;
+    min-height: 23px; display: grid; place-items: center;
+  }
+  .sidebar .main-nav .nav-item.is-active {
+    background: #386c72; color: #ffffff;
+  }
+  .sidebar .main-nav .nav-item:focus-visible {
+    outline: 2px solid #bce7de; outline-offset: -2px;
+  }
+  .main-content {
+    padding: 16px 15px calc(var(--android-tabs-height) + 34px + env(safe-area-inset-bottom, 0px));
+  }
+  .topbar { align-items: flex-start; gap: 10px; }
+  .topbar-title { line-height: 1.35; }
+  .topbar-actions { justify-content: flex-end; }
+  .button-primary, .button-secondary, .top-add { min-height: 46px; }
+  .nav-back-button { min-height: 46px; display: inline-flex; align-items: center; }
+  .today-priority { gap: 12px; }
+  .today-priority .journey-card { margin-top: 0; }
+  .habit-card { padding: 13px; }
+  .habit-check { min-height: 46px; }
+  .habit-action-buttons { gap: 5px; }
+  .habit-action-buttons .edit-habit,
+  .habit-action-buttons .delete-habit {
+    width: 44px; height: 44px; display: inline-grid; place-items: center;
+  }
+  .calendar-nav button { min-width: 44px; min-height: 44px; }
+  .calendar-nav .calendar-today-btn { min-height: 44px; }
+  .calendar-weekdays, .calendar-days { gap: 4px; }
+  .calendar-day { min-height: 50px; border-radius: 10px; }
+  .calendar-panel { padding: 12px 8px; }
+  .settings-card { padding: 18px 15px; gap: 12px; }
+  .settings-icon { flex: 0 0 40px; height: 40px; width: 40px; font-size: 22px; }
+  .settings-heading { gap: 10px; }
+  .settings-heading h2 { font-size: 16px; }
+  .settings-actions .settings-action { min-height: 48px; font-size: 13px; }
+  .settings-toggle { flex: 0 0 48px; width: 48px; min-height: 48px; align-items: center; }
+  .settings-toggle input { min-height: 48px; }
+  .settings-time, .alarm-tone-select, #habit-name { font-size: 16px; min-height: 48px; }
+  .custom-alarm-area { max-width: 100%; }
+  .toast {
+    position: fixed;
+    z-index: 90;
+    bottom: calc(var(--android-tabs-height) + 19px + env(safe-area-inset-bottom, 0px));
+    left: 14px; right: 14px; max-width: none;
+    text-align: center;
+    font-size: 13px; line-height: 1.45;
+  }
+  .habit-dialog {
+    width: min(480px, calc(100vw - 24px));
+    max-height: min(82dvh, 800px);
+    padding: 20px 18px;
+    border-radius: 18px;
+    margin: auto;
+  }
+  .habit-dialog .dialog-heading h2 { font-size: 23px; }
+  .habit-dialog .icon-button { width: 44px; height: 44px; flex: 0 0 44px; }
+  .dialog-actions { gap: 9px; }
+  .dialog-actions button { min-height: 48px; }
+  .hero-scene-next { min-height: 44px; }
+  .motivation-next { min-width: 44px; min-height: 44px; flex-basis: 44px; }
+  .main-footer { margin-bottom: 8px; }
+}
+@media (max-width: 480px) {
+  .topbar { flex-wrap: wrap; }
+  .topbar-actions { width: 100%; justify-content: space-between; }
+  .topbar-actions .top-add { flex: 1 0 auto; }
+  .today-priority .habit-card {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: center;
+  }
+  .today-priority .habit-symbol { grid-column: 1; grid-row: 1; }
+  .today-priority .habit-info { grid-column: 2 / 4; grid-row: 1; }
+  .today-priority .habit-check { grid-column: 1 / 3; grid-row: 2; width: 100%; }
+  .today-priority .habit-action-buttons { grid-column: 3; grid-row: 2; }
+  .today-priority .habit-card { min-height: 96px; }
+  .settings-card { padding: 16px 12px; gap: 9px; }
+  .settings-heading { flex-wrap: wrap; }
+  .settings-heading .settings-toggle { margin-left: auto; }
+  .weekly-strip { gap: 2px; padding: 12px 3px; }
+  .calendar-weekdays, .calendar-days { gap: 3px; }
+  .calendar-day { min-height: 48px; border-radius: 8px; font-size: 13px; }
+  .calendar-toolbar h2 { font-size: 19px; }
+  .dialog-actions button { flex: 1 1 0; padding-left: 9px; padding-right: 9px; }
+  .settings-volume-row { flex-wrap: wrap; }
+}
+@media (max-width: 360px) {
+  .sidebar { padding-left: 11px; padding-right: 11px; }
+  .main-content { padding-left: 11px; padding-right: 11px; }
+  .sidebar .main-nav { padding-left: 3px; padding-right: 3px; gap: 0; }
+  .sidebar .main-nav .nav-item { font-size: 10px; }
+  .stat-card { padding: 12px 8px; }
+  .calendar-panel { padding-left: 5px; padding-right: 5px; }
+}
+@media (display-mode: standalone) {
+  .sidebar .install-button { display: none !important; }
+}
+@media (max-width: 760px) and (orientation: landscape) {
+  .sidebar .main-nav { padding-top: 3px; padding-bottom: calc(3px + env(safe-area-inset-bottom, 0px)); }
+  .sidebar .main-nav .nav-item { min-height: 48px; flex-direction: row; font-size: 11px; }
+  .sidebar .main-nav .nav-item span { font-size: 18px; }
+}
+@media (max-width: 760px) {
+  body:has(.habit-dialog[open]) .main-nav { visibility: hidden; }
+}
