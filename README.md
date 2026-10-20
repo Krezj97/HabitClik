@@ -42,6 +42,18 @@ Esta dirección es la esperada **después de activar Pages**; no implica que ya 
 
 La instalación depende del navegador y sus criterios. Conéctate al menos una vez para guardar los recursos de la aplicación. Posteriormente podrás abrir el panel sin conexión; los datos seguirán en este dispositivo.
 
+## Pruebas
+
+Las comprobaciones de regresión utilizan **Node.js 22** y no requieren instalar paquetes:
+
+```bash
+node --check app.js
+node --check sw.js
+node --test tests/app.test.cjs
+```
+
+El flujo de GitHub Actions `.github/workflows/tests.yml` ejecuta automáticamente estas comprobaciones en cada cambio enviado al repositorio y en cada pull request.
+
 ## Estructura
 
 - `index.html`: paneles, formulario y metadatos PWA.
