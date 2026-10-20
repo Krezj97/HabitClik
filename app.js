@@ -44,9 +44,9 @@ function starterData() {
   const now = keyForDate(new Date());
   return {
     habits: [
-      { id: newId(), title: "Beber suficiente agua", category: "salud", createdAt: now },
-      { id: newId(), title: "Leer 15 minutos", category: "mente", createdAt: now },
-      { id: newId(), title: "Mover el cuerpo", category: "movimiento", createdAt: now }
+      { id: newId(), title: "Beber suficiente agua", category: "salud", createdAt: now, weeklyTarget: 7 },
+      { id: newId(), title: "Leer 15 minutos", category: "mente", createdAt: now, weeklyTarget: 7 },
+      { id: newId(), title: "Mover el cuerpo", category: "movimiento", createdAt: now, weeklyTarget: 7 }
     ],
     logs: {}
   };
@@ -74,7 +74,9 @@ function normalizeData(input) {
       title: habit.title.trim(),
       category: Object.hasOwn(CATEGORIES, habit.category) ? habit.category : "otros",
       createdAt: typeof habit.createdAt === "string" && isValidDateKey(habit.createdAt)
-        ? habit.createdAt : today
+        ? habit.createdAt : today,
+      weeklyTarget: Number.isInteger(habit.weeklyTarget) && habit.weeklyTarget >= 1 &&
+        habit.weeklyTarget <= 7 ? habit.weeklyTarget : 7
     });
   }
   const logs = {};
@@ -138,6 +140,40 @@ function activeHabitsOn(day) {
   return data.habits.filter((habit) => habit.createdAt <= day).length;
 }
 
+function startOfWeek(date) {
+  return addDays(date, -((date.getDay() + 6) % 7));
+}
+
+function targetFor(habit) {
+  return Number.isInteger(habit.weeklyTarget) && habit.weeklyTarget >= 1 &&
+    habit.weeklyTarget <= 7 ? habit.weeklyTarget : 7;
+}
+
+function completionsThisWeek(habit, reference = new Date()) {
+  const monday = startOfWeek(reference);
+  let count = 0;
+  for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+    const key = keyForDate(addDays(monday, dayOffset));
+    if (key >= habit.createdAt && completedIds(key).includes(habit.id)) count++;
+  }
+  return count;
+}
+
+function weeklyStreak(habit) {
+  let week = startOfWeek(new Date());
+  const firstWeekKey = keyForDate(startOfWeek(localDate(habit.createdAt)));
+  if (completionsThisWeek(habit, week) < targetFor(habit)) {
+    week = addDays(week, -7);
+  }
+  let count = 0;
+  while (count < 714 && keyForDate(week) >= firstWeekKey &&
+         completionsThisWeek(habit, week) >= targetFor(habit)) {
+    count++;
+    week = addDays(week, -7);
+  }
+  return count;
+}
+
 function totalCompletions() {
   return Object.values(data.logs).reduce((sum, ids) => sum + ids.length, 0);
 }
@@ -198,6 +234,35 @@ function renderWeek() {
   $("weekly-strip").innerHTML = days.join("");
 }
 
+function renderWeeklyGoals() {
+  const weekGoals = $("weekly-goals-list");
+  const reached = data.habits.filter((habit) => completionsThisWeek(habit) >= targetFor(habit)).length;
+  $("weekly-goals-summary").textContent = reached + " / " + data.habits.length + " alcanzadas";
+
+  if (!data.habits.length) {
+    weekGoals.innerHTML = '<div class="empty-state"><p>Tus metas semanales aparecerán cuando crees un hábito.</p></div>';
+    return;
+  }
+
+  weekGoals.innerHTML = data.habits.map((habit) => {
+    const done = completionsThisWeek(habit);
+    const goal = targetFor(habit);
+    const percent = Math.min(100, Math.round((done / goal) * 100));
+    const complete = done >= goal;
+    const remaining = Math.max(0, goal - done);
+    return '<article class="weekly-goal-card' + (complete ? ' goal-met' : '') + '">' +
+      '<div class="weekly-goal-header"><div class="weekly-goal-name">' + escapeHtml(habit.title) + '</div>' +
+      '<strong class="weekly-goal-count">' + done + ' / ' + goal + ' días</strong></div>' +
+      '<div class="weekly-goal-track" role="progressbar" aria-label="Meta semanal de ' +
+      escapeHtml(habit.title) + '" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' +
+      percent + '"><span class="weekly-goal-fill" style="width:' + percent + '%"></span></div>' +
+      '<div class="weekly-goal-caption">' +
+      (complete ? '✓ Meta alcanzada esta semana' :
+        'Faltan ' + remaining + (remaining === 1 ? ' día' : ' días') + ' para tu meta') +
+      '</div></article>';
+  }).join("");
+}
+
 function renderHabits() {
   $("habit-count").textContent = data.habits.length;
   if (!data.habits.length) {
@@ -214,7 +279,8 @@ function renderHabits() {
     return '<article class="habit-card' + (checked ? ' is-done' : '') + '">' +
       '<span class="habit-symbol" style="--soft:' + category.background + '" aria-hidden="true">' + category.icon + '</span>' +
       '<div class="habit-info"><h3 class="habit-title">' + escapeHtml(habit.title) + '</h3>' +
-      '<span class="habit-category">' + category.label + ' · Diario</span></div>' +
+      '<span class="habit-category">' + category.label + ' · ' +
+      (targetFor(habit) === 7 ? 'Diario' : targetFor(habit) + ' días/semana') + '</span></div>' +
       '<button type="button" class="habit-check" data-action="toggle" data-id="' + habit.id +
       '" aria-pressed="' + checked + '" aria-label="' + (checked ? 'Desmarcar ' : 'Completar ') +
       escapeHtml(habit.title) + '">' + (checked ? '✓ Hecho' : '○ Completar') + '</button>' +
@@ -252,12 +318,16 @@ function renderHabitStreaks() {
   }
   $("habit-streak-list").innerHTML = data.habits.map((habit) => {
     const category = CATEGORIES[habit.category];
-    const streak = habitStreak(habit.id);
+    const daily = targetFor(habit) === 7;
+    const streak = daily ? habitStreak(habit.id) : weeklyStreak(habit);
     return '<article class="habit-card"><span class="habit-symbol" style="--soft:' +
       category.background + '" aria-hidden="true">' + category.icon + '</span>' +
       '<div class="habit-info"><h3 class="habit-title">' + escapeHtml(habit.title) + '</h3>' +
-      '<span class="habit-category">' + category.label + '</span></div>' +
-      '<span class="streak-tag">' + streak + (streak === 1 ? ' día' : ' días') + ' 🔥</span></article>';
+      '<span class="habit-category">' + category.label + ' · ' +
+      (daily ? 'Diario' : targetFor(habit) + ' días/semana') + '</span></div>' +
+      '<span class="streak-tag">' + streak + (daily
+        ? (streak === 1 ? ' día' : ' días')
+        : (streak === 1 ? ' semana' : ' semanas')) + ' 🔥</span></article>';
   }).join("");
 }
 
@@ -282,6 +352,7 @@ function render() {
   $("stats-best").textContent = bestStreak() + " días";
   $("stats-count").textContent = total;
   renderWeek();
+  renderWeeklyGoals();
   renderHabits();
   renderChart();
   renderHabitStreaks();
@@ -311,6 +382,7 @@ function openDialog(id = null) {
   if (habit) {
     $("habit-name").value = habit.title;
     $("habit-category").value = habit.category;
+    $("habit-target").value = String(targetFor(habit));
   }
   $("habit-dialog").showModal();
   $("habit-name").focus();
@@ -386,7 +458,9 @@ $("habit-form").addEventListener("submit", (event) => {
   event.preventDefault();
   const title = $("habit-name").value.trim();
   const category = $("habit-category").value;
-  if (title.length < 2 || title.length > 60 || !Object.hasOwn(CATEGORIES, category)) {
+  const weeklyTarget = Number($("habit-target").value);
+  if (title.length < 2 || title.length > 60 || !Object.hasOwn(CATEGORIES, category) ||
+      !Number.isInteger(weeklyTarget) || weeklyTarget < 1 || weeklyTarget > 7) {
     showToast("Introduce un nombre válido.");
     return;
   }
@@ -398,12 +472,13 @@ $("habit-form").addEventListener("submit", (event) => {
     }
     habit.title = title;
     habit.category = category;
+    habit.weeklyTarget = weeklyTarget;
   } else {
     if (data.habits.length >= 200) {
       showToast("Has alcanzado el límite de 200 hábitos.");
       return;
     }
-    data.habits.push({ id: newId(), title, category, createdAt: keyForDate(new Date()) });
+    data.habits.push({ id: newId(), title, category, createdAt: keyForDate(new Date()), weeklyTarget });
   }
   persist();
   render();
