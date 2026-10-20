@@ -110,3 +110,5 @@ La primera vez se muestran tres hábitos de ejemplo que puedes eliminar o reempl
 ## Licencia
 
 No se ha definido todavía una licencia de distribución para este repositorio.
+
+Los cuatro paisajes y las cinco alarmas MP3 están incluidos en la caché de la aplicación para poder verlos y escucharlos sin conexión después de la primera carga. Puedes cambiar el fondo manualmente desde el encabezado de Mi día.
