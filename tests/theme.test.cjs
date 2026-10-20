@@ -36,11 +36,11 @@ test("the petrol palette is applied to both pages and the installed PWA", () => 
   assert.match(home, /name="theme-color" content="#203943"/);
   assert.match(reminders, /name="theme-color" content="#203943"/);
   for (const filename of ["styles.css", "app.js", "progress.js", "alarm-sounds.js", "avisos.js", "phrases.js"]) {
-    assert.match(sw, new RegExp(filename.replace(".", "\\.") + "\\?v=17"));
+    assert.match(sw, new RegExp(filename.replace(".", "\\.") + "\\?v=18"));
   }
-  assert.match(sw, /habitclik-static-v17/);
-  assert.match(home, /styles\.css\?v=17/);
-  assert.match(reminders, /styles\.css\?v=17/);
+  assert.match(sw, /habitclik-static-v18/);
+  assert.match(home, /styles\.css\?v=18/);
+  assert.match(reminders, /styles\.css\?v=18/);
 });
 
 test("key modern text combinations retain readable WCAG AA contrast", () => {
