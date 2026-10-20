@@ -406,5 +406,41 @@ $("import-file").addEventListener("change", async (event) => {
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) render();
 });
+
+let deferredInstallPrompt = null;
+const installButton = $("install-app-btn");
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  installButton.hidden = false;
+});
+
+installButton.addEventListener("click", async () => {
+  if (!deferredInstallPrompt) return;
+  const promptEvent = deferredInstallPrompt;
+  deferredInstallPrompt = null;
+  installButton.hidden = true;
+  try {
+    await promptEvent.prompt();
+  } catch (error) {
+    console.warn("HabitClik: no se pudo mostrar la instalación.", error);
+  }
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  installButton.hidden = true;
+  showToast("¡HabitClik se ha instalado!");
+});
+
+// Service workers require a secure context (HTTPS or local development).
+if ("serviceWorker" in navigator && window.isSecureContext) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch((error) => {
+      console.warn("HabitClik: no se pudo activar el modo sin conexión.", error);
+    });
+  });
+}
+
 persist();
 render();
