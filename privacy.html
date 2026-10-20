@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#203943" />
+  <meta name="color-scheme" content="light" />
+  <title>Privacidad · HabitClik</title>
+  <meta name="description" content="Conoce qué datos guarda HabitClik, dónde se almacenan y cómo gestionar tus copias." />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./styles.css?v=19" />
+</head>
+<body class="privacy-page">
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegación principal">
+      <a class="brand brand-link" href="./index.html" aria-label="Volver a HabitClik"><span class="brand-icon" aria-hidden="true">✓</span><span>Habit<span class="brand-accent">Clik</span></span></a>
+      <nav class="main-nav" aria-label="Secciones">
+        <a class="nav-item" href="./index.html"><span aria-hidden="true">◫</span> Mi día</a>
+        <a class="nav-item" href="./index.html#stats"><span aria-hidden="true">▥</span> Estadísticas</a>
+        <a class="nav-item" href="./index.html#calendar"><span aria-hidden="true">▦</span> Calendario</a>
+        <a class="nav-item" href="./avisos.html"><span aria-hidden="true">◷</span> Avisos</a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="topbar">
+        <div><span class="eyebrow">TRANSPARENCIA Y CONTROL</span><div class="topbar-title">Tus datos son tuyos</div></div>
+        <a class="button-primary nav-back-button" href="./index.html">← Mis hábitos</a>
+      </header>
+      <article class="privacy-document" aria-labelledby="privacy-title">
+        <span class="section-overline">PRIVACIDAD · 21 DE OCTUBRE DE 2026</span>
+        <h1 id="privacy-title">Política de privacidad</h1>
+        <p>HabitClik es una aplicación de seguimiento de hábitos. Esta página explica lo que guarda la versión actual del sitio web y sus límites.</p>
+
+        <h2>Qué información guarda</h2>
+        <p>Al crear o marcar hábitos, la aplicación guarda los nombres de tus hábitos, categorías, objetivos semanales, fechas, registros de progreso, rachas y preferencias de avisos. La experiencia y las insignias se calculan localmente a partir de esos registros. Cuando eliges un archivo de sonido personalizado, ese archivo se guarda en el almacenamiento local del navegador.</p>
+
+        <h2>Dónde se almacena</h2>
+        <p>Los hábitos y ajustes se guardan mediante <strong>localStorage</strong>; el archivo de audio propio se conserva con <strong>IndexedDB</strong>. La versión web actual no tiene registro de cuentas, sincronización entre dispositivos, publicidad ni análisis de uso de terceros incorporados. HabitClik no envía esos registros ni tus archivos de audio a un servidor propio.</p>
+
+        <h2>Acceso a internet y alojamiento</h2>
+        <p>Los archivos de la web se sirven mediante <strong>GitHub Pages</strong>. Para cargar y actualizar la aplicación, el dispositivo contacta con este servicio, que puede tratar datos técnicos de conexión conforme a sus políticas. Una vez precargados los recursos, muchas funciones pueden funcionar sin conexión. No afirmamos controlar los registros técnicos del proveedor de alojamiento.</p>
+
+        <h2>Notificaciones y permisos</h2>
+        <p>Las notificaciones del navegador requieren tu permiso expreso. Puedes desactivarlas desde el dispositivo o el navegador. Las alarmas del sitio pueden depender de que la aplicación permanezca abierta. Exportar un aviso de calendario genera un archivo que tú decides importar: HabitClik no accede directamente a tus calendarios.</p>
+
+        <h2>Exportar y eliminar información</h2>
+        <p>Desde la página principal puedes pulsar <strong>Exportar datos</strong> para descargar una copia JSON de hábitos y registros, o <strong>Importar datos</strong> para restaurarla. El archivo JSON no incorpora tu audio personalizado. Puedes eliminar hábitos individualmente. Para eliminar todos los datos locales y el audio, utiliza la opción del navegador o de Android para borrar los datos del sitio HabitClik. Eso es irreversible si no guardaste una copia.</p>
+
+        <h2>Pagos y cuentas</h2>
+        <p>Premium aún no ofrece cobros, compras ni cuentas. No se solicitan datos de pago. Si se añaden suscripciones, cuentas, sincronización o notificaciones remotas, será necesario actualizar esta política y la información de privacidad de Google Play antes de activarlos.</p>
+
+        <h2>Contacto y responsable</h2>
+        <p>Para comunicar incidencias sobre esta versión puedes utilizar el <a href="https://github.com/Krezj97/HabitClik/issues" rel="noopener noreferrer" target="_blank">repositorio del proyecto en GitHub</a>. Antes de distribuir HabitClik comercialmente mediante Google Play, el responsable de la publicación debe incluir aquí sus datos de contacto públicos y revisar los requisitos legales y de privacidad que le correspondan.</p>
+        <p class="privacy-updated">Esta política describe la versión web actual y no certifica por sí sola el cumplimiento de todas las obligaciones de una futura aplicación Android.</p>
+      </article>
+      <footer class="main-footer"><a href="./index.html">Volver a HabitClik</a> · Hecho para avanzar, a tu manera.</footer>
+    </main>
+  </div>
+</body>
+</html>
