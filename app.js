@@ -55,7 +55,7 @@ function starterData() {
     logs: {},
     settings: {
       reminderEnabled: false, reminderTime: "19:00", lastRemindedAt: null,
-      alarmEnabled: false, notificationEnabled: false
+      alarmEnabled: false, notificationEnabled: false, alarmVolume: 50
     }
   };
 }
@@ -102,7 +102,10 @@ function normalizeData(input) {
     lastRemindedAt: typeof sourceSettings.lastRemindedAt === "string" &&
       isValidDateKey(sourceSettings.lastRemindedAt) ? sourceSettings.lastRemindedAt : null,
     alarmEnabled: sourceSettings.alarmEnabled === true,
-    notificationEnabled: sourceSettings.notificationEnabled === true
+    notificationEnabled: sourceSettings.notificationEnabled === true,
+    alarmVolume: Number.isInteger(sourceSettings.alarmVolume) &&
+      sourceSettings.alarmVolume >= 10 && sourceSettings.alarmVolume <= 100
+      ? sourceSettings.alarmVolume : 50
   };
   return { habits, logs, settings };
 }
@@ -291,50 +294,42 @@ function motivationForToday() {
   const completed = completedCount(today);
   const total = data.habits.length;
   const streak = currentStreak();
+  const weeklyReached = data.habits.some((habit) =>
+    targetFor(habit) < 7 && completionsThisWeek(habit) >= targetFor(habit));
+  let theme = "start";
   let heading = "Un paso a la vez";
-  let phrases;
+
   if (total > 0 && completed === total) {
+    theme = "complete";
     heading = "¡Objetivo de hoy logrado!";
-    phrases = [
-      "Hoy lo has conseguido. Disfruta el progreso que estás construyendo.",
-      "Cada hábito completado cuenta. Mañana tendrás otra oportunidad de avanzar.",
-      "Has cumplido tus objetivos de hoy. ¡Buen trabajo con tu constancia!",
-      "Lo importante no es la perfección, sino volver a intentarlo cada día."
-    ];
   } else if (streak >= 7) {
+    theme = "longStreak";
     heading = streak + " días sumando constancia";
-    phrases = [
-      "Tu racha refleja pequeños esfuerzos repetidos. Sigue a tu ritmo.",
-      "Mira todo lo que has avanzado. Un nuevo día es una nueva oportunidad.",
-      "La constancia se construye con pasos sencillos, no con días perfectos.",
-      "Llevas " + streak + " días activo. Celebra lo aprendido por el camino."
-    ];
   } else if (streak >= 3) {
+    theme = "streak";
     heading = "¡Tu racha está creciendo!";
-    phrases = [
-      "Cada día cuenta, y ya estás creando tu propio ritmo.",
-      "Un pequeño gesto hoy mantiene vivo el impulso de esta semana.",
-      "No necesitas hacer más: necesitas continuar a tu manera.",
-      "Los cambios grandes nacen de hábitos pequeños."
-    ];
+  } else if (weeklyReached) {
+    theme = "weekly";
+    heading = "Tu semana va tomando forma";
   } else if (completed > 0 || streak > 0) {
+    theme = "progress";
     heading = "Vas por buen camino";
-    phrases = [
-      "Ese primer paso cuenta mucho más de lo que parece.",
-      "Tu esfuerzo de hoy merece reconocimiento.",
-      "Lo estás haciendo: poco a poco, con calma y constancia.",
-      "No hace falta terminarlo todo para haber avanzado."
-    ];
-  } else {
-    phrases = [
-      "Empieza por algo pequeño. Una acción ya es progreso.",
-      "Nunca es tarde para empezar de nuevo, incluso hoy.",
-      "Ve a tu ritmo. Lo importante es dar el siguiente paso.",
-      "Un día sin marcas no borra todo lo que ya has conseguido."
-    ];
+  } else if (totalCompletions() > 0) {
+    theme = "comeback";
+    heading = "Siempre puedes volver";
   }
+
+  const library = window.HABITCLIK_PHRASES;
+  const phrases = library && Array.isArray(library[theme]) && library[theme].length
+    ? library[theme]
+    : [
+      "Cada pequeño paso cuenta para tu progreso.",
+      "Sigue a tu ritmo. Lo importante es lo que te aporta el hábito.",
+      "La constancia también incluye descanso y flexibilidad.",
+      "Hoy tienes una oportunidad para avanzar a tu manera."
+    ];
   const daySeed = Number(today.replace(/-/g, ""));
-  return { heading, phrase: phrases[(daySeed + motivationShift) % phrases.length] };
+  return { heading, phrase: phrases[(daySeed + motivationShift) % phrases.length], theme };
 }
 
 function renderMotivation() {
@@ -624,10 +619,11 @@ function render() {
 }
 
 function showView(view) {
-  currentView = ["today", "stats", "calendar"].includes(view) ? view : "today";
+  currentView = ["today", "stats", "calendar", "reminders"].includes(view) ? view : "today";
   $("today-view").hidden = currentView !== "today";
   $("stats-view").hidden = currentView !== "stats";
   $("calendar-view").hidden = currentView !== "calendar";
+  $("reminders-view").hidden = currentView !== "reminders";
   document.querySelectorAll("[data-view]").forEach((button) => {
     const active = button.dataset.view === currentView;
     button.classList.toggle("is-active", active);
