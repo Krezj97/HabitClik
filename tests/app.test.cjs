@@ -491,3 +491,31 @@ test("progress panel and achievements are connected to real habit history", () =
   api.toggleHabit("a");
   assert.equal(element("journey-total").textContent,"30 XP");
 });
+
+test("top daily progress responds immediately when completing or undoing habits", () => {
+  const seed = {
+    habits: [
+      {id:"a",title:"Caminar",createdAt:"2026-10-01",category:"salud",weeklyTarget:7},
+      {id:"b",title:"Leer",createdAt:"2026-10-01",category:"mente",weeklyTarget:7}
+    ],
+    logs: { "2026-10-20": ["a"] }
+  };
+  const { element, api } = boot(seed);
+  assert.equal(element("quick-progress-count").textContent,"1 de 2 hábitos completados");
+  assert.equal(element("quick-progress-percent").textContent,"50 %");
+  assert.equal(element("quick-progress-fill").style.width,"50%");
+  api.toggleHabit("b");
+  assert.equal(element("quick-progress-count").textContent,"2 de 2 hábitos completados");
+  assert.equal(element("quick-progress-percent").textContent,"100 %");
+  assert.equal(element("quick-progress-fill").style.width,"100%");
+  api.toggleHabit("a");
+  assert.equal(element("quick-progress-count").textContent,"1 de 2 hábitos completados");
+  assert.equal(element("quick-progress-percent").textContent,"50 %");
+});
+
+test("new users see a useful zero-state in top progress before adding habits", () => {
+  const { element } = boot();
+  assert.equal(element("quick-progress-percent").textContent,"0 %");
+  assert.equal(element("quick-progress-count").textContent,"0 de 0 hábitos completados");
+  assert.equal(element("quick-progress-fill").style.width,"0%");
+});
