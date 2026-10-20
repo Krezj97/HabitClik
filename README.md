@@ -4,7 +4,7 @@
 
 ## Funcionalidades
 
-- ✅ Crear y **editar** hábitos diarios o con objetivo de **1 a 7 días por semana**, conservando el historial al modificarlos.
+- ✅ Crear y **editar** hasta **3 hábitos gratis**, diarios o con objetivo de **1 a 7 días por semana**, conservando el historial al modificarlos.
 - 📅 Marcar o desmarcar hábitos hoy o desde la sección **Calendario** para completar días pasados (nunca días futuros ni anteriores a la creación del hábito).
 - 📊 Visualizar el progreso del día, las metas semanales de lunes a domingo, la actividad semanal y las estadísticas de los últimos 7 días.
 - 🔥 Consultar la racha general de días activos y las rachas por hábito: en días para hábitos diarios y en semanas completas con la meta alcanzada para los demás.
@@ -18,6 +18,16 @@
 - ♪ Elegir entre **cinco sonidos de alarma** o subir **un archivo de audio propio** (MP3, M4A, WAV, OGG, AAC o WebM, máximo 8 MB), escucharlo, regular su volumen o eliminarlo. El volumen final está limitado por el navegador y el dispositivo.
 - 📆 Exportar un archivo de calendario `.ics` con un evento diario recurrente y alarma previa para recibir avisos a través del calendario del dispositivo, incluso con HabitClik cerrada si el calendario lo permite.
 - 💬 Ver **frases motivacionales** según el progreso del día y la duración de la racha, o pulsar para cambiar de frase.
+
+## Plan gratuito y Premium
+
+HabitClik admite **hasta 3 hábitos nuevos en el plan gratuito**. En una instalación nueva los tres espacios están vacíos para que puedas elegir tus propios hábitos. Al intentar añadir un cuarto, la aplicación muestra el límite; no se crean hábitos adicionales.
+
+**Premium y los pagos aún no están habilitados.** La interfaz informa de ello y no ofrece un botón de cobro ficticio. Para vender planes realmente sería necesario añadir una pasarela de pagos, cuentas y validación de acceso en un servidor: este límite implementado en JavaScript es de experiencia de usuario y no una barrera de seguridad contra manipulaciones locales.
+
+- Puedes seguir completando, editando o eliminando hábitos con independencia del número.
+- Si una persona ya tenía más de 3 hábitos antes de esta actualización, **todos sus datos y rachas se conservan** y no puede añadir otro hasta estar por debajo del límite.
+- Las copias JSON con **más de 3 hábitos** no se importan al plan gratuito, para evitar saltarse el límite o truncar silenciosamente el historial. Conviene conservar la copia original hasta que exista Premium.
 
 ## Ejecutar en local
 
