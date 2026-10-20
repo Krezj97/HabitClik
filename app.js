@@ -612,6 +612,10 @@ function render() {
   $("current-streak").textContent = currentStreak() + " días";
   $("total-completed").textContent = totalCompletions();
   $("progress-number").textContent = percent + "%";
+  $("quick-progress-percent").textContent = percent + " %";
+  $("quick-progress-count").textContent = done + " de " + total + " hábitos completados";
+  $("quick-progress-fill").style.width = percent + "%";
+  $("quick-progress-track").setAttribute("aria-valuenow", String(percent));
   const ringLength = 2 * Math.PI * 54;
   $("progress-circle").style.strokeDasharray = String(ringLength);
   $("progress-circle").style.strokeDashoffset = String(ringLength * (1 - percent / 100));
