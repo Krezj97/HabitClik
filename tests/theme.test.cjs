@@ -35,12 +35,12 @@ test("the petrol palette is applied to both pages and the installed PWA", () => 
   assert.equal(manifest.theme_color, "#203943");
   assert.match(home, /name="theme-color" content="#203943"/);
   assert.match(reminders, /name="theme-color" content="#203943"/);
-  for (const filename of ["styles.css", "app.js", "alarm-sounds.js", "avisos.js", "phrases.js"]) {
-    assert.match(sw, new RegExp(filename.replace(".", "\\.") + "\\?v=16"));
+  for (const filename of ["styles.css", "app.js", "progress.js", "alarm-sounds.js", "avisos.js", "phrases.js"]) {
+    assert.match(sw, new RegExp(filename.replace(".", "\\.") + "\\?v=17"));
   }
-  assert.match(sw, /habitclik-static-v16/);
-  assert.match(home, /styles\.css\?v=16/);
-  assert.match(reminders, /styles\.css\?v=16/);
+  assert.match(sw, /habitclik-static-v17/);
+  assert.match(home, /styles\.css\?v=17/);
+  assert.match(reminders, /styles\.css\?v=17/);
 });
 
 test("key modern text combinations retain readable WCAG AA contrast", () => {
@@ -56,4 +56,17 @@ test("key modern text combinations retain readable WCAG AA contrast", () => {
   for (const [label, textColor, backgroundColor] of combinations) {
     assert.ok(contrast(textColor, backgroundColor) >= 4.5, label + " has insufficient contrast");
   }
+});
+
+test("four original hero scenes are local, distinct and preloaded offline", () => {
+  for (const name of ["amanecer","enfoque","bosque","celebracion"]) {
+    const asset = fs.readFileSync(path.join(root, "art", name + ".svg"), "utf8");
+    assert.match(asset,/^<svg xmlns=/);
+    assert.match(asset,/viewBox="0 0 1600 520"/);
+    assert.match(sw,new RegExp('art/' + name + '\\.svg'));
+    assert.match(css,new RegExp('hero--' + name));
+  }
+  assert.match(home,/id="hero-scene-next"/);
+  assert.match(home,/id="journey-bar"/);
+  assert.match(home,/id="achievement-list"/);
 });
