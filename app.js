@@ -456,76 +456,104 @@ function renderHabitStreaks() {
   }).join("");
 }
 
+function notificationCapability() {
+  if (!window.isSecureContext || typeof window.Notification === "undefined") return "unsupported";
+  return window.Notification.permission || "default";
+}
+
 function renderReminderSettings() {
   $("reminder-enabled").checked = data.settings.reminderEnabled;
   $("reminder-time").value = data.settings.reminderTime;
   $("alarm-enabled").checked = data.settings.alarmEnabled;
-  const supported = window.isSecureContext && typeof window.Notification !== "undefined";
-  const permission = supported ? window.Notification.permission : "unsupported";
+  $("alarm-volume").value = String(data.settings.alarmVolume);
+  $("alarm-volume-value").textContent = data.settings.alarmVolume + " %";
+  $("reminder-overview").textContent = data.settings.reminderEnabled
+    ? "Aviso diario activo · " + data.settings.reminderTime
+    : "Avisos diarios desactivados";
+
+  const permission = notificationCapability();
   const active = data.settings.notificationEnabled && permission === "granted";
+  const status = $("notification-status");
+  status.classList.toggle("is-active", active);
+  status.classList.toggle("is-warning", permission === "denied" || permission === "unsupported");
+  status.textContent = active
+    ? data.settings.reminderEnabled ? "Activadas" : "Avisos pausados"
+    : permission === "denied" ? "Bloqueadas"
+    : permission === "unsupported" ? "No disponibles" : "Desactivadas";
+
   $("notification-permission-btn").textContent = active
-    ? "✓ Desactivar notificaciones"
-    : "Activar notificaciones del dispositivo";
-  $("notification-permission-btn").disabled = permission === "unsupported" || permission === "denied";
-  $("notification-status").textContent = active
-    ? "Notificaciones activadas mientras HabitClik está abierta."
-    : permission === "denied" ? "El navegador las ha bloqueado. Cámbialo en sus ajustes."
-    : permission === "granted" ? "Permiso concedido; notificaciones de HabitClik desactivadas."
-    : permission === "unsupported" ? "Este navegador o contexto no admite estas notificaciones."
-    : "Permiso pendiente. Debes activarlas expresamente.";
+    ? "Desactivar notificaciones"
+    : permission === "denied" ? "Cómo desbloquearlas"
+    : permission === "unsupported" ? "Ver alternativas"
+    : "Activar notificaciones";
+  $("notification-help").textContent = permission === "denied"
+    ? "El permiso está bloqueado. Abre los ajustes del sitio en tu navegador y permite las notificaciones."
+    : permission === "unsupported"
+    ? "Este navegador no permite notificaciones en este contexto. En iPhone, instala la web en la pantalla de inicio y ábrela desde allí si tu versión de iOS lo admite. Puedes usar el calendario como alternativa."
+    : active
+    ? data.settings.reminderEnabled
+      ? "Permiso concedido. Prueba el botón para comprobar si tu dispositivo muestra el aviso."
+      : "Activa también el recordatorio diario para recibir avisos programados."
+    : "Debes dar permiso expresamente. La prueba mostrará si el navegador puede enviarlas.";
 }
 
-function playAlarm() {
+async function playAlarm() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return false;
   try {
     if (!alarmAudioContext) alarmAudioContext = new AudioContextClass();
     const context = alarmAudioContext;
     if (context.state === "suspended") {
-      context.resume().catch((error) => console.warn("HabitClik: audio no autorizado.", error));
+      if (typeof context.resume !== "function") return false;
+      await context.resume();
+      if (context.state === "suspended") return false;
     }
-    const origin = context.currentTime + 0.04;
-    for (let i = 0; i < 2; i++) {
-      const at = origin + i * 0.35;
+    const start = context.currentTime + 0.04;
+    const gain = 0.18 * (data.settings.alarmVolume / 100);
+    for (let i = 0; i < 3; i++) {
+      const at = start + i * 0.29;
       const osc = context.createOscillator();
       const volume = context.createGain();
       osc.type = "sine";
-      osc.frequency.value = i === 0 ? 660 : 880;
-      volume.gain.setValueAtTime(0.001, at);
-      volume.gain.exponentialRampToValueAtTime(0.11, at + 0.04);
-      volume.gain.exponentialRampToValueAtTime(0.001, at + 0.28);
+      osc.frequency.value = [659.25, 783.99, 987.77][i];
+      volume.gain.setValueAtTime(0.0001, at);
+      volume.gain.exponentialRampToValueAtTime(gain, at + 0.035);
+      volume.gain.exponentialRampToValueAtTime(0.0001, at + 0.245);
       osc.connect(volume);
       volume.connect(context.destination);
       osc.start(at);
-      osc.stop(at + 0.29);
+      osc.stop(at + 0.255);
     }
     return true;
   } catch (error) {
-    console.warn("HabitClik: alarma no disponible.", error);
+    console.warn("HabitClik: la reproducción de audio no está disponible.", error);
     return false;
   }
 }
 
-function sendDeviceNotification(message) {
-  if (!data.settings.notificationEnabled ||
-      !window.isSecureContext || !window.Notification ||
-      window.Notification.permission !== "granted") return;
+async function sendDeviceNotification(message) {
+  if (!data.settings.notificationEnabled || notificationCapability() !== "granted") return false;
   const options = {
     body: message,
     icon: "./icons/icon-192.png",
     tag: "habitclik-daily",
     data: { url: "./" }
   };
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.ready.then((registration) =>
-      registration.showNotification("HabitClik · Tu recordatorio", options)
-    ).catch((error) => console.warn("HabitClik: notificación no disponible.", error));
-  } else {
-    try {
-      new window.Notification("HabitClik · Tu recordatorio", options);
-    } catch (error) {
-      console.warn("HabitClik: notificación no disponible.", error);
+  try {
+    if ("serviceWorker" in navigator &&
+        typeof navigator.serviceWorker.getRegistration === "function") {
+      const registration = await navigator.serviceWorker.getRegistration("./");
+      if (registration && typeof registration.showNotification === "function" && registration.active) {
+        await registration.showNotification("HabitClik · Tu recordatorio", options);
+        return true;
+      }
     }
+    // Fallback for desktop browsers; some mobile browsers require an active service worker.
+    new window.Notification("HabitClik · Tu recordatorio", options);
+    return true;
+  } catch (error) {
+    console.warn("HabitClik: el navegador no mostró la notificación.", error);
+    return false;
   }
 }
 
