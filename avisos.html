@@ -9,9 +9,9 @@
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-    <link rel="stylesheet" href="./styles.css?v=10" />
-    <script src="./alarm-sounds.js?v=10" defer></script>
-    <script src="./avisos.js?v=10" defer></script>
+    <link rel="stylesheet" href="./styles.css?v=11" />
+    <script src="./alarm-sounds.js?v=11" defer></script>
+    <script src="./avisos.js?v=11" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -80,7 +80,7 @@
             <div class="settings-icon settings-icon-purple" aria-hidden="true">♫</div>
             <div class="settings-detail">
               <div class="settings-heading">
-                <div><h2 id="alarm-heading">Sonido de alarma</h2><p>Elige entre cinco alarmas, prueba el tono y ajusta la intensidad.</p></div>
+                <div><h2 id="alarm-heading">Sonido de alarma</h2><p>Elige uno de los cinco tonos o añade un audio propio, y prueba el volumen.</p></div>
                 <label class="settings-toggle">
                   <input id="alarm-enabled" type="checkbox" role="switch" aria-label="Activar sonido de alarma" />
                   <span class="settings-toggle-track" aria-hidden="true"></span>
@@ -94,8 +94,22 @@
                   <option value="clasica">Despertador — clásica</option>
                   <option value="alegre">Alegre — musical</option>
                   <option value="energia">Energía — potente</option>
+                  <option value="personalizada" id="alarm-custom-choice" disabled>Mi alarma (sube tu audio)</option>
                 </select>
                 <p id="alarm-tone-description" class="settings-note" role="status">Campanas: melódica y clara.</p>
+                <div class="custom-alarm-area">
+                  <div class="custom-alarm-head">
+                    <div class="custom-alarm-emblem" aria-hidden="true">♫</div>
+                    <div><strong>Mi alarma personalizada</strong><p>Usa una canción o audio corto de tu dispositivo.</p></div>
+                  </div>
+                  <div class="settings-actions custom-alarm-actions">
+                    <label for="alarm-custom-file" class="settings-action settings-action-primary custom-upload-btn">↑ Subir mi audio</label>
+                    <input id="alarm-custom-file" class="visually-hidden-file" type="file" accept=".mp3,.m4a,.aac,.wav,.ogg,.webm,audio/*" aria-describedby="alarm-custom-help" />
+                    <button type="button" class="settings-action" id="alarm-custom-remove" hidden>Eliminar audio</button>
+                  </div>
+                  <p class="settings-note" id="alarm-custom-help">MP3, M4A, WAV, OGG, AAC o WebM · máximo 8 MB. Se guarda solo en este navegador.</p>
+                  <p class="settings-note custom-alarm-feedback" id="alarm-custom-status" role="status">Aún no has añadido un sonido propio.</p>
+                </div>
               </div>
               <div class="settings-volume-row">
                 <label for="alarm-volume">Volumen</label>
