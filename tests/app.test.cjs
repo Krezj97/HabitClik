@@ -8,6 +8,7 @@ const vm = require("node:vm");
 
 const root = path.join(__dirname, "..");
 const source = fs.readFileSync(path.join(root, "app.js"), "utf8");
+const alarmSource = fs.readFileSync(path.join(root, "alarm-sounds.js"), "utf8");
 
 function boot(seed, hour = 20, options = {}) {
   const elements = new Map();
@@ -80,6 +81,7 @@ function boot(seed, hour = 20, options = {}) {
     setInterval(fn) { intervals.push(fn); return 2; },
     console: { warn() {} }
   };
+  vm.runInNewContext(alarmSource, context, { filename: "alarm-sounds.js" });
   vm.runInNewContext(source + "\nglobalThis.testApi = {" +
     "getData: () => data, normalizeData, completionsThisWeek, weeklyStreak, " +
     "toggleHabit, showPendingReminder, renderCalendar, motivationForToday };", context, { filename: "app.js" });
@@ -181,7 +183,7 @@ test("PWA shell and DOM references remain consistent", () => {
   for (const [, id] of source.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(ids.has(id), "missing DOM element " + id);
   }
-  assert.match(sw, /habitclik-static-v9/);
+  assert.match(sw, /habitclik-static-v10/);
   assert.equal((css.match(/{/g) ?? []).length, (css.match(/}/g) ?? []).length);
   for (const icon of manifest.icons) {
     assert.ok(fs.existsSync(path.join(root, icon.src)), "missing icon " + icon.src);
@@ -283,10 +285,10 @@ test("alarm sound is opt-in and needs an available browser audio API", async () 
   element("alarm-enabled").checked = true;
   await element("alarm-enabled").handlers.change();
   assert.equal(api.getData().settings.alarmEnabled, true);
-  assert.equal(played, 3);
+  assert.equal(played, 4);
   assert.match(element("alarm-status").textContent, /Activada/);
   await element("test-alarm-btn").handlers.click();
-  assert.equal(played, 6);
+  assert.equal(played, 8);
   element("alarm-volume").value = "80";
   element("alarm-volume").handlers.input();
   element("alarm-volume").handlers.change();
@@ -355,4 +357,20 @@ test("reminder settings can be reached through a standalone native link", () => 
   assert.match(avisos, /id="test-notification-btn"/);
   assert.match(avisos, /id="test-alarm-btn"/);
   assert.match(avisos, /id="alarm-volume"/);
+});
+
+test("older habits receive the default alarm without overwriting other preferences", () => {
+  const data = {
+    habits: [{ id: "a", title: "Correr", category: "movimiento", createdAt: "2026-10-01", weeklyTarget: 3 }],
+    logs: {}, settings: { alarmEnabled: true, alarmVolume: 70 }
+  };
+  const { api } = boot(data);
+  assert.equal(api.getData().settings.alarmTone, "campanas");
+  assert.equal(api.getData().settings.alarmVolume, 70);
+  const imported = api.normalizeData({
+    ...data, settings: { alarmEnabled: true, alarmVolume: 70, alarmTone: "digital" }
+  });
+  assert.equal(imported.settings.alarmTone, "digital");
+  assert.equal(imported.settings.alarmEnabled, true);
+  assert.equal(imported.settings.alarmVolume, 70);
 });
