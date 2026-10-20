@@ -464,6 +464,112 @@ function renderHabitStreaks() {
 function renderReminderSettings() {
   $("reminder-enabled").checked = data.settings.reminderEnabled;
   $("reminder-time").value = data.settings.reminderTime;
+  $("alarm-enabled").checked = data.settings.alarmEnabled;
+  const supported = window.isSecureContext && typeof window.Notification !== "undefined";
+  const permission = supported ? window.Notification.permission : "unsupported";
+  const active = data.settings.notificationEnabled && permission === "granted";
+  $("notification-permission-btn").textContent = active
+    ? "✓ Desactivar notificaciones"
+    : "Activar notificaciones del dispositivo";
+  $("notification-permission-btn").disabled = permission === "unsupported" || permission === "denied";
+  $("notification-status").textContent = active
+    ? "Notificaciones activadas mientras HabitClik está abierta."
+    : permission === "denied" ? "El navegador las ha bloqueado. Cámbialo en sus ajustes."
+    : permission === "granted" ? "Permiso concedido; notificaciones de HabitClik desactivadas."
+    : permission === "unsupported" ? "Este navegador o contexto no admite estas notificaciones."
+    : "Permiso pendiente. Debes activarlas expresamente.";
+}
+
+function playAlarm() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return false;
+  try {
+    if (!alarmAudioContext) alarmAudioContext = new AudioContextClass();
+    const context = alarmAudioContext;
+    if (context.state === "suspended") {
+      context.resume().catch((error) => console.warn("HabitClik: audio no autorizado.", error));
+    }
+    const origin = context.currentTime + 0.04;
+    for (let i = 0; i < 2; i++) {
+      const at = origin + i * 0.35;
+      const osc = context.createOscillator();
+      const volume = context.createGain();
+      osc.type = "sine";
+      osc.frequency.value = i === 0 ? 660 : 880;
+      volume.gain.setValueAtTime(0.001, at);
+      volume.gain.exponentialRampToValueAtTime(0.11, at + 0.04);
+      volume.gain.exponentialRampToValueAtTime(0.001, at + 0.28);
+      osc.connect(volume);
+      volume.connect(context.destination);
+      osc.start(at);
+      osc.stop(at + 0.29);
+    }
+    return true;
+  } catch (error) {
+    console.warn("HabitClik: alarma no disponible.", error);
+    return false;
+  }
+}
+
+function sendDeviceNotification(message) {
+  if (!data.settings.notificationEnabled ||
+      !window.isSecureContext || !window.Notification ||
+      window.Notification.permission !== "granted") return;
+  const options = {
+    body: message,
+    icon: "./icons/icon-192.png",
+    tag: "habitclik-daily",
+    data: { url: "./" }
+  };
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.ready.then((registration) =>
+      registration.showNotification("HabitClik · Tu recordatorio", options)
+    ).catch((error) => console.warn("HabitClik: notificación no disponible.", error));
+  } else {
+    try {
+      new window.Notification("HabitClik · Tu recordatorio", options);
+    } catch (error) {
+      console.warn("HabitClik: notificación no disponible.", error);
+    }
+  }
+}
+
+function calendarDate(value) {
+  return value.getFullYear() + String(value.getMonth() + 1).padStart(2, "0") +
+    String(value.getDate()).padStart(2, "0") + "T" +
+    String(value.getHours()).padStart(2, "0") +
+    String(value.getMinutes()).padStart(2, "0") + "00";
+}
+
+function downloadCalendarReminder() {
+  // Floating local time: importing calendar uses the user's calendar time zone.
+  const [hours, minutes] = data.settings.reminderTime.split(":").map(Number);
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
+  if (start <= now) start.setDate(start.getDate() + 1);
+  const end = new Date(start.getTime() + 10 * 60 * 1000);
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const uid = "habitclik-" + Date.now() + "-" + Math.random().toString(36).slice(2) + "@habitclik";
+  const ics = [
+    "BEGIN:VCALENDAR", "VERSION:2.0",
+    "PRODID:-//HabitClik//Daily Reminder//ES", "CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT", "UID:" + uid, "DTSTAMP:" + stamp,
+    "DTSTART:" + calendarDate(start), "DTEND:" + calendarDate(end),
+    "RRULE:FREQ=DAILY", "SUMMARY:HabitClik - revisa tus habitos",
+    "DESCRIPTION:Entra en HabitClik y revisa tus metas a tu ritmo.",
+    "BEGIN:VALARM", "TRIGGER:-PT5M", "ACTION:DISPLAY",
+    "DESCRIPTION:HabitClik - es hora de revisar tus habitos",
+    "END:VALARM", "END:VEVENT", "END:VCALENDAR", ""
+  ].join("\r\n");
+  const url = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "habitclik-recordatorio.ics";
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  showToast("Aviso diario descargado. Impórtalo a tu calendario y activa sus alertas.");
 }
 
 function showPendingReminder() {
@@ -479,9 +585,12 @@ function showPendingReminder() {
   if (pending.length === 0) return;
   data.settings.lastRemindedAt = today;
   persist();
-  showToast("Tienes " + pending.length +
+  const message = "Tienes " + pending.length +
     (pending.length === 1 ? " hábito pendiente" : " hábitos pendientes") +
-    " para avanzar en tus metas esta semana.");
+    " para avanzar en tus metas esta semana.";
+  showToast(message);
+  sendDeviceNotification(message);
+  if (data.settings.alarmEnabled) playAlarm();
 }
 
 function render() {
@@ -697,6 +806,55 @@ $("import-file").addEventListener("change", async (event) => {
   await importData(event.target.files[0]);
   event.target.value = "";
 });
+
+$("test-alarm-btn").addEventListener("click", () => {
+  if (!playAlarm()) showToast("El navegador no admite esta alarma.");
+});
+$("alarm-enabled").addEventListener("change", () => {
+  const enabled = $("alarm-enabled").checked;
+  if (enabled && !playAlarm()) {
+    $("alarm-enabled").checked = false;
+    showToast("Este navegador no permite reproducir la alarma.");
+    return;
+  }
+  data.settings.alarmEnabled = enabled;
+  persist();
+  showToast(enabled
+    ? "Alarma activada si HabitClik está abierta y el audio permitido."
+    : "Alarma sonora desactivada.");
+});
+$("notification-permission-btn").addEventListener("click", async () => {
+  const supported = window.isSecureContext && typeof window.Notification !== "undefined";
+  if (!supported) {
+    showToast("Las notificaciones no están disponibles en este navegador.");
+    return;
+  }
+  if (data.settings.notificationEnabled) {
+    data.settings.notificationEnabled = false;
+    persist();
+    renderReminderSettings();
+    showToast("Notificaciones de HabitClik desactivadas.");
+    return;
+  }
+  try {
+    const permission = window.Notification.permission === "granted"
+      ? "granted" : await window.Notification.requestPermission();
+    if (permission === "granted") {
+      data.settings.notificationEnabled = true;
+      data.settings.reminderEnabled = true;
+      persist();
+      showToast("Notificaciones activadas. Mantén HabitClik abierta para recibirlas.");
+      showPendingReminder();
+    } else {
+      showToast("Sin permiso del navegador; puedes usar avisos dentro de la app.");
+    }
+  } catch (error) {
+    console.warn("HabitClik: permiso de notificación no disponible.", error);
+    showToast("No se pudo solicitar permiso para notificaciones.");
+  }
+  renderReminderSettings();
+});
+$("calendar-export-btn").addEventListener("click", downloadCalendarReminder);
 
 $("reminder-enabled").addEventListener("change", () => {
   data.settings.reminderEnabled = $("reminder-enabled").checked;
