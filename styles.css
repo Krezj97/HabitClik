@@ -377,3 +377,173 @@ a.nav-item:focus-visible, .sidebar-back:focus-visible, .nav-back-button:focus-vi
   .alarm-tone-select { font-size: 14px; }
   .settings-volume-row { align-items: center; }
 }
+
+/* HABITCLIK 2026 — warm minimal palette, muted teal accents */
+:root {
+  --hc-bg: #f7f8f6;
+  --hc-white: #ffffff;
+  --hc-text: #21332f;
+  --hc-muted: #71827d;
+  --hc-accent: #3b7064;
+  --hc-accent-dark: #2c5b50;
+  --hc-soft: #e9f1ed;
+  --hc-border: #e3eae6;
+  color: var(--hc-text);
+  background: var(--hc-bg);
+}
+body { background: var(--hc-bg); color: var(--hc-text); }
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+  outline: 3px solid #83b7ab; outline-offset: 3px;
+}
+.sidebar {
+  background: var(--hc-white);
+  color: var(--hc-text);
+  border-right: 1px solid var(--hc-border);
+  box-shadow: 4px 0 20px #1a363005;
+}
+.brand { color: var(--hc-text); letter-spacing: -1.05px; }
+.brand-icon { background: var(--hc-accent); color: white; border-radius: 12px; }
+.brand-accent { color: var(--hc-accent); }
+.sidebar-caption { color: #9ba9a3; }
+.nav-item { color: #657873; font-weight: 720; }
+.nav-item:hover { background: #f1f5f2; color: #29463e; }
+.nav-item.is-active { background: #e7f0ea; color: #2b6052; }
+.nav-item > span { color: inherit; }
+.tip-card { background: #eff4f0; border: 1px solid #e6eee9; }
+.tip-icon { background: #d6e8dd; color: #356c5c; }
+.tip-card strong { color: #30483f; }
+.tip-card p { color: #788d83; }
+.privacy-note { color: #8c9993; }
+.data-actions button { background: #f8faf8; color: #657c74; border-color: #e1e9e4; }
+.data-actions button:hover { background: #edf4ee; color: var(--hc-accent-dark); }
+.sidebar-back { background: #eff4f0; border-color: #e3ebe6; color: #416a5d; }
+.sidebar-back:hover { background: #e1eee6; color: #244d43; }
+.eyebrow, .section-overline { color: #7c9188; }
+.topbar-title span, .main-footer span { color: #5b8b7d; }
+.main-content { color: var(--hc-text); }
+.button-primary, .settings-action-primary {
+  background: var(--hc-accent);
+  border-color: var(--hc-accent);
+  color: #fff;
+  box-shadow: none;
+}
+.button-primary:hover, .settings-action-primary:hover {
+  background: var(--hc-accent-dark);
+  border-color: var(--hc-accent-dark);
+  color: white;
+}
+.hero, .stats-hero, .settings-hero {
+  background: #e8f0eb;
+  color: #213c34;
+  border: 1px solid #dae7df;
+}
+.hero::before { display: none; }
+.hero h1, .stats-hero h1, .settings-hero h1 { color: #223d34; }
+.hero-kicker, .settings-hero .section-overline, .hero-dot { color: var(--hc-accent); }
+.hero p, .stats-hero p, .settings-hero p { color: #617c70; }
+.date-chip { background: #d6e7dc; color: #335a4a; }
+.ring-track { stroke: #d0ded5; }
+.ring-fill { stroke: #3f8273; }
+.ring-label { color: #294c40; }
+.ring-label span { color: #6e8b7a; }
+.stat-card, .habit-card, .weekly-strip, .chart-card,
+.calendar-panel, .weekly-goal-card, .settings-card {
+  border-color: var(--hc-border);
+  box-shadow: 0 2px 14px #1b43300a;
+}
+.stat-emoji { background: #e8f2ec; color: #4b8574; }
+.stat-emoji.flame { background: #f9f0e9; color: #b18464; }
+.stat-emoji.star { background: #f0ecf7; color: #8971a3; }
+.stat-label, .subtle-text { color: #8b9b94; }
+.day.today { background: #eaf2ea; }
+.day .day-mark.has-progress { background: #cce6d3; color: #376653; }
+.day .day-mark.full-progress { background: #4d927c; color: #fff; }
+.habit-card.is-done { background: #f8fbf8; border-color: #dce9df; }
+.habit-card.is-done .habit-check { background: #dceee2; border-color: #c9e4d1; color: #316f55; }
+.habit-check:hover { border-color: #7baa9b; }
+.count-pill { background: #e8eeea; color: #6f8278; }
+.weekly-goal-card.goal-met { background: #f8fbf8; border-color: #d6e9dc; }
+.weekly-goal-track { background: #edf3ee; }
+.weekly-goal-fill { background: #72a792; }
+.weekly-goal-card.goal-met .weekly-goal-fill { background: #468a72; }
+.weekly-goal-count, .weekly-goal-card.goal-met .weekly-goal-caption { color: #488269; }
+.motivation-card {
+  background: #f0f5ee; border-color: #e2ebde;
+  border-radius: 16px;
+}
+.motivation-symbol { background: #dcead9; color: #517a60; }
+.motivation-body .section-overline { color: #77947d; }
+.motivation-body p { color: #65806f; }
+.motivation-next { background: #e1ede0; color: #4c7d5b; }
+.motivation-next:hover { background: #d4e5d3; }
+.calendar-day.has-progress { background: #eaf4ed; border-color: #dce9e1; }
+.calendar-day.is-complete { background: #bfdfca; border-color: #a9d4b7; }
+.calendar-day.is-today:not(.is-selected) { border-color: #4e8973; }
+.calendar-day.is-selected { outline-color: #3d7066; }
+.calendar-day:hover:not(:disabled) { background: #e2f0e6; }
+.calendar-dot-partial { background: #8bc8a5; }
+.calendar-dot-done { background: #488d73; }
+.settings-intro p, .settings-heading p, .settings-note, .settings-disclaimer { color: #768983; }
+.settings-mode { background: #e6f0e8; color: #3b715a; }
+.settings-icon { background: #e7f0e9; color: #477b66; }
+.settings-icon-blue { background: #e7eff0; color: #4b7275; }
+.settings-icon-purple { background: #eeedf3; color: #726a88; }
+.settings-icon-amber { background: #f7efe2; color: #a18355; }
+.settings-toggle input:checked + .settings-toggle-track { background: #4a8a73; }
+.settings-action { background: #f2f6f3; border-color: #dfe9e2; color: #3d6452; }
+.settings-action:hover { background: #e7f0e8; color: #26483b; }
+.settings-action-primary, .custom-upload-btn {
+  background: var(--hc-accent);
+  border-color: var(--hc-accent);
+  color: #fff;
+}
+.settings-action-primary:hover, .custom-upload-btn:hover {
+  background: var(--hc-accent-dark);
+  color: white;
+}
+.settings-time, .alarm-tone-select {
+  background: #fcfdfc; border-color: #d9e5dd; color: #2c4b3c;
+}
+.settings-volume-row input { accent-color: #498473; }
+.settings-status.is-active { background: #e1f0e5; color: #337254; }
+.settings-status.is-warning { background: #faf1e6; color: #986c43; }
+.habit-dialog { color: var(--hc-text); }
+.dialog-heading .section-overline { color: #7c9188; }
+.install-button { background: #e7f0e9; color: #3b715b; }
+.install-button:hover { background: #d7e9dc; }
+.toast { background: #2e5649; color: #fff; }
+
+/* Personal audio: subtle inset uploader */
+.custom-alarm-area {
+  margin-top: 18px;
+  padding: 18px;
+  background: #f8faf8;
+  border: 1px dashed #c9d9cf;
+  border-radius: 14px;
+}
+.custom-alarm-head { display: flex; align-items: center; gap: 12px; }
+.custom-alarm-head strong { display: block; font-size: 13px; font-weight: 800; color: #315348; }
+.custom-alarm-head p { margin: 4px 0 0; color: #81948a; font-size: 11px; line-height: 1.5; }
+.custom-alarm-emblem {
+  background: #e1eee4; color: #45816b; border-radius: 11px;
+  width: 42px; height: 42px; flex: 0 0 42px;
+  display: grid; place-items: center; font-size: 23px;
+}
+.custom-alarm-actions { margin-top: 14px; }
+.custom-upload-btn { cursor: pointer; text-align: center; }
+.visually-hidden-file {
+  position: absolute !important; width: 1px !important; height: 1px !important;
+  opacity: 0 !important; overflow: hidden !important; clip-path: inset(50%);
+}
+.custom-alarm-area:focus-within { border-color: #709d87; }
+.custom-upload-btn:focus-within, .custom-upload-btn:focus-visible { outline: 3px solid #83b7ab; }
+.custom-alarm-feedback { color: #467a64; font-weight: 700; overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .sidebar { box-shadow: 0 2px 14px #1b43300a; }
+  .nav-item { color: #687c73; }
+  .tip-card { background: #f0f5f0; }
+}
+@media (max-width: 470px) {
+  .custom-alarm-area { padding: 14px; }
+  .custom-upload-btn { width: 100%; }
+}
