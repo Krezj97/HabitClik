@@ -13,6 +13,7 @@ const $ = (id) => document.getElementById(id);
 const dateFormat = new Intl.DateTimeFormat("es-ES", { weekday: "long", day: "numeric", month: "long" });
 let toastTimer;
 let currentView = "today";
+let editingId = null;
 
 function keyForDate(date) {
   const y = date.getFullYear();
@@ -217,8 +218,10 @@ function renderHabits() {
       '<button type="button" class="habit-check" data-action="toggle" data-id="' + habit.id +
       '" aria-pressed="' + checked + '" aria-label="' + (checked ? 'Desmarcar ' : 'Completar ') +
       escapeHtml(habit.title) + '">' + (checked ? '✓ Hecho' : '○ Completar') + '</button>' +
+      '<span class="habit-action-buttons"><button type="button" class="edit-habit" data-action="edit" data-id="' + habit.id +
+      '" aria-label="Editar ' + escapeHtml(habit.title) + '" title="Editar hábito">✎</button>' +
       '<button type="button" class="delete-habit" data-action="delete" data-id="' + habit.id +
-      '" aria-label="Eliminar ' + escapeHtml(habit.title) + '" title="Eliminar hábito">×</button>' +
+      '" aria-label="Eliminar ' + escapeHtml(habit.title) + '" title="Eliminar hábito">×</button></span>' +
       '</article>';
   }).join("");
 }
@@ -297,8 +300,18 @@ function showView(view) {
   window.scrollTo({ top: 0, behavior: "instant" });
 }
 
-function openDialog() {
+function openDialog(id = null) {
   $("habit-form").reset();
+  const habit = typeof id === "string" ? data.habits.find((entry) => entry.id === id) : null;
+  editingId = habit ? habit.id : null;
+  $("dialog-title").textContent = habit ? "Edita tu hábito" : "Crea un hábito";
+  $("save-habit-btn").innerHTML = habit
+    ? 'Guardar cambios <span aria-hidden="true">↗</span>'
+    : 'Crear hábito <span aria-hidden="true">↗</span>';
+  if (habit) {
+    $("habit-name").value = habit.title;
+    $("habit-category").value = habit.category;
+  }
   $("habit-dialog").showModal();
   $("habit-name").focus();
 }
@@ -365,7 +378,7 @@ async function importData(file) {
 
 document.querySelectorAll("[data-view]").forEach((button) =>
   button.addEventListener("click", () => showView(button.dataset.view)));
-$("open-add-btn").addEventListener("click", openDialog);
+$("open-add-btn").addEventListener("click", () => openDialog());
 $("close-dialog").addEventListener("click", () => $("habit-dialog").close());
 $("cancel-dialog").addEventListener("click", () => $("habit-dialog").close());
 
@@ -377,16 +390,27 @@ $("habit-form").addEventListener("submit", (event) => {
     showToast("Introduce un nombre válido.");
     return;
   }
-  if (data.habits.length >= 200) {
-    showToast("Has alcanzado el límite de 200 hábitos.");
-    return;
+  if (editingId) {
+    const habit = data.habits.find((entry) => entry.id === editingId);
+    if (!habit) {
+      showToast("No se ha encontrado el hábito que querías editar.");
+      return;
+    }
+    habit.title = title;
+    habit.category = category;
+  } else {
+    if (data.habits.length >= 200) {
+      showToast("Has alcanzado el límite de 200 hábitos.");
+      return;
+    }
+    data.habits.push({ id: newId(), title, category, createdAt: keyForDate(new Date()) });
   }
-  data.habits.push({ id: newId(), title, category, createdAt: keyForDate(new Date()) });
   persist();
   render();
   showView("today");
   $("habit-dialog").close();
-  showToast("¡Nuevo hábito creado!");
+  showToast(editingId ? "Hábito actualizado sin perder el progreso." : "¡Nuevo hábito creado!");
+  editingId = null;
 });
 
 $("habit-list").addEventListener("click", (event) => {
@@ -394,6 +418,7 @@ $("habit-list").addEventListener("click", (event) => {
   if (!button) return;
   if (button.dataset.action === "new") openDialog();
   if (button.dataset.action === "toggle") toggleHabit(button.dataset.id);
+  if (button.dataset.action === "edit") openDialog(button.dataset.id);
   if (button.dataset.action === "delete") deleteHabit(button.dataset.id);
 });
 
