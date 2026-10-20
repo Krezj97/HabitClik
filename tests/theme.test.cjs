@@ -36,11 +36,11 @@ test("the olive palette is applied to both pages and the installed PWA", () => {
   assert.match(home, /name="theme-color" content="#404d38"/);
   assert.match(reminders, /name="theme-color" content="#404d38"/);
   for (const filename of ["styles.css", "app.js", "alarm-sounds.js", "avisos.js", "phrases.js"]) {
-    assert.match(sw, new RegExp(filename.replace(".", "\\.") + "\\?v=14"));
+    assert.match(sw, new RegExp(filename.replace(".", "\\.") + "\\?v=15"));
   }
-  assert.match(sw, /habitclik-static-v14/);
-  assert.match(home, /styles\.css\?v=14/);
-  assert.match(reminders, /styles\.css\?v=14/);
+  assert.match(sw, /habitclik-static-v15/);
+  assert.match(home, /styles\.css\?v=15/);
+  assert.match(reminders, /styles\.css\?v=15/);
 });
 
 test("key olive text combinations retain readable WCAG AA contrast", () => {
