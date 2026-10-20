@@ -1,14 +1,16 @@
 "use strict";
 
-// Five locally synthesized alarm tones. No external audio files or network calls.
+// Five verified CC0 WAV notification recordings, with a synthesized fallback if an asset is unavailable.
 // The audio context is started only after an explicit user action.
 (function () {
+  // WAV recordings from AKX Notifications, released under CC0.
+  // Old IDs are preserved so existing user preferences continue working.
   const choices = Object.freeze([
-    Object.freeze({ id: "campanas", title: "Campanas", description: "Melódica y clara" }),
-    Object.freeze({ id: "digital", title: "Digital", description: "Pulsos cortos y nítidos" }),
-    Object.freeze({ id: "clasica", title: "Despertador", description: "Timbre firme y alterno" }),
-    Object.freeze({ id: "alegre", title: "Alegre", description: "Secuencia musical ascendente" }),
-    Object.freeze({ id: "energia", title: "Energía", description: "Pulsos graves y potentes" })
+    Object.freeze({ id: "campanas", title: "Aurora", description: "Acordes cálidos y elegantes", file: "./sounds/campanas.wav" }),
+    Object.freeze({ id: "digital", title: "Pulse", description: "Aviso digital claro y discreto", file: "./sounds/digital.wav" }),
+    Object.freeze({ id: "clasica", title: "Clásica", description: "Alarma breve y definida", file: "./sounds/clasica.wav" }),
+    Object.freeze({ id: "alegre", title: "Destellos", description: "Brillante y musical", file: "./sounds/alegre.wav" }),
+    Object.freeze({ id: "energia", title: "Horizonte", description: "Tono llamativo y moderno", file: "./sounds/energia.wav" })
   ]);
 
   // Frequencies in Hz, duration in seconds and interval before the next note.
@@ -260,8 +262,64 @@
     }
   }
 
+  async function playSample(choice, volume) {
+    if (!window.Audio) return false;
+    stopPrevious();
+    const level = clampLevel(volume);
+    let player = null;
+    try {
+      player = new window.Audio(choice.file);
+      player.preload = "auto";
+      activeCustomAudio = player;
+      activeLevel = level;
+      const Context = window.AudioContext || window.webkitAudioContext;
+      if (Context) {
+        if (!audioContext || audioContext.state === "closed") audioContext = new Context();
+        if (audioContext.state === "suspended" && typeof audioContext.resume === "function") {
+          await audioContext.resume();
+        }
+        if (audioContext.state !== "suspended" &&
+            typeof audioContext.createMediaElementSource === "function") {
+          try {
+            const source = audioContext.createMediaElementSource(player);
+            const master = audioContext.createGain();
+            master.gain.value = loudness(level) / loudness(100);
+            source.connect(master);
+            master.connect(audioContext.destination);
+            activeGain = master;
+            activeGainBase = master.gain.value;
+            player.volume = 1;
+          } catch (error) {
+            console.warn("HabitClik: no se puede enrutar el WAV al mezclador.", error);
+          }
+        }
+      }
+      if (!activeGain) player.volume = level / 100;
+      const release = () => {
+        if (activeCustomAudio === player) {
+          activeCustomAudio = null;
+          activeGain = null;
+          activeGainBase = 1;
+        }
+      };
+      player.addEventListener("ended", release, { once: true });
+      player.addEventListener("error", release, { once: true });
+      await player.play();
+      return true;
+    } catch (error) {
+      if (player) player.pause();
+      if (activeCustomAudio === player) activeCustomAudio = null;
+      activeGain = null;
+      activeGainBase = 1;
+      console.warn("HabitClik: muestra WAV no disponible, usando tono alternativo.", error);
+      return false;
+    }
+  }
+
   async function play(id, volume = 50) {
     if (id === CUSTOM_ID) return playCustom(volume);
+    const choice = choices.find((item) => item.id === id) || choices[0];
+    if (await playSample(choice, volume)) return true;
     const Context = window.AudioContext || window.webkitAudioContext;
     if (!Context) return false;
     const pattern = Object.hasOwn(patterns, id) ? patterns[id] : patterns.campanas;
