@@ -11,8 +11,9 @@
     <link rel="apple-touch-icon" href="./icons/icon-192.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <link rel="stylesheet" href="styles.css" />
-    <script src="app.js" defer></script>
+    <link rel="stylesheet" href="styles.css?v=8" />
+    <script src="phrases.js?v=8" defer></script>
+    <script src="app.js?v=8" defer></script>
   </head>
   <body>
     <div class="app-shell">
@@ -23,27 +24,10 @@
           <button class="nav-item is-active" type="button" data-view="today" aria-current="page"><span aria-hidden="true">◫</span> Mi día</button>
           <button class="nav-item" type="button" data-view="stats"><span aria-hidden="true">▥</span> Estadísticas</button>
           <button class="nav-item" type="button" data-view="calendar"><span aria-hidden="true">▦</span> Calendario</button>
+          <button class="nav-item" type="button" data-view="reminders"><span aria-hidden="true">◷</span> Avisos</button>
         </nav>
         <div class="sidebar-bottom">
           <div class="tip-card"><span class="tip-icon" aria-hidden="true">✦</span><strong>La constancia gana.</strong><p>No necesitas un día perfecto. Solo dar un paso más.</p></div>
-          <div class="reminder-box" aria-labelledby="reminder-heading">
-            <div class="reminder-title" id="reminder-heading">✦ Tu aviso diario</div>
-            <label class="reminder-switch" for="reminder-enabled">
-              <input type="checkbox" id="reminder-enabled" />
-              <span>Recordármelo en la app</span>
-            </label>
-            <label class="reminder-time-label" for="reminder-time">A partir de las</label>
-            <input id="reminder-time" type="time" value="19:00" />
-            <label class="reminder-switch reminder-switch-spaced" for="alarm-enabled">
-              <input type="checkbox" id="alarm-enabled" />
-              <span>Alarma con sonido (opcional)</span>
-            </label>
-            <button type="button" id="test-alarm-btn" class="reminder-utility">♪ Probar sonido</button>
-            <button type="button" id="notification-permission-btn" class="reminder-utility">Activar notificaciones del dispositivo</button>
-            <p id="notification-status" class="reminder-help" role="status">Notificaciones desactivadas.</p>
-            <button type="button" id="calendar-export-btn" class="reminder-utility">↗ Añadir aviso diario al calendario</button>
-            <p class="reminder-help">Las alarmas y notificaciones de esta web funcionan mientras esté activa. El calendario del dispositivo puede avisarte con la app cerrada, según su configuración.</p>
-          </div>
           <button type="button" id="install-app-btn" class="install-button" hidden>↧ Instalar HabitClik</button>
           <div class="data-actions"><button type="button" id="export-btn">↓ Exportar datos</button><button type="button" id="import-btn">↑ Importar datos</button></div>
           <p class="privacy-note">Tus datos se guardan en este dispositivo.</p>
@@ -123,6 +107,83 @@
             <div class="section-heading"><div><span class="section-overline">REGISTRA TU HISTORIAL</span><h2 id="calendar-selected-title">Hábitos del día</h2></div><span class="subtle-text" id="calendar-selected-summary"></span></div>
             <div id="calendar-habits" class="habit-list"></div>
           </section>
+        </section>
+
+        <section class="view" id="reminders-view" aria-labelledby="reminders-page-title" hidden>
+          <div class="settings-hero">
+            <span class="section-overline">A TU RITMO</span>
+            <h1 id="reminders-page-title">Tus avisos, a tu manera<span class="hero-dot">.</span></h1>
+            <p>Activa solo lo que te resulte útil. Puedes cambiarlo cuando quieras.</p>
+          </div>
+          <div class="settings-intro">
+            <div><strong>Preferencias de recordatorio</strong><p>Se guardan únicamente en este navegador.</p></div>
+            <span class="settings-mode" id="reminder-overview">Avisos desactivados</span>
+          </div>
+          <div class="settings-stack">
+            <section class="settings-card" aria-labelledby="reminder-heading">
+              <div class="settings-icon" aria-hidden="true">◷</div>
+              <div class="settings-detail">
+                <div class="settings-heading">
+                  <div><h2 id="reminder-heading">Recordatorio diario</h2><p>Comprueba tus hábitos cuando HabitClik esté abierta.</p></div>
+                  <label class="settings-toggle">
+                    <input id="reminder-enabled" type="checkbox" role="switch" aria-label="Activar recordatorio diario" />
+                    <span class="settings-toggle-track" aria-hidden="true"></span>
+                  </label>
+                </div>
+                <label class="settings-input-label" for="reminder-time">Hora del aviso</label>
+                <input id="reminder-time" class="settings-time" type="time" value="19:00" />
+                <p class="settings-note" id="reminder-time-help">La hora se aplica a los avisos de esta página. Requiere que esté abierta.</p>
+              </div>
+            </section>
+            <section class="settings-card" aria-labelledby="notification-heading">
+              <div class="settings-icon settings-icon-blue" aria-hidden="true">♢</div>
+              <div class="settings-detail">
+                <div class="settings-heading">
+                  <div><h2 id="notification-heading">Notificaciones</h2><p>Recibe un aviso del navegador cuando HabitClik esté activa.</p></div>
+                  <span class="settings-status" id="notification-status" role="status">Desactivadas</span>
+                </div>
+                <div class="settings-actions">
+                  <button type="button" class="settings-action settings-action-primary" id="notification-permission-btn">Activar notificaciones</button>
+                  <button type="button" class="settings-action" id="test-notification-btn">Enviar prueba</button>
+                </div>
+                <p class="settings-note" id="notification-help">Tu navegador pedirá permiso al activarlas. Si las bloquea, te indicaremos qué hacer.</p>
+              </div>
+            </section>
+            <section class="settings-card" aria-labelledby="alarm-heading">
+              <div class="settings-icon settings-icon-purple" aria-hidden="true">♫</div>
+              <div class="settings-detail">
+                <div class="settings-heading">
+                  <div><h2 id="alarm-heading">Sonido de alarma</h2><p>Escucha un tono suave al recibir un recordatorio.</p></div>
+                  <label class="settings-toggle">
+                    <input id="alarm-enabled" type="checkbox" role="switch" aria-label="Activar sonido de alarma" />
+                    <span class="settings-toggle-track" aria-hidden="true"></span>
+                  </label>
+                </div>
+                <div class="settings-volume-row">
+                  <label for="alarm-volume">Volumen</label>
+                  <input type="range" id="alarm-volume" min="10" max="100" step="10" value="50" />
+                  <output for="alarm-volume" id="alarm-volume-value">50 %</output>
+                </div>
+                <div class="settings-actions">
+                  <button type="button" class="settings-action" id="test-alarm-btn">♪ Escuchar prueba</button>
+                </div>
+                <p class="settings-note" id="alarm-status" role="status">Se reproduce solo si el navegador permite audio y la app está abierta.</p>
+              </div>
+            </section>
+            <section class="settings-card" aria-labelledby="calendar-alert-heading">
+              <div class="settings-icon settings-icon-amber" aria-hidden="true">▦</div>
+              <div class="settings-detail">
+                <div class="settings-heading">
+                  <div><h2 id="calendar-alert-heading">Avisos con la app cerrada</h2><p>Crea un recordatorio recurrente en el calendario de tu dispositivo.</p></div>
+                </div>
+                <div class="settings-actions">
+                  <button type="button" id="calendar-export-btn" class="settings-action">↓ Descargar aviso de calendario</button>
+                </div>
+                <p class="settings-note">Importa el archivo y activa las alertas en tu calendario. Puedes eliminar el evento cuando quieras.</p>
+              </div>
+            </section>
+          </div>
+          <p class="settings-disclaimer">HabitClik no puede garantizar alarmas o notificaciones en segundo plano desde esta web. Para eso utiliza la opción de calendario.</p>
         </section>
 
         <footer class="main-footer">Hecho para avanzar, a tu manera. <span aria-hidden="true">♥</span></footer>
