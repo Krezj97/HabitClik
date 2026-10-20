@@ -56,6 +56,7 @@
   let activeCustomAudio = null;
   let activeCustomUrl = null;
   let activeGain = null;
+  let activeGainBase = 1;
   let activeLevel = 50;
   let activeBuiltinOscillators = [];
 
@@ -73,7 +74,7 @@
     const level = clampLevel(value);
     if (activeGain) {
       const relative = loudness(level) / loudness(activeLevel);
-      activeGain.gain.value = relative;
+      activeGain.gain.value = activeGainBase * relative;
     }
     if (activeCustomAudio && !activeGain) {
       // Fallback for browsers without a Web Audio media-element source.
@@ -96,6 +97,7 @@
     }
     activeBuiltinOscillators = [];
     activeGain = null;
+    activeGainBase = 1;
   }
 
   function validateCustom(file) {
@@ -215,6 +217,7 @@
           source.connect(master);
           master.connect(audioContext.destination);
           activeGain = master;
+          activeGainBase = master.gain.value;
           // Route through Web Audio rather than iOS's fixed media volume.
           player.volume = 1;
         }
@@ -272,6 +275,7 @@
       master.gain.value = 1;
       master.connect(audioContext.destination);
       activeGain = master;
+      activeGainBase = 1;
       let when = audioContext.currentTime + 0.035;
       for (const [frequency, duration, advance] of pattern.notes) {
         const oscillator = audioContext.createOscillator();
