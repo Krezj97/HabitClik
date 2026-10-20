@@ -15,7 +15,7 @@
 - 📴 Abrir y utilizar la aplicación sin conexión **después de una primera visita con conexión**.
 - ⏰ Activar un **aviso diario opcional** dentro de la aplicación y elegir la hora; se muestra una vez al día cuando la app está activa y hay metas pendientes.
 - 🔔 Activar voluntariamente **notificaciones del navegador**, sujetas a sus permisos y a que la app esté abierta/activa.
-- ♪ Elegir entre **cinco sonidos de alarma** (Campanas, Digital, Despertador, Alegre o Energía), escucharlos antes de decidir y ajustar un volumen de reproducción más intenso, que sigue limitado por el volumen y las restricciones del dispositivo.
+- ♪ Elegir entre **cinco sonidos de alarma** o subir **un archivo de audio propio** (MP3, M4A, WAV, OGG, AAC o WebM, máximo 8 MB), escucharlo, regular su volumen o eliminarlo. El volumen final está limitado por el navegador y el dispositivo.
 - 📆 Exportar un archivo de calendario `.ics` con un evento diario recurrente y alarma previa para recibir avisos a través del calendario del dispositivo, incluso con HabitClik cerrada si el calendario lo permite.
 - 💬 Ver **frases motivacionales** según el progreso del día y la duración de la racha, o pulsar para cambiar de frase.
 
@@ -64,10 +64,20 @@ El flujo de GitHub Actions `.github/workflows/tests.yml` ejecuta automáticament
 - `styles.css`: diseño responsive.
 - `app.js`: hábitos, rachas, estadísticas, avisos locales, copias de seguridad e instalación.
 - `avisos.html` y `avisos.js`: controles de avisos, selección de sonido, permisos de notificaciones y calendario.
-- `alarm-sounds.js`: cinco tonos sintetizados sin archivos externos, con salida regulable.
+- `alarm-sounds.js`: cinco tonos sintetizados y almacenamiento de un audio personalizado con IndexedDB.
 - `manifest.webmanifest`: identidad y configuración de instalación.
 - `sw.js`: caché de los recursos estáticos y navegación sin conexión.
 - `icon.svg` y `icons/`: iconos de la aplicación.
+
+## Personalización y almacenamiento de audio
+
+En **Avisos → Sonido de alarma → Mi alarma personalizada**, selecciona un archivo de audio desde tu dispositivo. La app lo guarda en **IndexedDB dentro de ese mismo navegador**, sin subirlo a servidores ni al repositorio. Al guardarlo, queda seleccionado automáticamente; puedes escucharlo con «Escuchar prueba» o eliminarlo desde «Eliminar audio».
+
+Las copias de seguridad JSON de hábitos guardan el nombre del tono seleccionado, **pero no incluyen el archivo de audio**. Si cambias de navegador o dispositivo, necesitas volver a añadirlo. El audio personalizado puede borrarse si eliminas los datos del sitio. Si tu navegador bloquea IndexedDB, la aplicación mostrará el problema y podrás seguir utilizando los cinco tonos integrados. Las alarmas solo funcionan mientras la aplicación está activa y el navegador permite reproducir sonido.
+
+## Diseño
+
+El tema visual emplea fondos cálidos claros, tipografía limpia y acentos verde salvia en lugar del anterior contraste azul marino / verde neón. Se adapta a móvil y escritorio.
 
 ## Privacidad y límites
 
