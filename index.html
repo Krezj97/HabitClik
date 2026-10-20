@@ -47,6 +47,10 @@
             <div class="stat-card"><span class="stat-emoji star" aria-hidden="true">✳</span><div><span class="stat-label">Total de logros</span><strong id="total-completed">0</strong></div></div>
           </div>
           <section class="content-section" aria-labelledby="week-title"><div class="section-heading"><div><span class="section-overline">MIRA TU RECORRIDO</span><h2 id="week-title">Tu semana</h2></div><span class="subtle-text">Lunes a domingo</span></div><div class="weekly-strip" id="weekly-strip"></div></section>
+          <section class="content-section weekly-goals-section" aria-labelledby="weekly-goals-title">
+            <div class="section-heading"><div><span class="section-overline">CONSTRUYE A TU RITMO</span><h2 id="weekly-goals-title">Metas de esta semana</h2></div><span class="subtle-text" id="weekly-goals-summary">0 / 0 alcanzadas</span></div>
+            <div id="weekly-goals-list" class="weekly-goals-list"></div>
+          </section>
           <section class="content-section habit-section" aria-labelledby="habits-title"><div class="section-heading"><div><span class="section-overline">PEQUEÑOS COMPROMISOS</span><h2 id="habits-title">Tus hábitos <span class="count-pill" id="habit-count">0</span></h2></div><span class="subtle-text">Marca los que completes hoy</span></div><div id="habit-list" class="habit-list"></div></section>
         </section>
 
@@ -68,9 +72,20 @@
     <dialog id="habit-dialog" class="habit-dialog" aria-labelledby="dialog-title">
       <form id="habit-form">
         <div class="dialog-heading"><div><span class="section-overline">NUEVO COMIENZO</span><h2 id="dialog-title">Crea un hábito</h2></div><button class="icon-button" id="close-dialog" type="button" aria-label="Cerrar">×</button></div>
-        <p class="dialog-description">Elige algo pequeño que quieras repetir cada día.</p>
+        <p class="dialog-description">Empieza con una meta realista. Puedes repetirla cualquier día de la semana.</p>
         <label for="habit-name">Nombre del hábito</label><input id="habit-name" name="name" maxlength="60" minlength="2" required placeholder="Ej. Leer durante 15 minutos" autocomplete="off" />
         <label for="habit-category">Categoría</label><select id="habit-category" name="category"><option value="salud">Salud</option><option value="movimiento">Movimiento</option><option value="mente">Mente</option><option value="productividad">Productividad</option><option value="bienestar">Bienestar</option><option value="otros">Otros</option></select>
+        <label for="habit-target">Meta semanal</label>
+        <select id="habit-target" name="weeklyTarget" required>
+          <option value="1">1 día por semana</option>
+          <option value="2">2 días por semana</option>
+          <option value="3">3 días por semana</option>
+          <option value="4">4 días por semana</option>
+          <option value="5">5 días por semana</option>
+          <option value="6">6 días por semana</option>
+          <option value="7" selected>Todos los días (7 por semana)</option>
+        </select>
+        <p class="field-hint">Cada día completado cuenta una vez. La semana va de lunes a domingo.</p>
         <div class="dialog-actions"><button type="button" class="button-secondary" id="cancel-dialog">Cancelar</button><button type="submit" class="button-primary" id="save-habit-btn">Crear hábito <span aria-hidden="true">↗</span></button></div>
       </form>
     </dialog>
