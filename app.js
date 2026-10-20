@@ -852,7 +852,11 @@ $("alarm-enabled").addEventListener("change", async () => {
 });
 
 $("alarm-volume").addEventListener("input", () => {
-  $("alarm-volume-value").textContent = $("alarm-volume").value + " %";
+  const volume = Number($("alarm-volume").value);
+  if (!Number.isInteger(volume) || volume < 10 || volume > 100) return;
+  data.settings.alarmVolume = volume;
+  $("alarm-volume-value").textContent = volume + " %";
+  if (window.HABITCLIK_SOUNDS) window.HABITCLIK_SOUNDS.setVolume(volume);
 });
 $("alarm-volume").addEventListener("change", () => {
   const volume = Number($("alarm-volume").value);
@@ -860,7 +864,7 @@ $("alarm-volume").addEventListener("change", () => {
   data.settings.alarmVolume = volume;
   persist();
   $("alarm-volume-value").textContent = volume + " %";
-  showToast("Volumen guardado.");
+  showToast("Volumen guardado: " + volume + " %.");
 });
 
 $("notification-permission-btn").addEventListener("click", async () => {
