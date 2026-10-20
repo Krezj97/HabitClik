@@ -33,6 +33,14 @@ HabitClik admite **hasta 3 hábitos nuevos en el plan gratuito**. En una instala
 - Si una persona ya tenía más de 3 hábitos antes de esta actualización, **todos sus datos y rachas se conservan** y no puede añadir otro hasta estar por debajo del límite.
 - Las copias JSON con **más de 3 hábitos** no se importan al plan gratuito, para evitar saltarse el límite o truncar silenciosamente el historial. Conviene conservar la copia original hasta que exista Premium.
 
+## Android y futura publicación en Google Play
+
+La interfaz está adaptada a teléfonos Android con **barra de navegación inferior**, botones táctiles amplios, diálogos cómodos con el teclado y soporte para las zonas seguras del dispositivo. El manifiesto incluye accesos directos para Mi día, Estadísticas, Calendario y Avisos. También se publica una [política de privacidad](privacy.html) que puedes abrir dentro o fuera de la app.
+
+**Aún no se ha generado ni firmado un Android App Bundle (AAB) y no se ha publicado en Google Play.** La guía técnica completa, los requisitos de firma, el origen web y las pruebas pendientes están en [android/PLAYSTORE.md](android/PLAYSTORE.md). Una versión TWA verificable requiere controlar la raíz del origen web para publicar `/.well-known/assetlinks.json`: **la dirección actual `https://krezj97.github.io/HabitClik/` por sí sola no permite hacerlo desde este repositorio de proyecto**.
+
+Antes de lanzar y cobrar por Premium también son necesarios el sistema de pagos permitido y la validación segura de suscripciones. HabitClik sigue guardando los hábitos localmente, así que **un cambio de dominio requiere un plan de migración o exportación/restauración**.
+
 ## Ejecutar en local
 
 No requiere cuentas, frameworks ni dependencias. Para que el modo sin conexión y la instalación funcionen correctamente, usa un servidor local en lugar de abrir `index.html` como archivo:
@@ -67,7 +75,7 @@ Las comprobaciones de regresión utilizan **Node.js 22** y no requieren instalar
 ```bash
 node --check app.js
 node --check sw.js
-node --test tests/app.test.cjs
+node --test tests/*.test.cjs
 ```
 
 El flujo de GitHub Actions `.github/workflows/tests.yml` ejecuta automáticamente estas comprobaciones en cada cambio enviado al repositorio y en cada pull request.
@@ -78,7 +86,7 @@ El flujo de GitHub Actions `.github/workflows/tests.yml` ejecuta automáticament
 - `styles.css`: diseño responsive.
 - `app.js`: hábitos, rachas, estadísticas, avisos locales, copias de seguridad e instalación.
 - `avisos.html` y `avisos.js`: controles de avisos, selección de sonido, permisos de notificaciones y calendario.
-- `alarm-sounds.js`: cinco tonos sintetizados y almacenamiento de un audio personalizado con IndexedDB.
+- `alarm-sounds.js`: reproducción de cinco clips licenciados y almacenamiento de un audio personalizado con IndexedDB.
 - `manifest.webmanifest`: identidad y configuración de instalación.
 - `sw.js`: caché de los recursos estáticos y navegación sin conexión.
 - `icon.svg` y `icons/`: iconos de la aplicación.
@@ -99,7 +107,7 @@ Los datos se guardan **solo en el navegador y dispositivo utilizados**, no se si
 
 Las rachas se calculan por días consecutivos con al menos una actividad completada. La racha por hábito requiere marcar ese hábito en días consecutivos. Si todavía no has marcado nada hoy, se considera la racha que continuaba ayer. Las metas semanales se cuentan de lunes a domingo, y cambiar una meta se aplica también al cálculo de las rachas anteriores (los registros diarios permanecen). Un hábito creado a mitad de semana no reduce automáticamente su meta de esa primera semana. Los avisos y las alarmas propias de HabitClik **no son notificaciones push en segundo plano**: funcionan con la página abierta o activa y pueden retrasarse si el navegador suspende la pestaña. Están desactivados por defecto. Las notificaciones del navegador solicitan permiso solo al pulsar el botón correspondiente; el sonido requiere que el navegador permita reproducir audio. Para alertas con la aplicación cerrada, usa el archivo `.ics` e impórtalo a un calendario compatible, habilita las notificaciones de ese calendario y comprueba que acepte las alarmas `VALARM`. El evento se repetirá **todos los días** hasta que lo elimines del calendario y es independiente de las metas semanales. No hay todavía sincronización entre dispositivos ni un servidor de notificaciones push.
 
-La primera vez se muestran tres hábitos de ejemplo que puedes eliminar o reemplazar.
+En una instalación nueva, el plan gratuito empieza con **tres espacios vacíos** para hábitos que elijas. No se crean hábitos de ejemplo.
 
 ## Próximos pasos sugeridos
 
@@ -110,6 +118,6 @@ La primera vez se muestran tres hábitos de ejemplo que puedes eliminar o reempl
 
 ## Licencia
 
-No se ha definido todavía una licencia de distribución para este repositorio.
+El código del repositorio todavía no tiene una licencia de distribución de software definida. Los archivos de audio incluidos sí tienen documentación de procedencia y sus licencias CC0 en [SOUND-LICENSES.md](SOUND-LICENSES.md).
 
 Los cuatro paisajes y las cinco alarmas MP3 están incluidos en la caché de la aplicación para poder verlos y escucharlos sin conexión después de la primera carga. Puedes cambiar el fondo manualmente desde el encabezado de Mi día.
