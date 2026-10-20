@@ -785,3 +785,120 @@ a.nav-item:focus-visible, a.brand-link:focus-visible,
     background: #2e4c56; border-color: #61818a; color: #f1faf9;
   }
 }
+
+
+/* Illustrated, adaptive hero: original vector scenes are served locally. */
+#hero-main { isolation: isolate; min-height: 305px; padding-bottom: 60px; }
+#hero-main::before {
+  content: ""; display: block; position: absolute; inset: 0;
+  width: 100%; height: 100%; border-radius: inherit; pointer-events: none;
+  background-repeat: no-repeat; background-position: center center; background-size: cover;
+  z-index: 0; opacity: 1;
+  animation: scene-fade-in .3s ease both;
+}
+#hero-main::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  pointer-events: none; z-index: 0;
+  background: linear-gradient(90deg, #1b3d51f4 0%, #1c4253d6 39%, #20526257 77%, #20526228 100%);
+}
+#hero-main.hero--amanecer::before { background-image: url("./art/amanecer.svg"); }
+#hero-main.hero--enfoque::before { background-image: url("./art/enfoque.svg"); }
+#hero-main.hero--bosque::before { background-image: url("./art/bosque.svg"); }
+#hero-main.hero--celebracion::before { background-image: url("./art/celebracion.svg"); }
+#hero-main .hero-copy, #hero-main .ring-panel { position: relative; z-index: 1; }
+#hero-main .hero-copy p { color: #eaf5f2; max-width: 350px; }
+#hero-main .date-chip { background: #234754ab; border: 1px solid #ffffff28; backdrop-filter: blur(5px); }
+#hero-main .ring-panel { filter: drop-shadow(0 2px 10px #092e2c40); }
+.hero-scene-next {
+  position: absolute; bottom: 17px; right: 20px; z-index: 2;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #113d49bf; color: #f4fcf9; border: 1px solid #d2f5ea63;
+  border-radius: 999px; padding: 8px 13px; font-size: 11px; font-weight: 700;
+  backdrop-filter: blur(6px); transition: background .18s ease, transform .18s ease;
+}
+.hero-scene-next:hover { background: #155365; transform: translateY(-1px); }
+.hero-scene-next:focus-visible { outline: 3px solid #c5f5de; outline-offset: 3px; }
+@keyframes scene-fade-in { from { opacity: .48; } to { opacity: 1; } }
+
+/* XP and levels are intentionally calmer than competitive game UI. */
+.journey-card {
+  margin-top: 16px; background: #ffffff; border: 1px solid #d9e8e4;
+  box-shadow: 0 6px 22px #203c430d; border-radius: 18px;
+  padding: clamp(19px, 3vw, 27px);
+}
+.journey-top { display: flex; align-items: center; gap: 14px; }
+.journey-emblem {
+  display: grid; place-items: center; flex: 0 0 48px; width: 48px; height: 48px;
+  border-radius: 15px; background: #d9f3ec; color: #277b71; font-size: 28px;
+}
+.journey-intro { flex: 1; min-width: 0; }
+.journey-intro h2 { margin: 5px 0 0; font-size: clamp(20px, 2vw, 25px); letter-spacing: -.9px; }
+.journey-intro small { font-size: 13px; font-weight: 700; color: #658381; letter-spacing: 0; }
+.journey-total {
+  border-radius: 999px; background: #e6f5ef; color: #226d5d; padding: 9px 14px;
+  font-weight: 850; white-space: nowrap; font-size: 13px; font-variant-numeric: tabular-nums;
+}
+.journey-progress-meta {
+  margin-top: 20px; display: flex; justify-content: space-between; align-items: center;
+  gap: 10px; color: #547570; font-size: 11px; font-weight: 800;
+}
+.journey-progress-track {
+  margin-top: 9px; height: 11px; border-radius: 100px; overflow: hidden;
+  background: #dfedeb;
+}
+.journey-progress-track span {
+  display: block; height: 100%; width: 0;
+  background: linear-gradient(90deg, #37a49a, #78c5a6);
+  border-radius: inherit; transition: width 350ms ease;
+}
+.journey-milestone {
+  margin-top: 17px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.journey-milestone strong { font-size: 13px; color: #285052; }
+.journey-milestone p { margin: 6px 0 0; color: #6d8987; font-size: 12px; line-height: 1.55; }
+.journey-badge-count {
+  white-space: nowrap; border: 1px solid #d5e9e3; color: #31766c;
+  border-radius: 12px; font-size: 11px; font-weight: 850; padding: 9px 10px;
+}
+.achievement-intro { margin: -2px 0 16px; color: #708884; font-size: 12px; line-height: 1.5; }
+.achievement-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.achievement-card {
+  background: #f5f8f8; border: 1px solid #e0e8e8; border-radius: 14px;
+  padding: 16px; display: flex; align-items: center; gap: 12px; min-width: 0; opacity: .72;
+}
+.achievement-card.is-unlocked {
+  background: #f3fbf7; border-color: #cce7dd; opacity: 1;
+}
+.achievement-icon {
+  display: grid; place-items: center; border-radius: 12px;
+  background: #e6eeee; filter: grayscale(.75); flex: 0 0 43px; width: 43px; height: 43px; font-size: 22px;
+}
+.achievement-card.is-unlocked .achievement-icon { background: #d9f2e7; filter: none; }
+.achievement-card > div { flex: 1; min-width: 0; }
+.achievement-card strong { color: #254a4c; font-size: 12px; }
+.achievement-card p { margin: 5px 0 0; color: #6a8584; font-size: 11px; line-height: 1.45; }
+.achievement-status {
+  color: #698282; font-size: 10px; font-weight: 800; white-space: nowrap;
+}
+.achievement-card.is-unlocked .achievement-status { color: #237968; }
+@media (max-width: 760px) {
+  #hero-main { min-height: 285px; }
+  #hero-main::after { background: linear-gradient(90deg,#1b3d51f0 0%,#1b4051d0 56%,#214d5b72 100%); }
+  .achievement-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 470px) {
+  #hero-main { padding-bottom: 58px; min-height: 360px; }
+  #hero-main::after { background: linear-gradient(180deg,#1a3d4de6 0%,#1a3b50c8 72%,#1f4955a0 100%); }
+  #hero-main .ring-panel { transform: scale(.9); transform-origin: center; }
+  .hero-scene-next { right: 14px; bottom: 12px; font-size: 10px; }
+  .journey-top { gap: 10px; flex-wrap: wrap; }
+  .journey-emblem { flex-basis: 41px; width: 41px; height: 41px; font-size: 23px; }
+  .journey-total { font-size: 11px; padding: 7px 10px; }
+  .journey-milestone { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .journey-progress-meta { flex-wrap: wrap; font-size: 10px; }
+  .achievement-card { padding: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #hero-main::before { animation: none; }
+  .hero-scene-next, .journey-progress-track span { transition: none; }
+}
