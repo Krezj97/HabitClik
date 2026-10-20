@@ -1,0 +1,54 @@
+name: Vendor CC0 alarm sounds
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/vendor-sounds.yml
+
+permissions:
+  contents: write
+
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify five CC0 WAV sounds
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sounds
+          while read -r target upstream expected; do
+            test -n "$target" || continue
+            curl --fail --location --silent --show-error --retry 3 \
+              "https://raw.githubusercontent.com/akx/Notifications/db184d33834a94028b6600d155d312ce7b704e8d/WAV/$upstream" \
+              --output "sounds/$target"
+            python3 - "$target" "$expected" <<'PY'
+          import hashlib, pathlib, sys
+          file = pathlib.Path("sounds") / sys.argv[1]
+          data = file.read_bytes()
+          if not data.startswith(b"RIFF") or data[8:12] != b"WAVE":
+              raise SystemExit("Not a valid RIFF WAVE file: " + str(file))
+          git_hash = hashlib.sha1(b"blob " + str(len(data)).encode() + b"\\0" + data).hexdigest()
+          if git_hash != sys.argv[2]:
+              raise SystemExit(f"Checksum mismatch for {file}: {git_hash}")
+          print(f"Verified {file}: {len(data)} bytes")
+          PY
+          done <<'AUDIO_ASSETS'
+          campanas.wav Chord.wav 92097843241dee7fc514fb2ad78669a4a166e35a
+          digital.wav Beeper.wav 7341e248cd6655b21e61acf80f07d127679fe8f4
+          clasica.wav Alarmed.wav a0fab32369ced563fcb14c73fbd7bc2099495789
+          alegre.wav Glisten.wav 5cfa092d1126e14cf4eb5457d2d92bd399809fce
+          energia.wav Whistleronic.wav 2355ca6622d984fc63833db18250448556a09d08
+          AUDIO_ASSETS
+      - name: Commit verified sounds to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sounds/*.wav
+          if git diff --cached --quiet; then
+            echo "Licensed sounds already present."
+          else
+            git commit -m "assets(audio): vendor verified CC0 notification tones"
+            git push origin HEAD:main
+          fi
