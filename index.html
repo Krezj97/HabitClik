@@ -34,7 +34,15 @@
             </label>
             <label class="reminder-time-label" for="reminder-time">A partir de las</label>
             <input id="reminder-time" type="time" value="19:00" />
-            <p class="reminder-help">Aparece al tener HabitClik abierta, no cuando está cerrada.</p>
+            <label class="reminder-switch reminder-switch-spaced" for="alarm-enabled">
+              <input type="checkbox" id="alarm-enabled" />
+              <span>Alarma con sonido (opcional)</span>
+            </label>
+            <button type="button" id="test-alarm-btn" class="reminder-utility">♪ Probar sonido</button>
+            <button type="button" id="notification-permission-btn" class="reminder-utility">Activar notificaciones del dispositivo</button>
+            <p id="notification-status" class="reminder-help" role="status">Notificaciones desactivadas.</p>
+            <button type="button" id="calendar-export-btn" class="reminder-utility">↗ Añadir aviso diario al calendario</button>
+            <p class="reminder-help">Las alarmas y notificaciones de esta web funcionan mientras esté activa. El calendario del dispositivo puede avisarte con la app cerrada, según su configuración.</p>
           </div>
           <button type="button" id="install-app-btn" class="install-button" hidden>↧ Instalar HabitClik</button>
           <div class="data-actions"><button type="button" id="export-btn">↓ Exportar datos</button><button type="button" id="import-btn">↑ Importar datos</button></div>
@@ -52,6 +60,15 @@
             <div class="hero-copy"><span class="hero-kicker">UN DÍA A LA VEZ <span aria-hidden="true">↗</span></span><h1 id="today-title">Haz que hoy cuente<span class="hero-dot">.</span></h1><p>Cada pequeño paso que das es parte de algo grande.</p><span id="current-date" class="date-chip"></span></div>
             <div class="ring-panel"><svg class="progress-ring" viewBox="0 0 140 140" role="img" aria-labelledby="ring-title"><title id="ring-title">Progreso de hoy</title><circle class="ring-track" cx="70" cy="70" r="54"></circle><circle class="ring-fill" id="progress-circle" cx="70" cy="70" r="54"></circle></svg><div class="ring-label"><strong id="progress-number">0%</strong><span>completado</span></div></div>
           </div>
+          <section class="motivation-card" aria-labelledby="motivation-heading">
+            <div class="motivation-symbol" aria-hidden="true">✦</div>
+            <div class="motivation-body">
+              <span class="section-overline">TU IMPULSO DE HOY</span>
+              <h2 id="motivation-heading">Un paso a la vez</h2>
+              <p id="motivation-phrase" aria-live="polite">Tu progreso empieza con un pequeño gesto.</p>
+            </div>
+            <button type="button" class="motivation-next" id="motivation-next" aria-label="Mostrar otra frase motivacional" title="Otra frase">↻</button>
+          </section>
           <div class="stats-grid" aria-label="Resumen de hábitos">
             <div class="stat-card"><span class="stat-emoji" aria-hidden="true">✓</span><div><span class="stat-label">Completados hoy</span><strong id="today-completed">0 / 0</strong></div></div>
             <div class="stat-card"><span class="stat-emoji flame" aria-hidden="true">♨</span><div><span class="stat-label">Racha activa</span><strong id="current-streak">0 días</strong></div></div>
