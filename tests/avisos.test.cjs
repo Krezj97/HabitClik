@@ -10,6 +10,7 @@ const root = path.join(__dirname, "..");
 const html = fs.readFileSync(path.join(root, "avisos.html"), "utf8");
 const index = fs.readFileSync(path.join(root, "index.html"), "utf8");
 const script = fs.readFileSync(path.join(root, "avisos.js"), "utf8");
+const audioScript = fs.readFileSync(path.join(root, "alarm-sounds.js"), "utf8");
 
 function openAvisos(options = {}) {
   const saved = new Map();
@@ -72,6 +73,7 @@ function openAvisos(options = {}) {
     clearTimeout(){},setTimeout(){return 1;},setInterval(){},
     console:{warn(){}}
   };
+  vm.runInNewContext(audioScript, context, {filename:"alarm-sounds.js"});
   vm.runInNewContext(script + "\nglobalThis.testSettings = () => settings;", context, {filename:"avisos.js"});
   return {nodes:get,saved,notifications,audioNotes,window,listeners,settings:context.testSettings};
 }
@@ -79,12 +81,12 @@ function openAvisos(options = {}) {
 test("Avisos navigation uses an independent real HTML link", () => {
   assert.match(index, /<a[^>]+href="\.\/avisos\.html"[^>]*>[\s\S]*?Avisos<\/a>/);
   assert.match(html, /<title>Avisos · HabitClik<\/title>/);
-  assert.match(html, /<script src="\.\/avisos\.js\?v=9" defer><\/script>/);
+  assert.match(html, /<script src="\.\/avisos\.js\?v=10" defer><\/script>/);
   assert.doesNotMatch(html, /src="app\.js"/);
   for (const [,id] of script.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(html.includes('id="' + id + '"'), "missing on Avisos page: " + id);
   }
-  assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /habitclik-static-v9/);
+  assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /habitclik-static-v10/);
   assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /"\.\/avisos\.html"/);
 });
 
@@ -116,12 +118,12 @@ test("Avisos can be configured before first use without deleting demo habits", (
 test("Alarm test and switch respond, volume persists", async () => {
   const page = openAvisos();
   await page.nodes("test-alarm-btn").listeners.click();
-  assert.equal(page.audioNotes.length,3);
-  assert.match(page.nodes("alarm-status").textContent,/Prueba reproducida/);
+  assert.equal(page.audioNotes.length,4);
+  assert.match(page.nodes("alarm-status").textContent,/reproducido/i);
   page.nodes("alarm-enabled").checked=true;
   await page.nodes("alarm-enabled").listeners.change();
   assert.equal(page.settings().alarmEnabled,true);
-  assert.equal(page.audioNotes.length,6);
+  assert.equal(page.audioNotes.length,8);
   page.nodes("alarm-volume").value="80";
   page.nodes("alarm-volume").listeners.change();
   assert.equal(page.settings().alarmVolume,80);
@@ -148,4 +150,86 @@ test("Unsupported browsers show actionable feedback, not inert buttons", async (
   assert.match(page.nodes("toast").textContent,/no admite/i);
   await page.nodes("test-alarm-btn").listeners.click();
   assert.match(page.nodes("alarm-status").textContent,/no permitió/i);
+});
+
+
+test("user can choose and save any of the five alarm tones", async () => {
+  const page = openAvisos();
+  const expected = [
+    ["campanas", 4], ["digital", 6], ["clasica", 6], ["alegre", 6], ["energia", 5]
+  ];
+  let total = 0;
+  for (const [tone, notes] of expected) {
+    page.nodes("alarm-tone").value = tone;
+    page.nodes("alarm-tone").listeners.change();
+    assert.equal(page.settings().alarmTone, tone);
+    assert.equal(JSON.parse(page.saved.get("habitclik:settings:v1")).alarmTone, tone);
+    await page.nodes("test-alarm-btn").listeners.click();
+    total += notes;
+    assert.equal(page.audioNotes.length, total);
+  }
+});
+
+test("existing preferences default to Campanas without losing saved habits", () => {
+  const data = {
+    habits: [{ id:"a",title:"Caminar",createdAt:"2026-10-01",weeklyTarget:3 }],
+    logs: { "2026-10-19": ["a"] },
+    settings: { alarmEnabled:true, alarmVolume:70 }
+  };
+  const page = openAvisos({data});
+  assert.equal(page.settings().alarmTone, "campanas");
+  page.nodes("alarm-tone").value = "digital";
+  page.nodes("alarm-tone").listeners.change();
+  const savedData = JSON.parse(page.saved.get("habitclik:v1"));
+  assert.equal(savedData.habits[0].title,"Caminar");
+  assert.ok(savedData.logs["2026-10-19"].includes("a"));
+  assert.equal(savedData.settings.alarmVolume,70);
+  assert.equal(savedData.settings.alarmTone,"digital");
+});
+
+test("five alarm tones use different pitches and waveforms", async () => {
+  const source = fs.readFileSync(path.join(root,"alarm-sounds.js"),"utf8");
+  const played = [];
+  class AudioContext {
+    constructor() { this.currentTime=0; this.state="running"; this.destination={}; }
+    createOscillator() {
+      const osc = { type:"sine", frequency:{value:0}, connect(){},
+        start(){ played.push([this.type,this.frequency.value]); }, stop(){} };
+      return osc;
+    }
+    createGain() { return {gain:{setValueAtTime(){},exponentialRampToValueAtTime(){}},connect(){}}; }
+  }
+  const ctx = {window:{AudioContext}, console:{warn(){}}};
+  vm.runInNewContext(source,ctx);
+  const patterns = [];
+  for (const tone of ctx.window.HABITCLIK_SOUNDS.choices) {
+    const before=played.length;
+    assert.equal(await ctx.window.HABITCLIK_SOUNDS.play(tone.id,100),true);
+    patterns.push(JSON.stringify(played.slice(before)));
+  }
+  assert.equal(patterns.length,5);
+  assert.equal(new Set(patterns).size,5);
+});
+
+test("maximum slider setting generates a stronger signal than the old alarm", async () => {
+  const source=fs.readFileSync(path.join(root,"alarm-sounds.js"),"utf8");
+  const peaks=[];
+  class AudioContext {
+    constructor(){ this.currentTime=0;this.state="running";this.destination={}; }
+    createOscillator(){return{frequency:{value:0},connect(){},start(){},stop(){}};}
+    createGain(){return{gain:{
+      setValueAtTime(){},
+      exponentialRampToValueAtTime(v){if(v>0.001)peaks.push(v);}
+    },connect(){}};}
+  }
+  const ctx={window:{AudioContext},console:{warn(){}}};
+  vm.runInNewContext(source,ctx);
+  await ctx.window.HABITCLIK_SOUNDS.play("campanas",10);
+  const low=Math.max(...peaks);
+  peaks.length=0;
+  await ctx.window.HABITCLIK_SOUNDS.play("campanas",100);
+  const high=Math.max(...peaks);
+  assert.ok(high>low);
+  assert.ok(high>0.18,"the new 100% output should exceed old maximum gain");
+  assert.ok(high<=0.5,"do not exceed the intended per-voice output cap");
 });
