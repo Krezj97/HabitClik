@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="t">
 <title id="t">HabitClik</title>
-<rect width="512" height="512" rx="110" fill="#404d38"/>
-<rect x="56" y="56" width="400" height="400" rx="98" fill="#e7edd9"/>
-<path d="M154 256l77 75 134-143" fill="none" stroke="#404d38" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
+<rect width="512" height="512" rx="110" fill="#203943"/>
+<rect x="56" y="56" width="400" height="400" rx="98" fill="#d7f0e9"/>
+<path d="M154 256l77 75 134-143" fill="none" stroke="#203943" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
