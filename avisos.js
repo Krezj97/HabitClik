@@ -374,14 +374,28 @@ $("alarm-tone").addEventListener("change", () => {
 });
 
 $("alarm-volume").addEventListener("input", () => {
-  $("alarm-volume-value").textContent = $("alarm-volume").value + " %";
+  const volume = Number($("alarm-volume").value);
+  if (!Number.isInteger(volume) || volume < 10 || volume > 100) return;
+  settings.alarmVolume = volume;
+  $("alarm-volume-value").textContent = volume + " %";
+  // Update the sound already playing, instead of changing only the label.
+  if (window.HABITCLIK_SOUNDS) window.HABITCLIK_SOUNDS.setVolume(volume);
+  $("alarm-volume-hint").textContent = "Volumen: " + volume + " %. Suelta para escuchar cómo queda.";
 });
-$("alarm-volume").addEventListener("change", () => {
+$("alarm-volume").addEventListener("change", async () => {
   const volume = Number($("alarm-volume").value);
   if (!Number.isInteger(volume) || volume < 10 || volume > 100) return;
   settings.alarmVolume = volume;
   saveSettings();
-  showToast("Volumen actualizado: " + volume + " %");
+  $("alarm-volume-value").textContent = volume + " %";
+  $("alarm-volume-hint").textContent = "Volumen guardado al " + volume + " %. Reproduciendo prueba…";
+  const played = await playSound();
+  $("alarm-volume-hint").textContent = played
+    ? "Volumen guardado: " + volume + " %. Puedes volver a ajustarlo."
+    : "Volumen guardado. El navegador no permitió reproducir la prueba.";
+  $("alarm-status").textContent = played
+    ? "Prueba reproducida al " + volume + " % de volumen."
+    : "El navegador ha bloqueado la prueba de volumen.";
 });
 
 $("test-alarm-btn").addEventListener("click", async () => {
