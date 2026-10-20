@@ -191,3 +191,19 @@ h1 { line-height: 1.06; letter-spacing: -2.3px; }
 .edit-habit { border: 0; background: transparent; color: #8697a6; border-radius: 8px; font-size: 17px; width: 28px; height: 34px; }
 .edit-habit:hover { color: #356d82; background: #e7f2f5; }
 @media (max-width: 470px) { .habit-action-buttons { gap: 0; } .edit-habit { width: 23px; } }
+
+/* Weekly goals */
+.weekly-goals-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.weekly-goal-card { min-width: 0; background: #fff; border: 1px solid #e5ebed; border-radius: 15px; padding: 18px 20px 16px; }
+.weekly-goal-card.goal-met { border-color: #cde9bc; background: #fcfff9; }
+.weekly-goal-header { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; margin-bottom: 15px; }
+.weekly-goal-name { font-size: 13px; font-weight: 750; overflow-wrap: anywhere; }
+.weekly-goal-count { flex: 0 0 auto; font-size: 12px; color: #4a9160; font-variant-numeric: tabular-nums; }
+.weekly-goal-track { height: 9px; overflow: hidden; border-radius: 10px; background: #ecf2eb; }
+.weekly-goal-fill { display: block; height: 100%; border-radius: 10px; background: #9ee079; transition: width 250ms ease; }
+.weekly-goal-card.goal-met .weekly-goal-fill { background: #56b878; }
+.weekly-goal-caption { margin-top: 9px; font-size: 11px; font-weight: 600; color: #8999a1; }
+.weekly-goal-card.goal-met .weekly-goal-caption { color: #47865e; }
+.field-hint { margin: 8px 0 0; color: #7d8a95; font-size: 11px; line-height: 1.5; }
+@media (max-width: 960px) { .weekly-goals-list { grid-template-columns: 1fr; } }
+@media (max-width: 470px) { .weekly-goal-card { padding: 14px; } }
