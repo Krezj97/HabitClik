@@ -344,3 +344,19 @@ h1 { line-height: 1.06; letter-spacing: -2.3px; }
   .settings-intro { align-items: start; flex-direction: column; gap: 10px; }
   .settings-volume-row { flex-wrap: wrap; gap: 8px; }
 }
+
+/* Reliable standalone Avisos navigation */
+a.nav-item, a.brand-link { text-decoration: none; }
+a.nav-item:focus-visible, .sidebar-back:focus-visible, .nav-back-button:focus-visible { outline: 3px solid #b7ef82; outline-offset: 3px; }
+.sidebar-back { display: flex; align-items: center; text-decoration: none; justify-content: center; border: 1px solid #45596b; color: #d9e9df; background: #293d4e; border-radius: 10px; padding: 11px 14px; font-weight: 750; font-size: 12px; }
+.sidebar-back:hover { color: white; background: #324e61; }
+.nav-back-button { text-decoration: none; white-space: nowrap; font-size: 12px; text-align: center; }
+@media (max-width: 760px) {
+  .main-nav { flex-wrap: wrap; gap: 6px; }
+  .nav-item { min-height: 40px; }
+  .sidebar-back { padding: 9px 12px; }
+}
+@media (max-width: 470px) {
+  .nav-item { padding: 9px 10px; font-size: 12px; gap: 7px; }
+  .nav-back-button { padding: 10px; }
+}
