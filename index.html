@@ -22,6 +22,7 @@
         <nav class="main-nav" aria-label="Secciones">
           <button class="nav-item is-active" type="button" data-view="today" aria-current="page"><span aria-hidden="true">◫</span> Mi día</button>
           <button class="nav-item" type="button" data-view="stats"><span aria-hidden="true">▥</span> Estadísticas</button>
+          <button class="nav-item" type="button" data-view="calendar"><span aria-hidden="true">▦</span> Calendario</button>
         </nav>
         <div class="sidebar-bottom">
           <div class="tip-card"><span class="tip-icon" aria-hidden="true">✦</span><strong>La constancia gana.</strong><p>No necesitas un día perfecto. Solo dar un paso más.</p></div>
@@ -73,6 +74,38 @@
           </div>
           <section class="content-section"><div class="section-heading"><div><span class="section-overline">ÚLTIMOS 7 DÍAS</span><h2>Actividad diaria</h2></div></div><div class="chart-card" id="weekly-chart"></div></section>
           <section class="content-section"><div class="section-heading"><div><span class="section-overline">LO QUE ESTÁS CONSTRUYENDO</span><h2>Rachas por hábito</h2></div></div><div class="habit-list" id="habit-streak-list"></div></section>
+        </section>
+
+        <section class="view" id="calendar-view" aria-labelledby="calendar-page-title" hidden>
+          <div class="stats-hero">
+            <span class="section-overline">CADA DÍA CUENTA</span>
+            <h1 id="calendar-page-title">Tu historial de hábitos<span class="hero-dot">.</span></h1>
+            <p>Consulta otros días y marca los hábitos que olvidaste registrar.</p>
+          </div>
+          <section class="content-section calendar-section" aria-labelledby="calendar-month-title">
+            <div class="calendar-toolbar">
+              <div>
+                <span class="section-overline">EXPLORA TU PROGRESO</span>
+                <h2 id="calendar-month-title" aria-live="polite">Calendario</h2>
+              </div>
+              <div class="calendar-nav">
+                <button type="button" id="calendar-prev" aria-label="Mes anterior" title="Mes anterior">‹</button>
+                <button type="button" id="calendar-today" class="calendar-today-btn">Hoy</button>
+                <button type="button" id="calendar-next" aria-label="Mes siguiente" title="Mes siguiente">›</button>
+              </div>
+            </div>
+            <div class="calendar-panel">
+              <div class="calendar-weekdays" aria-hidden="true">
+                <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+              </div>
+              <div id="calendar-days" class="calendar-days" aria-label="Fechas disponibles"></div>
+              <div class="calendar-legend"><span><i class="calendar-dot calendar-dot-partial"></i> Con progreso</span><span><i class="calendar-dot calendar-dot-done"></i> Día completado</span></div>
+            </div>
+          </section>
+          <section class="content-section" aria-labelledby="calendar-selected-title">
+            <div class="section-heading"><div><span class="section-overline">REGISTRA TU HISTORIAL</span><h2 id="calendar-selected-title">Hábitos del día</h2></div><span class="subtle-text" id="calendar-selected-summary"></span></div>
+            <div id="calendar-habits" class="habit-list"></div>
+          </section>
         </section>
 
         <footer class="main-footer">Hecho para avanzar, a tu manera. <span aria-hidden="true">♥</span></footer>
