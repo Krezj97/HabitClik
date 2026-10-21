@@ -1719,3 +1719,294 @@ body { background:#f6f9fc; color:#172844; }
   .sidebar .main-nav .nav-item svg {width:22px;height:22px;}
   .sidebar .main-nav .nav-item {font-size:10px;}
 }
+
+
+/* HabitClik v26 — readable, polished navigation and progress surfaces.
+   A deliberate contrast correction for desktop's pale sidebar (not only hover).
+   These rules also apply to Avisos and Privacidad, which share the sidebar. */
+:root {
+  --hc-sidebar-paper: #f7faf9;
+  --hc-sidebar-ink: #304b59;
+  --hc-sidebar-secondary: #526d79;
+  --hc-sidebar-active: #2d6670;
+  --hc-sidebar-active-ink: #ffffff;
+  --hc-sidebar-divider: #dce8e6;
+  --hc-sidebar-tip: #244752;
+}
+.sidebar {
+  background: var(--hc-sidebar-paper);
+  color: var(--hc-sidebar-ink);
+  border-right: 1px solid var(--hc-sidebar-divider);
+  box-shadow: 7px 0 26px #213a490b;
+}
+.sidebar .brand,
+.sidebar .brand-link {
+  color: #1b4147;
+  text-decoration: none;
+}
+.sidebar .brand-accent { color: #128c72; }
+.sidebar .brand-icon {
+  background: #c5e9dc;
+  color: #23574f;
+}
+.sidebar .sidebar-caption {
+  color: #506c77;
+  opacity: 1;
+  letter-spacing: 1.55px;
+  font-weight: 850;
+}
+.sidebar .main-nav .nav-item {
+  background: transparent;
+  color: #385360;
+  opacity: 1;
+  border-radius: 14px;
+  font-weight: 800;
+}
+.sidebar .main-nav .nav-item > span,
+.sidebar .main-nav .nav-item svg {
+  color: inherit;
+  opacity: 1;
+}
+.sidebar .main-nav .nav-item:hover,
+.sidebar .main-nav .nav-item:focus-visible {
+  color: #193c49;
+  background: #e3efec;
+}
+.sidebar .main-nav .nav-item.is-active,
+.sidebar .main-nav .nav-item[aria-current="page"] {
+  color: var(--hc-sidebar-active-ink);
+  background: var(--hc-sidebar-active);
+  box-shadow: 0 6px 18px #244e561c;
+}
+.sidebar .main-nav .nav-item.is-active:hover,
+.sidebar .main-nav .nav-item[aria-current="page"]:hover {
+  color: #ffffff;
+  background: #255b65;
+}
+.sidebar .main-nav .nav-item:focus-visible {
+  outline: 3px solid #208f74;
+  outline-offset: 2px;
+}
+.sidebar .tip-card {
+  background: var(--hc-sidebar-tip);
+  color: #ffffff;
+  border: 1px solid #315d65;
+  border-radius: 19px;
+  box-shadow: 0 8px 21px #193d4819;
+}
+.sidebar .tip-card strong { color: #ffffff; font-weight: 860; }
+.sidebar .tip-card p { color: #dcebe9; }
+.sidebar .tip-icon { background: #bce9dc; color: #205c54; }
+.sidebar .data-menu > summary,
+.sidebar .sidebar-back {
+  background: #2b555e;
+  color: #ffffff;
+  border-color: #2b555e;
+}
+.sidebar .data-menu > summary:hover,
+.sidebar .sidebar-back:hover { background: #204650; color: #ffffff; }
+.sidebar .data-menu-items { background: #ffffff; }
+.sidebar .data-menu-items button,
+.sidebar .data-menu-items a { color: #264654; }
+.sidebar .privacy-note { color: #526d79; opacity: 1; }
+.sidebar .privacy-note a { color: #216a61; font-weight: 830; }
+.sidebar .privacy-note a:hover { color: #145247; text-decoration: underline; }
+.sidebar .install-button {
+  background: #d9efe7;
+  color: #215e54;
+  border-color: #abd8c7;
+}
+.sidebar .install-button:hover { background: #c8e9dd; color: #164a43; }
+
+/* Central area: clear information hierarchy on summary/statistics/achievements. */
+.main-content .eyebrow,
+.main-content .section-overline {
+  color: #486977;
+  font-weight: 850;
+}
+.main-content .topbar-title {
+  color: #162b46;
+  font-size: clamp(17px, 1.4vw, 21px);
+  font-weight: 880;
+}
+.main-content .section-heading h2 {
+  color: #142a49;
+  font-size: clamp(20px, 2vw, 26px);
+  font-weight: 900;
+  letter-spacing: -.75px;
+}
+.main-content .subtle-text { color: #536d7d; font-weight: 750; }
+#stats-view .stats-hero,
+#calendar-view .stats-hero {
+  background: linear-gradient(115deg, #a5d9c7 0%, #c2e7d9 62%, #e1f2e8 100%);
+  border: 1px solid #7abdae;
+  box-shadow: 0 13px 34px #3369591a;
+  color: #183d4b;
+  border-radius: 23px;
+}
+#stats-view .stats-hero h1,
+#calendar-view .stats-hero h1 {
+  color: #163849;
+  font-size: clamp(30px, 3.5vw, 45px);
+  line-height: 1.13;
+  font-weight: 900;
+  letter-spacing: -1.15px;
+}
+#stats-view .stats-hero p,
+#calendar-view .stats-hero p {
+  color: #2b505d;
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 670;
+}
+#stats-view .stats-hero .section-overline,
+#calendar-view .stats-hero .section-overline {
+  color: #305b67;
+  font-weight: 850;
+}
+#stats-view .stats-hero .hero-dot,
+#calendar-view .stats-hero .hero-dot { color: #167a65; }
+.stats-page-grid { gap: 16px; margin-top: 20px; }
+#stats-view .stat-card {
+  background: #ffffff;
+  border: 1px solid #e3ebed;
+  border-radius: 19px;
+  padding: 23px 25px;
+  min-height: 125px;
+  box-shadow: 0 9px 28px #233b580c;
+}
+#stats-view .stat-card .stat-emoji {
+  display: grid;
+  width: 53px;
+  height: 53px;
+  flex-basis: 53px;
+  border-radius: 15px;
+  color: #1d7365;
+  background: #e0f2ed;
+}
+#stats-view .stat-card .stat-emoji.flame {
+  background: #fff0e1;
+  color: #a26628;
+}
+#stats-view .stat-card .stat-emoji.star {
+  background: #edf0fb;
+  color: #5e65b4;
+}
+#stats-view .stat-label {
+  color: #496779;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 760;
+}
+#stats-view .stat-card strong {
+  color: #14294a;
+  font-size: clamp(25px, 2.45vw, 35px);
+  font-weight: 900;
+  line-height: 1.1;
+}
+#stats-view .achievements-section { margin-top: 38px; }
+#stats-view .achievement-intro {
+  color: #526c7d;
+  font-size: 13px;
+  line-height: 1.6;
+}
+#stats-view .achievement-grid { gap: 12px; }
+#stats-view .achievement-card {
+  background: #f9fbfc;
+  border: 1px solid #e0e9ee;
+  border-radius: 17px;
+  opacity: 1;
+  padding: 16px 17px;
+  min-height: 88px;
+  box-shadow: 0 5px 16px #263e5709;
+}
+#stats-view .achievement-card.is-unlocked {
+  background: linear-gradient(115deg, #fdf8e9, #eff9ef);
+  border-color: #d8e6cc;
+}
+#stats-view .achievement-icon {
+  border-radius: 13px;
+  background: #ebeff2;
+  filter: grayscale(.3);
+}
+#stats-view .achievement-card.is-unlocked .achievement-icon {
+  background: #fff0c8;
+  filter: none;
+}
+#stats-view .achievement-card strong {
+  color: #203b50;
+  font-size: 13px;
+  font-weight: 860;
+}
+#stats-view .achievement-card p {
+  color: #567183;
+  font-size: 12px;
+  line-height: 1.45;
+}
+#stats-view .achievement-status {
+  color: #526c7a;
+  font-size: 11px;
+  font-weight: 850;
+}
+#stats-view .achievement-card.is-unlocked .achievement-status { color: #176a55; }
+#stats-view .chart-card,
+#stats-view .habit-card,
+#calendar-view .calendar-panel {
+  border-radius: 18px;
+  border-color: #e0e9ed;
+  box-shadow: 0 7px 22px #283f570b;
+}
+#stats-view .chart-card { padding: 22px; }
+
+/* Tab bar on Android: inactive options must look available, never disabled. */
+@media (max-width: 760px) {
+  .sidebar { border-right: 0; box-shadow: none; }
+  .sidebar .main-nav,
+  .dashboard-app .sidebar .main-nav {
+    background: #fffffff7;
+    border-top: 1px solid #dce6ea;
+    box-shadow: 0 -8px 24px #1b374516;
+  }
+  .sidebar .main-nav .nav-item,
+  .dashboard-app .sidebar .main-nav .nav-item {
+    color: #40596b;
+    background: transparent;
+    font-weight: 800;
+    opacity: 1;
+  }
+  .sidebar .main-nav .nav-item.is-active,
+  .dashboard-app .sidebar .main-nav .nav-item.is-active,
+  .sidebar .main-nav .nav-item[aria-current="page"] {
+    background: #e4f6ed;
+    color: #11784f;
+    box-shadow: none;
+  }
+  .sidebar .main-nav .nav-item:hover,
+  .dashboard-app .sidebar .main-nav .nav-item:hover {
+    background: #edf5f3;
+    color: #214f4c;
+  }
+  .sidebar .main-nav .nav-item.is-active:hover,
+  .dashboard-app .sidebar .main-nav .nav-item.is-active:hover { background: #d8f0e2; color: #0c7049; }
+  #stats-view .stats-hero,
+  #calendar-view .stats-hero { padding: 27px 21px; }
+  #stats-view .stats-page-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #stats-view .stat-card { padding: 18px 15px; gap: 12px; min-height: 112px; }
+  #stats-view .stat-card .stat-emoji {
+    width: 45px;
+    height: 45px;
+    flex-basis: 45px;
+  }
+  #stats-view .achievement-card { min-height: 80px; }
+}
+@media (max-width: 540px) {
+  #stats-view .stats-page-grid { grid-template-columns: 1fr; gap: 10px; }
+  #stats-view .stat-card { min-height: 82px; padding: 14px 17px; }
+  #stats-view .stat-card strong { font-size: 27px; }
+  #stats-view .achievements-section { margin-top: 26px; }
+  #stats-view .achievement-card { gap: 10px; padding: 13px; }
+  #stats-view .achievement-status { white-space: normal; text-align: right; max-width: 82px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar .main-nav .nav-item { transition: none; }
+}
