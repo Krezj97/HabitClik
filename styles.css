@@ -1226,3 +1226,6 @@ input, select, textarea { min-width: 0; max-width: 100%; }
   .data-menu--top .data-menu-items { right: -4px; max-width: calc(100vw - 25px); }
 }
 @media (prefers-reduced-motion: reduce) { #motivation-phrase { transition: none; } }
+/* On Android WebView, [hidden] must beat flex/grid button styling. */
+[hidden] { display: none !important; }
+#native-test-later-btn { width: 100%; }
