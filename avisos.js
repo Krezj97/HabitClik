@@ -631,6 +631,7 @@ $("calendar-export-btn").addEventListener("click", downloadCalendar);
 window.addEventListener("focus", () => {
   render();
   maybeRemind();
+  maybeRemindHabits();
 });
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) {
@@ -659,3 +660,4 @@ refreshCustomAudio().catch((error) =>
   console.warn("HabitClik: no se pudo restaurar el audio personalizado.", error)
 );
 maybeRemind();
+maybeRemindHabits();
