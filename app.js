@@ -928,18 +928,26 @@ $("habit-form").addEventListener("submit", (event) => {
   editingId = null;
 });
 
+// Android's reduced-motion setting should never prevent the words from changing.
+// It only disables decorative CSS transitions, not fresh motivational content.
+const MOTIVATION_INTERVAL_MS = 15000;
+let lastMotivationChange = Date.now();
 $("motivation-next").addEventListener("click", () => {
   motivationShift++;
+  lastMotivationChange = Date.now();
   renderMotivation();
 });
-// Unhurried phrase rotation: pause when the app is not visible and respect motion preferences.
 function advanceMotivation() {
   if (document.hidden || currentView !== "today") return;
-  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   motivationShift++;
+  lastMotivationChange = Date.now();
   renderMotivation();
 }
-setInterval(advanceMotivation, 20000);
+function refreshMotivationAfterPause() {
+  if (document.hidden || currentView !== "today") return;
+  if (Date.now() - lastMotivationChange >= MOTIVATION_INTERVAL_MS) advanceMotivation();
+}
+setInterval(advanceMotivation, MOTIVATION_INTERVAL_MS);
 function moveCalendarMonth(direction) {
   const next = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + direction, 1, 12);
   const now = new Date();
@@ -1139,11 +1147,13 @@ document.addEventListener("visibilitychange", () => {
     render();
     showPendingReminder();
     showHabitReminders();
+    refreshMotivationAfterPause();
   }
 });
 window.addEventListener("focus", () => {
   showPendingReminder();
   showHabitReminders();
+  refreshMotivationAfterPause();
 });
 window.addEventListener("storage", (event) => {
   if (event.key === STORAGE_KEY) {
@@ -1215,4 +1225,5 @@ window.addEventListener("pageshow", () => {
   // Refresh daily progress after returning from Android's recents or another tab.
   render();
   showHabitReminders();
+  refreshMotivationAfterPause();
 });
