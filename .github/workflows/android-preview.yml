@@ -12,6 +12,7 @@ on:
       - avisos.js
       - alarm-sounds.js
       - native-notifications.js
+      - native-backup.js
       - phrases.js
       - progress.js
       - styles.css
