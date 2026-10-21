@@ -197,7 +197,7 @@ function maybeRemindHabits() {
     const announce = () => {
       const message = "Un momento para " + habit.title + ". ¿Te apetece hacerlo ahora?";
       showToast(message);
-      if (settings.notificationEnabled) notify(message);
+      if (settings.notificationEnabled) notify(message, "habitclik-habit-" + habit.id);
       if (window.HABITCLIK_SOUNDS) {
         window.HABITCLIK_SOUNDS.play(habit.alarmTone, settings.alarmVolume)
           .catch((error) => console.warn("HabitClik: fallo al reproducir el aviso.", error));
@@ -339,12 +339,12 @@ async function playSound() {
   return window.HABITCLIK_SOUNDS.play(settings.alarmTone, settings.alarmVolume);
 }
 
-async function notify(message) {
+async function notify(message, tag = "habitclik-daily") {
   if (notificationPermission() !== "granted") return false;
   const options = {
     body: message,
     icon: "./icons/icon-192.png",
-    tag: "habitclik-daily",
+    tag,
     data: { url: "./" }
   };
   try {
