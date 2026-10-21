@@ -30,5 +30,5 @@ test("service worker caches new audio and illustrates provenance and licensing",
   }
   assert.match(license,/CC0/);
   assert.match(license,/gretzke\/open-alarm/);
-  assert.match(sw,/habitclik-static-v20/);
+  assert.match(sw,/habitclik-static-v21/);
 });
