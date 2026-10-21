@@ -49,6 +49,9 @@ test("CI creates a debug APK artifact and never handles release credentials", ()
   assert.match(workflow, /platforms;android-36/);
   assert.match(workflow, /targetSdkVersion/);
   assert.match(workflow, /assembleDebug/);
+  assert.match(workflow, /Use HabitClik launcher branding/);
+  assert.match(workflow, /icons\/icon-512\.png/);
+  assert.match(workflow, /ic_launcher_foreground\.png/);
   assert.match(workflow, /android-native\/app\/build\/outputs\/apk\/debug\/app-debug\.apk/);
   assert.match(workflow, /actions\/upload-artifact@v4/);
   assert.doesNotMatch(workflow, /assembleRelease|signingConfig|RELEASE_KEYSTORE|ANDROID_KEYSTORE_PASSWORD/);
