@@ -5,6 +5,21 @@ on:
   push:
     paths:
       - .github/workflows/android-preview.yml
+      - index.html
+      - avisos.html
+      - privacy.html
+      - app.js
+      - avisos.js
+      - alarm-sounds.js
+      - phrases.js
+      - progress.js
+      - styles.css
+      - sw.js
+      - manifest.webmanifest
+      - android/prepare-web.cjs
+      - capacitor.config.json
+      - package.json
+      - tests/**
 
 permissions:
   contents: read
