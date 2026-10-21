@@ -1679,3 +1679,31 @@ body { background:#f6f9fc; color:#172844; }
   .dashboard-app #habit-dialog .habit-alarm-fields {margin-bottom:18px;}
 }
 @media (max-width:370px) { .alarm-days-picker {gap:3px;} .alarm-days-picker label span {font-size:11px;min-height:29px;} }
+
+
+/* The habit's three-dot menu follows the supplied reference and keeps edit/delete available. */
+.dashboard-app .habit-card {position:relative;}
+.dashboard-app .habit-action-menu {position:relative;flex:0 0 31px;z-index:4;}
+.dashboard-app .habit-action-menu[open] {z-index:12;}
+.dashboard-app .habit-action-menu > summary {
+  display:grid;place-items:center;list-style:none;cursor:pointer;
+  width:31px;height:40px;border-radius:10px;font-size:25px;line-height:1;
+  font-weight:850;color:#61718a;user-select:none;
+}
+.dashboard-app .habit-action-menu > summary::-webkit-details-marker {display:none;}
+.dashboard-app .habit-action-menu > summary:hover {background:#edf4f2;}
+.dashboard-app .habit-action-menu > summary:focus-visible {outline:3px solid #159960;outline-offset:2px;}
+.dashboard-app .habit-action-popover {
+  position:absolute;top:calc(100% + 4px);right:0;min-width:185px;
+  display:grid;gap:3px; padding:7px; border-radius:13px;
+  background:#fff;box-shadow:0 14px 30px #1b385245;border:1px solid #e1e8ef;
+}
+.dashboard-app .habit-action-popover button {
+  font-family:inherit;display:flex;align-items:center;justify-content:flex-start;
+  width:100%;height:auto;min-height:42px;padding:8px 12px;border:0;
+  background:transparent;border-radius:8px;font-size:12px;font-weight:800;
+  text-align:left;color:#28415c;white-space:nowrap;
+}
+.dashboard-app .habit-action-popover button:hover {background:#eff7f3;}
+.dashboard-app .habit-action-popover .delete-habit {color:#a24a4a;}
+.dashboard-app .journey-emblem {font-size:27px;}
