@@ -38,7 +38,7 @@ test("the petrol palette is applied to both pages and the installed PWA", () => 
   for (const filename of ["styles.css", "app.js", "progress.js", "alarm-sounds.js", "avisos.js", "phrases.js"]) {
     assert.match(sw, new RegExp(filename.replace(".", "\\.") + "\\?v=21"));
   }
-  assert.match(sw, /habitclik-static-v21/);
+  assert.match(sw, /habitclik-static-v22/);
   assert.match(home, /styles\.css\?v=21/);
   assert.match(reminders, /styles\.css\?v=21/);
 });
