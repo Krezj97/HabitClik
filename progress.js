@@ -4,18 +4,20 @@
 // Reversing a completion reverses the earned XP; imports naturally preserve progress.
 // No penalties, purchase gates, fabricated rankings or competitive leaderboards.
 (function () {
+  // "Completions" are check-ins across days, not different habits.
+  // All badges are reachable with just ONE of the three free habit slots.
   const BADGES = Object.freeze([
-    { id: "primera", icon: "✨", title: "Primer paso", description: "Tu primer hábito completado.", requirement: (m) => m.completions >= 1 },
-    { id: "semilla", icon: "🌱", title: "Semilla de constancia", description: "10 hábitos completados.", requirement: (m) => m.completions >= 10 },
-    { id: "impulso", icon: "🌟", title: "En movimiento", description: "50 hábitos completados.", requirement: (m) => m.completions >= 50 },
-    { id: "centenar", icon: "🏆", title: "Cien pequeños pasos", description: "100 hábitos completados.", requirement: (m) => m.completions >= 100 },
-    { id: "dia", icon: "☀️", title: "Día redondo", description: "Completa todos tus hábitos en un día.", requirement: (m) => m.perfectDays >= 1 },
-    { id: "diez-dias", icon: "💚", title: "Días que cuentan", description: "10 días con todo completado.", requirement: (m) => m.perfectDays >= 10 },
-    { id: "tres-rachas", icon: "🔥", title: "Tres días seguidos", description: "Tu mejor racha alcanza 3 días.", requirement: (m) => m.bestStreak >= 3 },
-    { id: "siete-rachas", icon: "🌈", title: "Una semana presente", description: "Tu mejor racha alcanza 7 días.", requirement: (m) => m.bestStreak >= 7 },
-    { id: "meta", icon: "🎯", title: "Meta lograda", description: "Cumple tu primera meta semanal.", requirement: (m) => m.weeklyGoals >= 1 },
-    { id: "metas", icon: "🎖️", title: "Compromiso", description: "Cumple 10 metas semanales.", requirement: (m) => m.weeklyGoals >= 10 },
-    { id: "nivel", icon: "🚀", title: "Nivel cinco", description: "Alcanza el nivel 5.", requirement: (m) => m.level >= 5 }
+    { id: "primera", icon: "✨", title: "Mi primer día", description: "Has marcado un hábito por primera vez.", requirement: (m) => m.completions >= 1 },
+    { id: "semilla", icon: "🌱", title: "Va echando raíces", description: "Llevas 5 veces cuidando tus hábitos.", requirement: (m) => m.completions >= 5 },
+    { id: "impulso", icon: "🌟", title: "A mi ritmo", description: "Has sumado 20 pequeños avances.", requirement: (m) => m.completions >= 20 },
+    { id: "centenar", icon: "🏆", title: "Un mes de detalles", description: "Has registrado avances en 30 días distintos.", requirement: (m) => m.activeDays >= 30 },
+    { id: "dia", icon: "☀️", title: "Día para celebrar", description: "Has completado lo que te propusiste hoy.", requirement: (m) => m.perfectDays >= 1 },
+    { id: "diez-dias", icon: "💚", title: "Días bien aprovechados", description: "Has completado tu lista en 5 días.", requirement: (m) => m.perfectDays >= 5 },
+    { id: "tres-rachas", icon: "🔥", title: "Tres días seguidos", description: "Has estado presente durante 3 días seguidos.", requirement: (m) => m.bestStreak >= 3 },
+    { id: "siete-rachas", icon: "🌈", title: "Una semana a tu manera", description: "Has avanzado durante 7 días seguidos.", requirement: (m) => m.bestStreak >= 7 },
+    { id: "meta", icon: "🎯", title: "¡Meta cumplida!", description: "Has alcanzado tu primera meta semanal.", requirement: (m) => m.weeklyGoals >= 1 },
+    { id: "metas", icon: "🎖️", title: "Cada semana cuenta", description: "Has alcanzado 3 metas semanales.", requirement: (m) => m.weeklyGoals >= 3 },
+    { id: "nivel", icon: "🚀", title: "Sigo creciendo", description: "Has llegado al nivel 3.", requirement: (m) => m.level >= 3 }
   ]);
   const TITLES = [
     { from: 1, title: "Explorador" },
@@ -105,24 +107,24 @@
     const level = levelFromXp(xp);
     const from = requiredXp(level), to = requiredXp(level + 1);
     const rank = [...TITLES].reverse().find((title) => level >= title.from).title;
-    const metrics = { completions, perfectDays, weeklyGoals, bestStreak, xp, level };
+    const metrics = { completions, activeDays: completionsByDay.size, perfectDays, weeklyGoals, bestStreak, xp, level };
     const badges = BADGES.map(({ requirement, ...details }) => ({
       ...details, unlocked: requirement(metrics)
     }));
     const unlocked = badges.filter((badge) => badge.unlocked);
     const todayActive = validHabits.filter((habit) => habit.createdAt <= validToday).length;
 
-    let headline = "Tu historia empieza con un pequeño paso";
-    let detail = "Cada hábito que completes te acerca a tu siguiente nivel.";
+    let headline = "¿Con qué pequeño paso empezamos?";
+    let detail = "No hace falta hacerlo perfecto. Solo empezar por algo que te haga bien.";
     if (todayDone && todayDone < todayActive) {
-      headline = "Hoy ya has sumado " + todayDone * 10 + " XP";
-      detail = "Tus avances cuentan, incluso si hoy no lo haces todo.";
+      headline = "¡Qué bien! Hoy ya llevas " + todayDone + (todayDone === 1 ? " hábito" : " hábitos");
+      detail = "El resto puede esperar. Cada cosa a su tiempo.";
     } else if (todayDone && todayActive > 0 && todayDone >= todayActive) {
-      headline = "¡Hoy lo has conseguido todo!";
-      detail = "Has ganado experiencia por tus hábitos y por completar tu día.";
+      headline = "¡Hoy lo has hecho genial!";
+      detail = "Ya has terminado lo que te propusiste. Disfruta de ese momento.";
     } else if (completions) {
-      headline = "Llevas " + completions + " pequeños logros";
-      detail = "No importa si ayer descansaste: hoy puedes seguir avanzando.";
+      headline = "Ya has dado " + completions + " pequeños pasos";
+      detail = "Si hoy te apetece volver a empezar, aquí seguimos.";
     }
 
     const scene = todayActive === 0 || !todayDone ? "amanecer"
