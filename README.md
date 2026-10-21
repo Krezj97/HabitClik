@@ -13,8 +13,8 @@
 - 🗑️ Eliminar hábitos y su historial tras confirmación.
 - 📲 Instalar la web como aplicación cuando el navegador admita la instalación.
 - 📴 Abrir y utilizar la aplicación sin conexión **después de una primera visita con conexión**.
-- ⏰ Configurar **un recordatorio independiente para cada hábito**, con su propia hora, sonido y activación individual, al crear/editar el hábito o desde Avisos; el recordatorio diario general sigue siendo opcional. Los sonidos requieren la app abierta y permisos del navegador para reproducirse.
-- 🔔 Activar voluntariamente **notificaciones del navegador**, sujetas a sus permisos y a que la app esté abierta/activa.
+- ⏰ Configurar **un recordatorio independiente para cada hábito**, con su propia hora, sonido y activación individual, al crear/editar el hábito o desde Avisos; el recordatorio diario general sigue siendo opcional. Los tonos web se escuchan con la aplicación abierta; en Android, los avisos nativos pueden llegar con la pantalla bloqueada tras conceder permiso.
+- 🔔 En la **APK Android v21**, activar **notificaciones locales nativas** y enviar una prueba al móvil o con la pantalla bloqueada. Los recordatorios se programan en Android para los próximos 7 días; Android puede retrasarlos según el ahorro de batería. En la web, los avisos siguen dependiendo del navegador.
 - ♪ Elegir entre **cinco alarmas naturales y musicales en MP3 con licencia CC0** (Brisa, Luz, Despertar, Buen día y Bosque) o subir **un archivo de audio propio** (MP3, M4A, WAV, OGG, AAC o WebM, máximo 8 MB), escucharlo, regular su volumen o eliminarlo. El volumen final está limitado por el navegador y el dispositivo.
 - 📆 Exportar un archivo de calendario `.ics` con un evento diario recurrente y alarma previa para recibir avisos a través del calendario del dispositivo, incluso con HabitClik cerrada si el calendario lo permite.
 - 💬 Las **frases motivacionales cambian solas cada 20 segundos**, despacio y sin interrumpir, pero se pausan si la app no está visible o si el usuario prefiere reducir el movimiento. También puedes cambiarlas a mano.
@@ -35,7 +35,7 @@ HabitClik admite **hasta 3 hábitos nuevos en el plan gratuito**. En una instala
 
 ## Experiencia mejorada
 
-Los controles de importación/exportación ahora están en el menú **Opciones**, el texto se ha hecho más natural y el recordatorio de cada hábito se puede configurar de forma independiente. **No son alarmas nativas en segundo plano**: en la APK Android con Capacitor los sonidos web se pueden suspender cuando la app está cerrada. Para garantizar avisos cerrada se necesitará una implementación nativa específica y pruebas en dispositivos reales.
+Los controles de importación/exportación ahora están en el menú **Opciones**, el texto se ha hecho más natural y el recordatorio de cada hábito se puede configurar de forma independiente. **No son alarmas nativas en segundo plano**: en la APK Android con Capacitor los sonidos web se pueden suspender cuando la app está cerrada. La APK v21 ya incorpora notificaciones locales de Android con pruebas inmediata y diferida, pero aún falta confirmar su comportamiento en dispositivos físicos. Son avisos aproximados, no alarmas de precisión. Véase [NOTIFICACIONES-ANDROID.md](android/NOTIFICACIONES-ANDROID.md).
 
 ## Android y futura publicación en Google Play
 
