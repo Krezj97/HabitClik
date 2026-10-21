@@ -714,6 +714,13 @@ function renderJourney() {
   ).join("");
   const ideal = HERO_SCENES.indexOf(progress.scene);
   const scene = HERO_SCENES[(ideal + heroSceneOffset) % HERO_SCENES.length];
+  const sceneCaptions = {
+    amanecer: "Todo empieza con un pequeño paso",
+    enfoque: "Hoy también estás construyendo algo",
+    bosque: "A tu ritmo, estás llegando lejos",
+    celebracion: "¡Qué bien! Este momento es tuyo"
+  };
+  $("hero-scene-caption").textContent = sceneCaptions[scene];
   const hero = $("hero-main");
   for (const name of HERO_SCENES) hero.classList.toggle("hero--" + name, name === scene);
 }
