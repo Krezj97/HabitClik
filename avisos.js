@@ -132,7 +132,8 @@ function renderHabitAlarms() {
       (habit.alarmEnabled ? " checked" : "") + '> Avisarme</label></div>' +
       '<div class="per-habit-alarm-controls"><label>Hora<input type="time" data-habit-alarm="time" data-id="' + id +
       '" value="' + time + '"></label><label>Sonido<select data-habit-alarm="tone" data-id="' + id + '">' +
-      choices + (hasCustom ? '<option value="personalizada" selected>Mi audio personalizado</option>' : '') +
+      choices + (customAudioInfo || hasCustom ? '<option value="personalizada"' +
+      (hasCustom ? ' selected' : '') + '>Mi audio personalizado</option>' : '') +
       '</select></label></div>' +
       '<button type="button" class="settings-action per-habit-preview" data-habit-alarm="preview" data-id="' + id +
       '">♪ Escuchar sonido</button></div>';
@@ -289,6 +290,7 @@ async function refreshCustomAudio() {
   }
   $("alarm-tone").value = settings.alarmTone;
   renderToneDescription();
+  renderHabitAlarms();
 }
 
 $("alarm-custom-file").addEventListener("change", async (event) => {
