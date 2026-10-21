@@ -84,7 +84,13 @@ function normalizeData(input) {
       createdAt: typeof habit.createdAt === "string" && isValidDateKey(habit.createdAt)
         ? habit.createdAt : today,
       weeklyTarget: Number.isInteger(habit.weeklyTarget) && habit.weeklyTarget >= 1 &&
-        habit.weeklyTarget <= 7 ? habit.weeklyTarget : 7
+        habit.weeklyTarget <= 7 ? habit.weeklyTarget : 7,
+      alarmEnabled: habit.alarmEnabled === true,
+      alarmTime: isValidReminderTime(habit.alarmTime) ? habit.alarmTime : "19:00",
+      alarmTone: window.HABITCLIK_SOUNDS && window.HABITCLIK_SOUNDS.isValid(habit.alarmTone)
+        ? habit.alarmTone : "campanas",
+      lastAlarmAt: typeof habit.lastAlarmAt === "string" && isValidDateKey(habit.lastAlarmAt)
+        ? habit.lastAlarmAt : null
     });
   }
   const logs = {};
@@ -402,7 +408,7 @@ function renderHabits() {
   $("habit-count").textContent = data.habits.length;
   if (!data.habits.length) {
     $("habit-list").innerHTML = '<div class="empty-state"><span class="empty-icon" aria-hidden="true">🌿</span>' +
-      '<h3>Todo gran cambio empieza aquí</h3><p>Elige hasta 3 hábitos gratis y da el primer paso hoy.</p>' +
+      '<h3>¿Qué te gustaría hacer por ti?</h3><p>Elige hasta 3 hábitos sencillos. A tu ritmo, sin prisa.</p>' +
       '<button type="button" class="button-primary" data-action="new">Crear mi primer hábito</button></div>';
     return;
   }
@@ -415,7 +421,8 @@ function renderHabits() {
       '<span class="habit-symbol" style="--soft:' + category.background + '" aria-hidden="true">' + category.icon + '</span>' +
       '<div class="habit-info"><h3 class="habit-title">' + escapeHtml(habit.title) + '</h3>' +
       '<span class="habit-category">' + category.label + ' · ' +
-      (targetFor(habit) === 7 ? 'Diario' : targetFor(habit) + ' días/semana') + '</span></div>' +
+      (targetFor(habit) === 7 ? 'Diario' : targetFor(habit) + ' días/semana') +
+      (habit.alarmEnabled ? ' · 🔔 ' + escapeHtml(habit.alarmTime) : '') + '</span></div>' +
       '<button type="button" class="habit-check" data-action="toggle" data-id="' + habit.id +
       '" aria-pressed="' + checked + '" aria-label="' + (checked ? 'Desmarcar ' : 'Completar ') +
       escapeHtml(habit.title) + '">' + (checked ? '✓ Hecho' : '○ Completar') + '</button>' +
@@ -578,6 +585,37 @@ function downloadCalendarReminder() {
   showToast("Aviso diario descargado. Impórtalo a tu calendario y activa sus alertas.");
 }
 
+function showHabitReminders() {
+  if (document.hidden) return;
+  const now = new Date();
+  const day = keyForDate(now);
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  const due = data.habits.filter((habit) => {
+    if (!habit.alarmEnabled || habit.lastAlarmAt === day ||
+        !isValidReminderTime(habit.alarmTime) || completedIds(day).includes(habit.id) ||
+        habit.createdAt > day || completionsThisWeek(habit) >= targetFor(habit)) return false;
+    const [hours, mins] = habit.alarmTime.split(":").map(Number);
+    return minutes >= hours * 60 + mins;
+  });
+  if (!due.length) return;
+  for (const habit of due) habit.lastAlarmAt = day;
+  persist();
+  due.forEach((habit, index) => {
+    const message = "Un momento para " + habit.title + ". Si hoy te viene bien, adelante.";
+    // Do not make one sound cut off another when two reminders share a minute.
+    const deliver = () => {
+      showToast(message);
+      sendDeviceNotification(message);
+      if (window.HABITCLIK_SOUNDS) {
+        window.HABITCLIK_SOUNDS.play(habit.alarmTone, data.settings.alarmVolume)
+          .catch((error) => console.warn("HabitClik: alarma individual no disponible.", error));
+      }
+    };
+    if (index === 0) deliver();
+    else setTimeout(deliver, index * 12000);
+  });
+}
+
 function showPendingReminder() {
   if (!data.settings.reminderEnabled || document.hidden) return;
   const now = new Date();
@@ -713,6 +751,10 @@ function openDialog(id = null) {
     $("habit-category").value = habit.category;
     $("habit-target").value = String(targetFor(habit));
   }
+  $("habit-alarm-enabled").checked = habit ? habit.alarmEnabled === true : false;
+  $("habit-alarm-time").value = habit && isValidReminderTime(habit.alarmTime) ? habit.alarmTime : "19:00";
+  $("habit-alarm-tone").value = habit && window.HABITCLIK_SOUNDS &&
+    window.HABITCLIK_SOUNDS.isValid(habit.alarmTone) ? habit.alarmTone : "campanas";
   $("habit-dialog").showModal();
   $("habit-name").focus();
 }
@@ -732,10 +774,10 @@ function toggleHabit(id, day = keyForDate(new Date())) {
   render();
   const gainedLevel = !wasDone && window.HABITCLIK_PROGRESS &&
     window.HABITCLIK_PROGRESS.calculate(data, keyForDate(new Date())).level > beforeLevel;
-  showToast(gainedLevel ? "¡Has subido de nivel! Tu constancia está creciendo. ✨" :
+  showToast(gainedLevel ? "¡Un nivel más! Mira todo lo que llevas hecho. ✨" :
     wasDone ? "Hábito marcado como pendiente." :
-    day === keyForDate(new Date()) ? "¡Un paso más! +10 XP por tu hábito." :
-      "¡Día anterior registrado! Tu historial está actualizado.");
+    day === keyForDate(new Date()) ? "¡Qué bien! Un paso más y 10 XP para ti." :
+      "¡Listo! También cuenta lo que hiciste aquel día.");
 }
 
 function deleteHabit(id) {
@@ -816,8 +858,13 @@ $("habit-form").addEventListener("submit", (event) => {
   const title = $("habit-name").value.trim();
   const category = $("habit-category").value;
   const weeklyTarget = Number($("habit-target").value);
+  const alarmEnabled = $("habit-alarm-enabled").checked;
+  const alarmTime = $("habit-alarm-time").value;
+  const alarmTone = $("habit-alarm-tone").value;
   if (title.length < 2 || title.length > 60 || !Object.hasOwn(CATEGORIES, category) ||
-      !Number.isInteger(weeklyTarget) || weeklyTarget < 1 || weeklyTarget > 7) {
+      !Number.isInteger(weeklyTarget) || weeklyTarget < 1 || weeklyTarget > 7 ||
+      !isValidReminderTime(alarmTime) || !(window.HABITCLIK_SOUNDS &&
+        window.HABITCLIK_SOUNDS.isValid(alarmTone))) {
     showToast("Introduce un nombre válido.");
     return;
   }
@@ -830,6 +877,10 @@ $("habit-form").addEventListener("submit", (event) => {
     habit.title = title;
     habit.category = category;
     habit.weeklyTarget = weeklyTarget;
+    habit.alarmEnabled = alarmEnabled;
+    habit.alarmTime = alarmTime;
+    habit.alarmTone = alarmTone;
+    if (!alarmEnabled) habit.lastAlarmAt = null;
   } else {
     // Guard the write as well as the add button: a previously opened form
     // must not bypass the free quota.
@@ -838,7 +889,8 @@ $("habit-form").addEventListener("submit", (event) => {
       showUpgradeDialog();
       return;
     }
-    data.habits.push({ id: newId(), title, category, createdAt: keyForDate(new Date()), weeklyTarget });
+    data.habits.push({ id: newId(), title, category, createdAt: keyForDate(new Date()),
+      weeklyTarget, alarmEnabled, alarmTime, alarmTone, lastAlarmAt: null });
   }
   persist();
   render();
@@ -1038,6 +1090,7 @@ document.addEventListener("visibilitychange", () => {
 });
 window.addEventListener("focus", showPendingReminder);
 setInterval(showPendingReminder, 60 * 1000);
+setInterval(showHabitReminders, 60 * 1000);
 
 let deferredInstallPrompt = null;
 const installButton = $("install-app-btn");
@@ -1078,6 +1131,7 @@ if ("serviceWorker" in navigator && window.isSecureContext) {
 persist();
 render();
 showPendingReminder();
+showHabitReminders();
 
 // Support direct deep links from the independent Avisos page.
 const route = window.location && window.location.hash.slice(1);
@@ -1091,4 +1145,5 @@ window.addEventListener("popstate", restoreViewFromAddress);
 window.addEventListener("pageshow", () => {
   // Refresh daily progress after returning from Android's recents or another tab.
   render();
+  showHabitReminders();
 });
