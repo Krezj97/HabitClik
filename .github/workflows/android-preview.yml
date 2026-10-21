@@ -16,6 +16,8 @@ on:
       - phrases.js
       - progress.js
       - styles.css
+      - art/**
+      - fonts/**
       - sw.js
       - manifest.webmanifest
       - android/prepare-web.cjs
