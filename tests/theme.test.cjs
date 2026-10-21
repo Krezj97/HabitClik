@@ -81,14 +81,14 @@ test("habits, daily completion and XP are shown before artwork and secondary con
     "journey-bar", "hero-main", "motivation-heading", "weekly-strip"]) {
     assert.ok(at(id) >= 0,id + " is missing from today's screen");
   }
+  assert.ok(at("hero-main") < at("quick-progress-percent"),
+    "scenic greeting should sit above the floating daily-progress card");
   assert.ok(at("quick-progress-percent") < at("habit-list"),
-    "daily summary should precede habit actions");
-  assert.ok(at("habit-list") < at("journey-level"),
-    "habits should be immediately actionable before the XP panel");
-  assert.ok(at("journey-level") < at("hero-main"),
-    "experience progression should be above the decorated hero");
-  assert.ok(at("hero-main") < at("motivation-heading"),
-    "motivation stays secondary to practical actions");
+    "daily progress should be visible before checking habits");
+  assert.ok(at("habit-list") < at("motivation-heading"),
+    "habits should remain the first actionable part of the dashboard");
+  assert.ok(at("motivation-heading") < at("journey-level"),
+    "illustrated motivational card should sit above the compact XP card");
   assert.equal((home.match(/id="habit-list"/g) || []).length,1);
   assert.match(css,/\.today-priority\s*\{/);
   assert.match(css,/@media\s*\(max-width:\s*1230px\)/);
@@ -121,4 +121,22 @@ test("compact hero fits Android screens and captions each progress scene", () =>
     const asset=fs.readFileSync(path.join(root,"art",name+".svg"),"utf8");
     assert.match(asset,/<g opacity="/);
   }
+});
+
+
+test("reference-inspired mobile design includes real functional screens and accessible actions", () => {
+  for (const id of [
+    "top-data-menu","options-edit-habits","options-phrases-btn",
+    "habit-add-inline","motivation-poster","motivation-phrase","motivation-counter",
+    "motivation-prev","motivation-next","motivation-settings","motivation-dialog",
+    "motivation-auto-toggle","motivation-short-toggle","motivation-dialog-close"
+  ]) assert.ok(home.includes('id="' + id + '"'),id + " absent from real Android UI");
+  assert.match(home,/<body class="dashboard-app">/);
+  assert.match(home,/class="options-panel-title"/);
+  assert.match(css,/\.dashboard-app \.home-welcome \.quick-daily-progress/);
+  assert.match(css,/\.dashboard-app \.habit-check::before/);
+  assert.match(css,/\.motivation-poster\[data-landscape="forest"\]/);
+  assert.match(css,/\.dashboard-app #top-data-menu \.data-menu-items/);
+  assert.match(css,/@media \(max-width:760px\)/);
+  assert.match(css,/\.preference-line input\[type="checkbox"\]/);
 });
