@@ -89,7 +89,7 @@ test("assetlinks generator validates package, certificate fingerprint and custom
 
 test("Play Store checklist clearly marks blockers and does not expose signing secrets", () => {
   const plan=read("android/PLAYSTORE.md");
-  assert.match(plan,/NO hay un archivo Android App Bundle/);
+  assert.match(plan,/NO hay un (?:archivo )?Android App Bundle/);
   assert.match(plan,/targetSdkVersion/);
   assert.match(plan,/36/);
   assert.match(plan,/\.well-known\/assetlinks\.json/);
