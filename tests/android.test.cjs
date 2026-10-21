@@ -51,7 +51,7 @@ test("public privacy document and offline navigation fallback are present", () =
   assert.match(privacy,/Exportar datos/);
   assert.match(sw,/"\.\/privacy\.html"/);
   assert.match(sw,/path\.endsWith\("\/privacy\.html"\)/);
-  assert.match(sw,/habitclik-static-v25/);
+  assert.match(sw,/habitclik-static-v26/);
   assert.match(read("avisos.js"),/navigator\.serviceWorker\.register\("\.\/sw\.js"\)/);
 });
 
