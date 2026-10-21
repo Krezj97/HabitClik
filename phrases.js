@@ -6,29 +6,29 @@
     start: `Empieza con un gesto pequeño y deja que el día siga su curso.
 Un minuto dedicado a ti también cuenta.
 La mejor rutina es la que puedes repetir sin agobios.
-Hoy tienes una oportunidad nueva para avanzar.
-No necesitas hacerlo todo; elige tu primer paso.
+¿Y si hoy empezamos por algo fácil?
+No hay que hacerlo todo hoy. Con una cosa está bien.
 Tus hábitos se construyen con decisiones sencillas.
 Un comienzo tranquilo sigue siendo un comienzo.
 Haz espacio para lo que te hace bien.
 Cada intento es una forma de aprender.
 No hay una hora perfecta para empezar.
 Las rutinas fuertes nacen de acciones pequeñas.
-A veces, empezar es el mayor logro del día.
+Si hoy te cuesta arrancar, prueba con solo dos minutos.
 Una pequeña victoria puede cambiar cómo termina tu tarde.
 La constancia empieza con una decisión amable.
 Puedes avanzar sin compararte con nadie.
 Hazlo fácil de empezar y posible de repetir.
 Un hábito comienza con una acción, no con una promesa.
 Dedica unos minutos a tu bienestar futuro.
-El ritmo lo marcas tú, no el calendario.
+Tu día, tus tiempos. Así está bien.
 No tienes que esperar al lunes para empezar.
 Una acción breve puede abrir el camino.
 Hoy cuenta incluso si vas despacio.
 Elige una meta que encaje con tu día real.
 Lo sencillo también puede ser importante.
 No subestimes los pequeños comienzos.
-Tu versión de hoy merece una oportunidad.
+Hoy no tienes que demostrarle nada a nadie.
 Empieza donde estás y con lo que tienes.
 Dar el primer paso puede ser suficiente por ahora.
 Una buena rutina te acompaña; no te persigue.
@@ -45,29 +45,29 @@ Hazlo por la tranquilidad de haber empezado.
 Tu constancia comienza de nuevo cada mañana.
 Puedes hacerlo pequeño y aun así hacerlo bien.
 Cada acción es una semilla para tus próximos días.
-Poco a poco es una estrategia válida.
+Sin prisa. Lo importante es encontrar tu manera.
 El progreso no exige prisa.
 Crea espacio para una buena decisión hoy.
 Un pequeño sí a tus objetivos vale la pena.
 Acompaña tu día con una elección consciente.
 Hay muchas formas de avanzar; encuentra la tuya.`,
-    progress: `Ya has dado un paso: reconoce ese avance.
+    progress: `¡Mira, ya has empezado! Eso también merece una sonrisa.
 No necesitas completar todo para sentir progreso.
 Las acciones pequeñas también merecen celebrarse.
 Has empezado; sigue si te viene bien.
 Cada hábito marcado es una decisión que cuenta.
-Hoy has reservado tiempo para algo importante.
+Has sacado un ratito para ti. Qué buena sensación.
 Un logro pequeño puede sostener una rutina.
 El avance de hoy no tiene que parecerse al de ayer.
-Estás encontrando tu propio ritmo.
+Parece que vas encontrando tu ritmo. Sigue así, sin agobios.
 La constancia se aprende haciéndola.
 Una tarea completada puede inspirar a la siguiente.
 Llevas más progreso del que tenías al empezar el día.
 Elige tu siguiente paso sin prisas.
-Haz una pausa y aprecia lo que ya hiciste.
+Antes de seguir, date un segundo para ver lo que has hecho.
 La continuidad se construye poco a poco.
 El progreso puede ser discreto y valioso a la vez.
-No minimices lo que has conseguido hoy.
+Que sea pequeño no significa que no cuente.
 Vas sumando acciones que importan para ti.
 Tu esfuerzo cuenta aunque nadie más lo vea.
 Un paso realizado siempre es mejor que un plan olvidado.
@@ -81,7 +81,7 @@ Haz que el siguiente paso sea tan sencillo como el primero.
 Cada marca es un recuerdo de tu compromiso.
 No se trata de correr, sino de construir.
 El avance puede ser lento y seguir siendo avance.
-Tu día tiene espacio para reconocer una victoria.
+Hoy hay algo que celebrar, aunque sea una cosa pequeña.
 Lo de hoy es parte de una historia más larga.
 Estás practicando la constancia, no rindiendo un examen.
 Valora lo que hiciste sin pensar solo en lo pendiente.
@@ -99,7 +99,7 @@ Lo logrado hoy ya es parte de tu recorrido.
 Sigue con atención, no con presión.
 Tu esfuerzo está construyendo una base.
 Hoy has hecho que una meta sea un poco más real.`,
-    streak: `Tu racha empieza a tomar forma: celébrala.
+    streak: `Ya llevas varios días volviendo a tus hábitos. ¡Qué bien!
 La constancia se construye un día después de otro.
 Estás practicando algo más poderoso que la prisa.
 Mira cómo tus pequeños esfuerzos se van conectando.
@@ -112,7 +112,7 @@ No hace falta que todos los días sean idénticos.
 Tu rutina está encontrando su lugar.
 Continúa con la misma paciencia con la que empezaste.
 Lo repetido con calma termina creando confianza.
-La racha es una guía, no una obligación.
+Si un día no sale, mañana seguimos por donde lo dejamos.
 Cada día trae una oportunidad distinta de avanzar.
 Lo importante es mantener un hábito sostenible.
 Tu constancia ya tiene historia.
@@ -123,7 +123,7 @@ La racha crece mejor cuando cuidas tu energía.
 Sigue por lo que te aporta, no por la presión del número.
 Puedes celebrar tu continuidad sin perseguir perfección.
 Lo que repites se vuelve más familiar.
-Una buena rutina se adapta también a los días difíciles.
+En los días complicados, hacerlo más sencillo también vale.
 Tu recorrido se está construyendo paso a paso.
 Tener un ritmo propio es un logro.
 Cada día activo suma un recuerdo positivo.
