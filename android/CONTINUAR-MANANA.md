@@ -1,4 +1,21 @@
 # Punto de continuación · HabitClik
+## Avance posterior · primera APK Android instalada como artefacto de pruebas
+
+**21 de octubre de 2026:** se ha añadido un empaquetado **Capacitor 8.5.3** en `capacitor.config.json`, `package.json`, `android/prepare-web.cjs` y el flujo `.github/workflows/android-preview.yml`. La web se copia al paquete y permanece intacta en GitHub Pages.
+
+- **Compilación APK DEBUG real:** [Android preview APK, ejecución 39599064718](https://github.com/Krezj97/HabitClik/actions/runs/39599064718) — **success**.
+- **Descarga desde GitHub Actions:** artefacto `HabitClik-Android-PRUEBAS-APK`, ID `12344638836`, disponible hasta el **4 de noviembre de 2026**.
+- **Tamaño del archivo APK:** 5.438.094 bytes. **SHA-256:** `d1cd0ccb1318f9b5e56fe4e8b30572b68becbb563e3741a121a7eb7506f0a145`.
+- Verificados el manifiesto Android, clases, HTML empaquetado, cinco MP3 y **quince iconos nativos ya con el logo de HabitClik**.
+- **Identidad de pruebas:** `dev.habitclik.preview`, nombre `HabitClik (Pruebas)`. La ruta generada `android-native/` no se sube a Git; la carpeta `android/` sigue guardando guías y scripts.
+- **Pruebas y GitHub Pages tras el último cambio:** [checks 39599096436](https://github.com/Krezj97/HabitClik/actions/runs/39599096436) — **success**; [Pages 39599095805](https://github.com/Krezj97/HabitClik/actions/runs/39599095805) — **success**.
+- Consulta [ANDROID-TESTING.md](ANDROID-TESTING.md) para instalación y escenarios pendientes. **Todavía no se ha probado en un dispositivo Android real ni se ha generado un AAB de producción**.
+- La build de debug se firma con una clave de pruebas distinta en cada ejecución: para cambiar de APK puede requerirse desinstalar, lo que borra los datos locales si no hay copia exportada.
+
+**Siguiente paso pendiente:** instalar la APK en un teléfono Android real, comprobar navegación, hábitos y XP, audios, exportación/importación y calendario; corregir los problemas específicos del WebView. Después elegir identidad de app comercial, permisos e integración de funciones nativas reales antes de Play Store.
+
+---
+
 **Guardado:** 21 de octubre de 2026
 
 ## Estado comprobado al cerrar
