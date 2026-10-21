@@ -44,6 +44,16 @@ jobs:
       - name: Bundle and initialize preview Android project
         run: |
           npm run android:preview
+      - name: Use HabitClik launcher branding instead of Capacitor defaults
+        run: |
+          set -euo pipefail
+          for density in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            target="android-native/app/src/main/res/mipmap-${density}"
+            test -d "$target"
+            for icon in ic_launcher.png ic_launcher_round.png ic_launcher_foreground.png; do
+              cp icons/icon-512.png "$target/$icon"
+            done
+          done
       - name: Check Android 16 target SDK
         run: |
           grep -Eq 'targetSdkVersion[[:space:]]*=[[:space:]]*36' android-native/variables.gradle
