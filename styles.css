@@ -1141,3 +1141,88 @@ input, select, textarea { min-width: 0; max-width: 100%; }
   .privacy-document p { font-size: 13px; line-height: 1.7; }
   .privacy-page .main-content { padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
 }
+
+
+/* Quiet backups menu: actions live under Options, away from daily habits. */
+.data-menu { position: relative; min-width: 0; }
+.data-menu > summary {
+  list-style: none; cursor: pointer; user-select: none; -webkit-user-select: none;
+  display: inline-flex; align-items: center; justify-content: space-between; gap: 9px;
+  padding: 11px 13px; border: 1px solid #65858b; border-radius: 11px;
+  color: #edf9f5; background: #2c4f59; font-size: 12px; font-weight: 780;
+  min-height: 44px;
+}
+.data-menu > summary::-webkit-details-marker { display: none; }
+.data-menu > summary:hover { background: #3b6570; }
+.data-menu > summary:focus-visible { outline: 3px solid #8cdcc8; outline-offset: 3px; }
+.data-menu-items {
+  position: absolute; z-index: 65; top: calc(100% + 6px); left: 0;
+  min-width: 242px; max-width: min(90vw, 320px);
+  display: flex; flex-direction: column; gap: 4px;
+  background: #fff; color: #24454b; border: 1px solid #d1e4de;
+  padding: 7px; border-radius: 14px; box-shadow: 0 15px 35px #193f4e2c;
+}
+.data-menu-items button, .data-menu-items a {
+  color: #2b575a; background: transparent; border: none;
+  display: flex; align-items: center; text-align: left; font-size: 12px;
+  font-weight: 720; border-radius: 9px; padding: 12px; min-height: 44px;
+  text-decoration: none; cursor: pointer; width: 100%;
+}
+.data-menu-items button:hover, .data-menu-items a:hover { background: #e7f3f0; }
+.data-menu--top { margin-left: 4px; }
+.data-menu--top > summary {
+  background: #e8f4f0; color: #286767; border: 1px solid #c9e5dd;
+  font-size: 23px; font-weight: 800; min-width: 45px; justify-content: center;
+  line-height: 1; padding: 5px 9px;
+}
+.data-menu--top > summary:hover { background: #d8efe7; }
+.data-menu--top .data-menu-items { right: 0; left: auto; }
+.sidebar .data-menu { margin-top: 12px; }
+@media (max-width: 760px) {
+  .sidebar .data-menu { display: none; }
+  .data-menu--top { display: block; }
+}
+/* Friendly per-habit alarm controls (saved in each habit, not a global time). */
+.habit-alarm-fields {
+  margin: 22px 0 6px; padding: 16px; border: 1px solid #d4e8e1;
+  border-radius: 14px; background: #f5faf8; min-width: 0;
+}
+.habit-alarm-fields legend { color: #245d56; font-size: 14px; font-weight: 850; padding: 0 7px; }
+.habit-alarm-switch {
+  display: flex !important; align-items: center; gap: 11px; margin: 7px 0 9px !important;
+  color: #315f5a; font-size: 13px !important; cursor: pointer;
+}
+.habit-alarm-switch input { width: 20px !important; height: 20px; accent-color: #227b70; flex: 0 0 20px; }
+.habit-alarm-grid, .per-habit-alarm-controls { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
+.habit-alarm-grid label { margin: 10px 0 6px !important; font-size: 11px !important; }
+.habit-alarm-grid input, .habit-alarm-grid select { font-size: 16px; }
+.habit-alarm-fields .field-hint { margin-top: 12px; }
+.per-habit-alarm-list { display: grid; gap: 13px; margin-top: 18px; }
+.per-habit-alarm-item {
+  min-width: 0; border: 1px solid #d8e9e3; background: #f5faf8;
+  border-radius: 13px; padding: 15px;
+}
+.per-habit-alarm-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.per-habit-alarm-heading strong { color: #254c4c; font-size: 14px; overflow-wrap: anywhere; }
+.per-habit-alarm-switch {
+  display: inline-flex; gap: 6px; align-items: center;
+  color: #2f6963; white-space: nowrap; font-size: 12px; font-weight: 750; cursor: pointer;
+}
+.per-habit-alarm-switch input { width: 20px; height: 20px; accent-color: #227b70; }
+.per-habit-alarm-controls { margin-top: 12px; }
+.per-habit-alarm-controls label { color: #557774; font-size: 11px; font-weight: 800; display: block; }
+.per-habit-alarm-controls input, .per-habit-alarm-controls select {
+  width: 100%; min-height: 44px; display: block; margin-top: 7px;
+  padding: 10px 11px; border: 1px solid #c9e1da; border-radius: 9px;
+  background: #fff; color: #2b4b4d; font-size: 16px;
+}
+.per-habit-preview { margin-top: 12px; font-size: 12px; min-height: 44px; }
+.per-habit-empty { padding: 18px; border-radius: 12px; background: #e9f5ef; color: #356861; font-size: 13px; line-height: 1.6; }
+#motivation-phrase { transition: opacity .35s ease; }
+@media (max-width: 430px) {
+  .habit-alarm-grid, .per-habit-alarm-controls { grid-template-columns: 1fr; }
+  .habit-alarm-fields { padding: 12px; }
+  .per-habit-alarm-item { padding: 12px; }
+  .data-menu--top .data-menu-items { right: -4px; max-width: calc(100vw - 25px); }
+}
+@media (prefers-reduced-motion: reduce) { #motivation-phrase { transition: none; } }
