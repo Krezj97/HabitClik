@@ -806,17 +806,33 @@ function deleteHabit(id) {
   showToast("Hábito eliminado.");
 }
 
-function exportData() {
-  const file = new Blob([JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), ...data }, null, 2)], { type: "application/json" });
+async function exportData() {
+  const filename = "habitclik-" + keyForDate(new Date()) + ".json";
+  const content = JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), ...data }, null, 2);
+  if (window.HABITCLIK_BACKUP && window.HABITCLIK_BACKUP.isNative()) {
+    try {
+      const result = await window.HABITCLIK_BACKUP.exportJSON(filename, content);
+      if (result.ok) {
+        showToast("Elige dónde guardar tu copia fuera de HabitClik. Asegúrate de conservar el archivo.");
+      } else {
+        showToast("No se pudo abrir la copia en Android. No desinstales HabitClik sin guardar tus datos.");
+      }
+    } catch (error) {
+      console.warn("HabitClik: error al compartir la copia.", error);
+      showToast("La copia no se ha confirmado. Intenta guardarla otra vez antes de actualizar.");
+    }
+    return;
+  }
+  const file = new Blob([content], { type: "application/json" });
   const url = URL.createObjectURL(file);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = "habitclik-" + keyForDate(new Date()) + ".json";
+  anchor.download = filename;
   document.body.append(anchor);
   anchor.click();
   anchor.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1500);
-  showToast("Copia de seguridad descargada.");
+  showToast("Copia descargada. Guárdala fuera de este dispositivo si quieres conservarla.");
 }
 
 async function importData(file) {
