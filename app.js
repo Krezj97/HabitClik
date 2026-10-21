@@ -55,6 +55,7 @@ function starterData() {
     logs: {},
     settings: {
       reminderEnabled: false, reminderTime: "19:00", lastRemindedAt: null,
+      motivationAuto: true, motivationShort: false,
       alarmEnabled: false, notificationEnabled: false, alarmVolume: 50, alarmTone: "campanas"
     }
   };
@@ -102,6 +103,8 @@ function normalizeData(input) {
   const sourceSettings = input.settings && typeof input.settings === "object" &&
     !Array.isArray(input.settings) ? input.settings : {};
   const settings = {
+    motivationAuto: sourceSettings.motivationAuto !== false,
+    motivationShort: sourceSettings.motivationShort === true,
     reminderEnabled: sourceSettings.reminderEnabled === true,
     reminderTime: isValidReminderTime(sourceSettings.reminderTime)
       ? sourceSettings.reminderTime : "19:00",
@@ -350,13 +353,22 @@ function motivationForToday() {
       "Hoy tienes una oportunidad para avanzar a tu manera."
     ];
   const daySeed = Number(today.replace(/-/g, ""));
-  return { heading, phrase: phrases[(daySeed + motivationShift) % phrases.length], theme };
+  const index = (daySeed + motivationShift) % phrases.length;
+  return { heading, phrase: phrases[index], theme, index, count: phrases.length };
 }
 
 function renderMotivation() {
   const selected = motivationForToday();
   $("motivation-heading").textContent = selected.heading;
   $("motivation-phrase").textContent = selected.phrase;
+  $("motivation-counter").textContent = (selected.index + 1) + "/" + selected.count;
+  $("motivation-poster").classList.toggle("is-compact", data.settings.motivationShort === true);
+  $("motivation-autoplay-label").textContent =
+    data.settings.motivationAuto === false ? "Cambio automático pausado" : "Cambian solas cada 15 s";
+  $("motivation-auto-toggle").checked = data.settings.motivationAuto !== false;
+  $("motivation-short-toggle").checked = data.settings.motivationShort === true;
+  const backgrounds = ["sunrise", "forest", "lake", "night"];
+  $("motivation-poster").dataset.landscape = backgrounds[(selected.index + 4) % 4];
 }
 
 function renderCalendar() {
@@ -425,9 +437,12 @@ function renderHabits() {
     return '<article class="habit-card' + (checked ? ' is-done' : '') + '">' +
       '<span class="habit-symbol" style="--soft:' + category.background + '" aria-hidden="true">' + category.icon + '</span>' +
       '<div class="habit-info"><h3 class="habit-title">' + escapeHtml(habit.title) + '</h3>' +
-      '<span class="habit-category">' + category.label + ' · ' +
+      '<span class="habit-category">' + (checked ? '♥ Hoy hecho' : '◷ Pendiente') +
+      ' · ' + category.label + ' · ' +
       (targetFor(habit) === 7 ? 'Diario' : targetFor(habit) + ' días/semana') +
-      (habit.alarmEnabled ? ' · 🔔 ' + escapeHtml(habit.alarmTime) : '') + '</span></div>' +
+      '</span></div>' +
+      (habit.alarmEnabled ? '<span class="habit-alarm-pill" aria-label="Aviso ' +
+      escapeHtml(habit.alarmTime) + '">◷ ' + escapeHtml(habit.alarmTime) + '</span>' : '') +
       '<button type="button" class="habit-check" data-action="toggle" data-id="' + habit.id +
       '" aria-pressed="' + checked + '" aria-label="' + (checked ? 'Desmarcar ' : 'Completar ') +
       escapeHtml(habit.title) + '">' + (checked ? '✓ Hecho' : '○ Completar') + '</button>' +
@@ -657,7 +672,8 @@ function render() {
   const percent = total ? Math.round(100 * done / total) : 0;
   const hour = today.getHours();
   $("greeting").textContent = hour < 12 ? "BUENOS DÍAS" : hour < 20 ? "BUENAS TARDES" : "BUENAS NOCHES";
-  $("current-date").textContent = "◷  " + dateFormat.format(today);
+  $("today-title").textContent = hour < 12 ? "¡Buen día! ☀️" : hour < 20 ? "¡Buenas tardes! 🌤️" : "¡Buenas noches! 🌙";
+    $("current-date").textContent = "◷  " + dateFormat.format(today);
   $("today-completed").textContent = done + " / " + total;
   $("current-streak").textContent = currentStreak() + " días";
   $("total-completed").textContent = totalCompletions();
@@ -939,13 +955,41 @@ $("habit-form").addEventListener("submit", (event) => {
 // It only disables decorative CSS transitions, not fresh motivational content.
 const MOTIVATION_INTERVAL_MS = 15000;
 let lastMotivationChange = Date.now();
+$("motivation-prev").addEventListener("click", () => {
+  motivationShift--;
+  lastMotivationChange = Date.now();
+  renderMotivation();
+});
+$("motivation-settings").addEventListener("click", () => $("motivation-dialog").showModal());
+$("motivation-dialog-close").addEventListener("click", () => $("motivation-dialog").close());
+$("motivation-auto-toggle").addEventListener("change", () => {
+  data.settings.motivationAuto = $("motivation-auto-toggle").checked;
+  persist();
+  renderMotivation();
+});
+$("motivation-short-toggle").addEventListener("change", () => {
+  data.settings.motivationShort = $("motivation-short-toggle").checked;
+  persist();
+  renderMotivation();
+});
+$("habit-add-inline").addEventListener("click", () => openDialog());
+$("close-options-btn").addEventListener("click", () => { $("top-data-menu").open = false; });
+$("options-edit-habits").addEventListener("click", () => {
+  $("top-data-menu").open = false;
+  showView("today");
+  if ($("habits-title").scrollIntoView) $("habits-title").scrollIntoView({behavior:"smooth",block:"center"});
+});
+$("options-phrases-btn").addEventListener("click", () => {
+  $("top-data-menu").open = false;
+  $("motivation-dialog").showModal();
+});
 $("motivation-next").addEventListener("click", () => {
   motivationShift++;
   lastMotivationChange = Date.now();
   renderMotivation();
 });
 function advanceMotivation() {
-  if (document.hidden || currentView !== "today") return;
+  if (document.hidden || currentView !== "today" || data.settings.motivationAuto === false) return;
   motivationShift++;
   lastMotivationChange = Date.now();
   renderMotivation();
