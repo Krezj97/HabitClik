@@ -103,7 +103,112 @@ function notificationPermission() {
   return window.Notification.permission || "default";
 }
 
+function safeText(value) {
+  return String(value).replace(/[&<>"']/g, (char) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+}
+
+function renderHabitAlarms() {
+  const data = readSavedData();
+  const habits = data ? data.habits : [];
+  const target = $("per-habit-alarm-list");
+  if (!habits.length) {
+    target.innerHTML = '<div class="per-habit-empty">Todavía no tienes hábitos. Crea uno en Mi día y podrás elegir aquí cuándo recordarlo.</div>';
+    return;
+  }
+  const tones = window.HABITCLIK_SOUNDS ? window.HABITCLIK_SOUNDS.choices : [];
+  target.innerHTML = habits.map((habit) => {
+    const id = safeText(habit.id);
+    const time = validTime(habit.alarmTime) ? habit.alarmTime : "19:00";
+    const tone = window.HABITCLIK_SOUNDS && window.HABITCLIK_SOUNDS.isValid(habit.alarmTone)
+      ? habit.alarmTone : "campanas";
+    const choices = tones.filter((voice) => voice.id !== "personalizada").map((voice) =>
+      '<option value="' + safeText(voice.id) + '"' + (voice.id === tone ? ' selected' : '') +
+      '>' + safeText(voice.title) + '</option>').join("");
+    const hasCustom = tone === "personalizada";
+    return '<div class="per-habit-alarm-item" data-habit="' + id + '">' +
+      '<div class="per-habit-alarm-heading"><strong>' + safeText(habit.title) + '</strong>' +
+      '<label class="per-habit-alarm-switch"><input type="checkbox" data-habit-alarm="enabled" data-id="' + id + '"' +
+      (habit.alarmEnabled ? " checked" : "") + '> Avisarme</label></div>' +
+      '<div class="per-habit-alarm-controls"><label>Hora<input type="time" data-habit-alarm="time" data-id="' + id +
+      '" value="' + time + '"></label><label>Sonido<select data-habit-alarm="tone" data-id="' + id + '">' +
+      choices + (hasCustom ? '<option value="personalizada" selected>Mi audio personalizado</option>' : '') +
+      '</select></label></div>' +
+      '<button type="button" class="settings-action per-habit-preview" data-habit-alarm="preview" data-id="' + id +
+      '">♪ Escuchar sonido</button></div>';
+  }).join("");
+}
+
+function updateHabitAlarm(id, update) {
+  const data = readSavedData();
+  const habit = data && data.habits.find((item) => item.id === id);
+  if (!habit) return false;
+  if (Object.hasOwn(update, "alarmTime") && !validTime(update.alarmTime)) return false;
+  if (Object.hasOwn(update, "alarmTone") &&
+      !(window.HABITCLIK_SOUNDS && window.HABITCLIK_SOUNDS.isValid(update.alarmTone))) return false;
+  Object.assign(habit, update);
+  if (update.alarmEnabled === false) habit.lastAlarmAt = null;
+  try {
+    localStorage.setItem(DATA_KEY, JSON.stringify(data));
+    return true;
+  } catch (error) {
+    console.warn("HabitClik: no se pudo guardar el aviso del hábito.", error);
+    return false;
+  }
+}
+
+function dueHabitAlarms(data, now) {
+  const today = dateKey(now);
+  const minutes = now.getHours() * 60 + now.getMinutes();
+  const completed = Array.isArray(data.logs[today]) ? data.logs[today] : [];
+  return data.habits.filter((habit) => {
+    if (!habit.alarmEnabled || habit.lastAlarmAt === today ||
+        !validTime(habit.alarmTime) || completed.includes(habit.id) ||
+        habit.createdAt > today) return false;
+    const [hours, mins] = habit.alarmTime.split(":").map(Number);
+    if (minutes < hours * 60 + mins) return false;
+    const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12);
+    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+    let weekly = 0;
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const key = dateKey(d);
+      if (key >= habit.createdAt && Array.isArray(data.logs[key]) &&
+          data.logs[key].includes(habit.id)) weekly++;
+    }
+    return weekly < (habit.weeklyTarget || 7);
+  });
+}
+
+function maybeRemindHabits() {
+  if (document.hidden) return;
+  const data = readSavedData();
+  if (!data) return;
+  const now = new Date();
+  const due = dueHabitAlarms(data, now);
+  if (!due.length) return;
+  const today = dateKey(now);
+  for (const habit of due) habit.lastAlarmAt = today;
+  try { localStorage.setItem(DATA_KEY, JSON.stringify(data)); }
+  catch (error) { console.warn("HabitClik: no se guardaron las alarmas individuales.", error); return; }
+  due.forEach((habit, index) => {
+    const announce = () => {
+      const message = "Un momento para " + habit.title + ". ¿Te apetece hacerlo ahora?";
+      showToast(message);
+      if (settings.notificationEnabled) notify(message);
+      if (window.HABITCLIK_SOUNDS) {
+        window.HABITCLIK_SOUNDS.play(habit.alarmTone, settings.alarmVolume)
+          .catch((error) => console.warn("HabitClik: fallo al reproducir el aviso.", error));
+      }
+    };
+    if (index === 0) announce();
+    else setTimeout(announce, index * 12000);
+  });
+}
+
 function render() {
+  renderHabitAlarms();
   $("reminder-enabled").checked = settings.reminderEnabled;
   $("reminder-time").value = settings.reminderTime;
   $("alarm-enabled").checked = settings.alarmEnabled;
@@ -349,12 +454,39 @@ function downloadCalendar() {
 settings = loadSettings();
 render();
 
+$("per-habit-alarm-list").addEventListener("change", (event) => {
+  const control = event.target;
+  const id = control && control.dataset && control.dataset.id;
+  if (!id) return;
+  const kind = control.dataset.habitAlarm;
+  const next = kind === "enabled" ? { alarmEnabled: control.checked }
+    : kind === "time" ? { alarmTime: control.value }
+    : kind === "tone" ? { alarmTone: control.value } : null;
+  if (!next) return;
+  if (updateHabitAlarm(id, next)) showToast("¡Listo! Este hábito ya tiene su propio aviso.");
+  else showToast("No hemos podido guardar el cambio. Inténtalo otra vez.");
+  renderHabitAlarms();
+});
+
+$("per-habit-alarm-list").addEventListener("click", (event) => {
+  const control = event.target.closest('button[data-habit-alarm="preview"]');
+  if (!control) return;
+  const data = readSavedData();
+  const habit = data && data.habits.find((h) => h.id === control.dataset.id);
+  if (!habit || !window.HABITCLIK_SOUNDS) return;
+  window.HABITCLIK_SOUNDS.play(habit.alarmTone || "campanas", settings.alarmVolume)
+    .then((ok) => showToast(ok ? "♪ Así sonará este hábito." : "No se pudo reproducir el sonido."))
+    .catch(() => showToast("No se pudo reproducir el sonido."));
+});
+
+
 $("reminder-enabled").addEventListener("change", () => {
   settings.reminderEnabled = $("reminder-enabled").checked;
   saveSettings();
   render();
   showToast(settings.reminderEnabled ? "Recordatorio diario activado." : "Recordatorio diario desactivado.");
   maybeRemind();
+  maybeRemindHabits();
 });
 
 $("reminder-time").addEventListener("change", () => {
@@ -504,6 +636,7 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden) {
     render();
     maybeRemind();
+    maybeRemindHabits();
   }
 });
 window.addEventListener("storage", (event) => {
@@ -521,6 +654,7 @@ if ("serviceWorker" in navigator && window.isSecureContext) {
   });
 }
 setInterval(maybeRemind, 60000);
+setInterval(maybeRemindHabits, 60000);
 refreshCustomAudio().catch((error) =>
   console.warn("HabitClik: no se pudo restaurar el audio personalizado.", error)
 );
