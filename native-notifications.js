@@ -76,6 +76,9 @@
   }
 
   function isPendingOn(data, habit, day) {
+    const weekday = new Date(day + "T12:00:00").getDay();
+    if (habit && Array.isArray(habit.alarmDays) && habit.alarmDays.length &&
+        !habit.alarmDays.includes(weekday)) return false;
     if (!habit || !habit.alarmEnabled || !validTime(habit.alarmTime) ||
         !/^\d{4}-\d{2}-\d{2}$/.test(habit.createdAt || "") ||
         habit.createdAt > day) return false;
@@ -120,7 +123,8 @@
         result.push({
           id: SCHEDULE_START + index * DAYS + offset,
           title: "HabitClik · " + String(habit.title).slice(0, 60),
-          body: "Un momento para ti, cuando te venga bien.",
+          body: typeof habit.alarmMessage === "string" && habit.alarmMessage.trim()
+            ? habit.alarmMessage.trim().slice(0, 100) : "Un momento para ti, cuando te venga bien.",
           channelId: CHANNELS[tone], foreground: true, autoCancel: true,
           extra: {type: "habit", habitId: habit.id},
           schedule: {at, isExactNotification: false}
