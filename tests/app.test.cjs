@@ -175,7 +175,7 @@ test("optional in-app reminder fires once a day if something is pending", () => 
   element("reminder-time").handlers.change();
   assert.equal(api.getData().settings.reminderTime, "22:00");
   assert.equal(JSON.parse(storage.get("habitclik:v1")).settings.reminderEnabled, true);
-  assert.equal(intervals.length, 1);
+  assert.equal(intervals.length, 3); // general reminders, individual alarms and slow phrase rotation
 });
 
 test("PWA shell and DOM references remain consistent", () => {
@@ -487,8 +487,8 @@ test("progress panel and achievements are connected to real habit history", () =
   });
   assert.equal(element("journey-level").textContent, "1");
   assert.match(element("journey-total").textContent,/60 XP/);
-  assert.match(element("achievement-list").innerHTML,/Primer paso/);
-  assert.match(element("journey-highlight").textContent,/conseguido todo/);
+  assert.match(element("achievement-list").innerHTML,/Mi primer día/);
+  assert.match(element("journey-highlight").textContent,/hecho genial/);
   element("hero-scene-next").handlers.click();
   api.toggleHabit("a");
   assert.equal(element("journey-total").textContent,"30 XP");
