@@ -206,7 +206,7 @@ test("PWA shell and DOM references remain consistent", () => {
   for (const [, id] of source.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(ids.has(id), "missing DOM element " + id);
   }
-  assert.match(sw, /habitclik-static-v25/);
+  assert.match(sw, /habitclik-static-v26/);
   assert.equal((css.match(/{/g) ?? []).length, (css.match(/}/g) ?? []).length);
   for (const icon of manifest.icons) {
     assert.ok(fs.existsSync(path.join(root, icon.src)), "missing icon " + icon.src);
