@@ -42,21 +42,21 @@ jobs:
           npm run android:preview
       - name: Check Android 16 target SDK
         run: |
-          grep -Eq 'targetSdkVersion[[:space:]]*=[[:space:]]*36' android/variables.gradle
-          grep -Eq 'compileSdkVersion[[:space:]]*=[[:space:]]*36' android/variables.gradle
+          grep -Eq 'targetSdkVersion[[:space:]]*=[[:space:]]*36' android-native/variables.gradle
+          grep -Eq 'compileSdkVersion[[:space:]]*=[[:space:]]*36' android-native/variables.gradle
       - name: Assemble installable DEBUG APK
-        working-directory: android
+        working-directory: android-native
         run: |
           chmod +x ./gradlew
           ./gradlew --no-daemon --stacktrace assembleDebug
       - name: Confirm APK and integrity
         run: |
-          test -s android/app/build/outputs/apk/debug/app-debug.apk
-          sha256sum android/app/build/outputs/apk/debug/app-debug.apk
+          test -s android-native/app/build/outputs/apk/debug/app-debug.apk
+          sha256sum android-native/app/build/outputs/apk/debug/app-debug.apk
       - name: Upload debug APK for Android testers
         uses: actions/upload-artifact@v4
         with:
           name: HabitClik-Android-PRUEBAS-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android-native/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 14
