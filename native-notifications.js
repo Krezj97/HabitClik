@@ -146,9 +146,6 @@
   async function doSync(data) {
     const p = plugin();
     if (!p) return {ok: false, reason: "unavailable"};
-    const permission = await p.checkPermissions();
-    if (permission.display !== "granted") return {ok: false, reason: permission.display};
-    await channels();
     const pending = await p.getPending();
     const ids = (pending.notifications || []).filter((item) =>
       Number.isInteger(item.id) &&
@@ -156,6 +153,11 @@
        (item.id >= GENERAL_START && item.id < GENERAL_START + DAYS))
     ).map((item) => ({id: item.id}));
     if (ids.length) await p.cancel({notifications: ids});
+    if (!data || !data.settings || data.settings.notificationEnabled !== true)
+      return {ok: true, scheduled: 0, reason: "disabled"};
+    const permission = await p.checkPermissions();
+    if (permission.display !== "granted") return {ok: false, reason: permission.display};
+    await channels();
     const notifications = nextNotifications(data);
     if (notifications.length) await p.schedule({notifications});
     return {ok: true, scheduled: notifications.length};
