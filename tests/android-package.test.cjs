@@ -14,6 +14,7 @@ const workflow = fs.readFileSync(path.join(root, ".github/workflows/android-prev
 test("Android preview is self-contained and does not impersonate the commercial application", () => {
   assert.equal(config.appId, "dev.habitclik.preview");
   assert.equal(config.webDir, "www");
+  assert.equal(config.android.path, "android-native");
   assert.equal(config.server.androidScheme, "https");
   assert.ok(!("url" in config.server), "android must NOT pull a mutable remote web app");
   for (const name of ["@capacitor/android", "@capacitor/cli", "@capacitor/core"]) {
@@ -48,7 +49,7 @@ test("CI creates a debug APK artifact and never handles release credentials", ()
   assert.match(workflow, /platforms;android-36/);
   assert.match(workflow, /targetSdkVersion/);
   assert.match(workflow, /assembleDebug/);
-  assert.match(workflow, /android\/app\/build\/outputs\/apk\/debug\/app-debug\.apk/);
+  assert.match(workflow, /android-native\/app\/build\/outputs\/apk\/debug\/app-debug\.apk/);
   assert.match(workflow, /actions\/upload-artifact@v4/);
   assert.doesNotMatch(workflow, /assembleRelease|signingConfig|RELEASE_KEYSTORE|ANDROID_KEYSTORE_PASSWORD/);
 });
