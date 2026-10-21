@@ -20,6 +20,7 @@ const ASSETS = [
   "./sounds/clasica.mp3",
   "./sounds/alegre.mp3",
   "./sounds/energia.mp3",
+  "./fonts/nunito-sans-latin-wght-normal.woff2",
   "./art/amanecer.svg",
   "./art/enfoque.svg",
   "./art/bosque.svg",
