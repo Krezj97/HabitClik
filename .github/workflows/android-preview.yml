@@ -37,6 +37,10 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Test static app and Android packaging
         run: npm test
+      - name: Keep Android docs separate from generated native project
+        run: |
+          test -d android
+          test ! -e android-native
       - name: Bundle and initialize preview Android project
         run: |
           npm run android:preview
