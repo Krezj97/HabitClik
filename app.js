@@ -521,12 +521,12 @@ async function playAlarm() {
     : false;
 }
 
-async function sendDeviceNotification(message) {
+async function sendDeviceNotification(message, tag = "habitclik-daily") {
   if (!data.settings.notificationEnabled || notificationCapability() !== "granted") return false;
   const options = {
     body: message,
     icon: "./icons/icon-192.png",
-    tag: "habitclik-daily",
+    tag,
     data: { url: "./" }
   };
   try {
@@ -605,7 +605,7 @@ function showHabitReminders() {
     // Do not make one sound cut off another when two reminders share a minute.
     const deliver = () => {
       showToast(message);
-      sendDeviceNotification(message);
+      sendDeviceNotification(message, "habitclik-habit-" + habit.id);
       if (window.HABITCLIK_SOUNDS) {
         window.HABITCLIK_SOUNDS.play(habit.alarmTone, data.settings.alarmVolume)
           .catch((error) => console.warn("HabitClik: alarma individual no disponible.", error));
