@@ -16,6 +16,9 @@ function boot(seed, hour = 20, options = {}) {
   const storage = new Map(seed ? [["habitclik:v1", JSON.stringify(seed)]] : []);
   const intervals = [];
   const handlers = {};
+  const alarmDayFields = [1,2,3,4,5,6,0].map((day) => ({
+    checked:true, dataset:{alarmDay:String(day)}
+  }));
 
   function element(id) {
     if (!elements.has(id)) {
@@ -49,7 +52,12 @@ function boot(seed, hour = 20, options = {}) {
   const document = {
     hidden: options.hidden ?? false,
     getElementById: element,
-    querySelectorAll(selector) { return selector === "[data-view]" ? (options.navButtons ?? []) : []; },
+    querySelectorAll(selector) {
+      if (selector === "[data-view]") return options.navButtons ?? [];
+      if (selector === ".alarm-days-picker input[data-alarm-day]")
+        return alarmDayFields;
+      return [];
+    },
     addEventListener(type, fn) { handlers[type] = fn; },
     createElement() { return element("temporary"); },
     body: { append() {} }
@@ -655,6 +663,50 @@ test("motivational quotes rotate on a 15-second timer and can resume after a pau
   assert.equal(typeof api.advanceMotivation,"function");
 });
 
+test("reference mobile options and inspiration panel open and honor autoplay settings", () => {
+  const { element,api }=boot({habits:[],logs:{}},12);
+  element("motivation-settings").handlers.click();
+  assert.equal(element("motivation-dialog").isOpen,true);
+  element("motivation-dialog-close").handlers.click();
+  assert.equal(element("motivation-dialog").isOpen,false);
+  const first=element("motivation-phrase").textContent;
+  element("motivation-auto-toggle").checked=false;
+  element("motivation-auto-toggle").handlers.change();
+  api.advanceMotivation();
+  assert.equal(element("motivation-phrase").textContent,first);
+  element("motivation-auto-toggle").checked=true;
+  element("motivation-auto-toggle").handlers.change();
+  api.advanceMotivation();
+  assert.notEqual(element("motivation-phrase").textContent,first);
+  element("motivation-short-toggle").checked=true;
+  element("motivation-short-toggle").handlers.change();
+  element("motivation-prev").handlers.click();
+  assert.equal(element("motivation-counter").textContent.includes("/"),true);
+  element("options-phrases-btn").handlers.click();
+  assert.equal(element("motivation-dialog").isOpen,true);
+  element("close-options-btn").handlers.click();
+  element("habit-add-inline").handlers.click();
+  assert.equal(element("habit-dialog").isOpen,true);
+});
+
+test("custom weekday alarm and message persist on habit editor", () => {
+  const {element,api,storage}=boot({
+    habits:[{id:"a",title:"Leer",category:"mente",createdAt:"2026-10-01",weeklyTarget:7}],
+    logs:{}
+  });
+  api.openDialog("a");
+  element("habit-name").value="Leer más";
+  element("habit-category").value="mente";
+  element("habit-target").value="7";
+  element("habit-alarm-enabled").checked=true;
+  element("habit-alarm-time").value="08:00";
+  element("habit-alarm-tone").value="campanas";
+  element("habit-alarm-message").value="¡Un ratito de lectura!";
+  element("habit-form").handlers.submit({preventDefault(){}});
+  const habit=JSON.parse(storage.get("habitclik:v1")).habits[0];
+  assert.equal(habit.alarmMessage,"¡Un ratito de lectura!");
+  assert.deepEqual(Array.from(habit.alarmDays),[1,2,3,4,5,6,0]);
+});
 test("backups live in Options menus, not exposed as primary header buttons", () => {
   const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
   assert.match(html,/<details class="data-menu" id="data-menu">/);
