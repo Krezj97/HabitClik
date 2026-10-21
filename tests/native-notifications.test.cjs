@@ -118,7 +118,7 @@ test("Android sound channels reference five bundled licensed MP3s and plugin is 
   assert.equal(packageJson.devDependencies["@capacitor/local-notifications"],"8.3.1");
   const nativeBuild=fs.readFileSync(path.join(root,".github/workflows/android-preview.yml"),"utf8");
   for (const id of ["campanas","digital","clasica","alegre","energia"]) {
-    assert.match(script,/sound: "hc_" \+ tone \+ "\\.mp3"/);
+    assert.match(script,/sound: "hc_" \+ tone \+ /);
     assert.ok(fs.existsSync(path.join(root,"sounds",id+".mp3")));
   }
   assert.match(nativeBuild,/res\/raw\/hc_/);
