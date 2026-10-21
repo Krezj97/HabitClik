@@ -637,7 +637,22 @@ test("gentle phrase rotation pauses when hidden and never rotates in reduced-mot
   const reduced=boot(base,12,{phrases,matchMedia:()=>({matches:true})});
   const before=reduced.element("motivation-phrase").textContent;
   reduced.api.advanceMotivation();
-  assert.equal(reduced.element("motivation-phrase").textContent,before);
+  assert.notEqual(reduced.element("motivation-phrase").textContent,before,
+    "reduced motion must not freeze the quote text");
+});
+
+test("motivational quotes rotate on a 15-second timer and can resume after a pause", () => {
+  const pool={start:["Empieza con calma.","Con una cosa basta.","Lo estás haciendo bien."]};
+  const {element,intervals,api}=boot({habits:[],logs:{}},20,{phrases:pool,
+    matchMedia:()=>({matches:true})});
+  const phrase=element("motivation-phrase").textContent;
+  assert.equal(intervals.length,3);
+  intervals[0]();
+  assert.notEqual(element("motivation-phrase").textContent,phrase,
+    "automatic interval should change the phrase, also with reduce motion");
+  api.advanceMotivation();
+  assert.notEqual(element("motivation-phrase").textContent,phrase);
+  assert.equal(typeof api.advanceMotivation,"function");
 });
 
 test("backups live in Options menus, not exposed as primary header buttons", () => {
