@@ -9,7 +9,7 @@
 - 📊 Visualizar el progreso del día, las metas semanales de lunes a domingo, la actividad semanal y las estadísticas de los últimos 7 días.
 - 🔥 Consultar la racha general de días activos y las rachas por hábito: en días para hábitos diarios y en semanas completas con la meta alcanzada para los demás.
 - 💾 Guardar automáticamente los datos en el navegador (`localStorage`).
-- ⬇️ Guardar o recuperar copias JSON desde **Opciones (⋯)**, sin botones de archivo ocupando la pantalla principal.
+- ⬇️ Guardar o recuperar copias JSON desde **Opciones (⋯)**. En la APK Android v22, **Guardar copia** abre el menú nativo para enviarla a Archivos, Drive o a otra app elegida: asegúrate de conservar el archivo fuera de HabitClik antes de desinstalar. El audio personalizado no se incluye.
 - 🗑️ Eliminar hábitos y su historial tras confirmación.
 - 📲 Instalar la web como aplicación cuando el navegador admita la instalación.
 - 📴 Abrir y utilizar la aplicación sin conexión **después de una primera visita con conexión**.
