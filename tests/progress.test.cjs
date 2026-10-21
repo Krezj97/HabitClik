@@ -91,3 +91,21 @@ test("invalid IDs, duplicated logs and unknown habits do not farm experience", (
   assert.equal(p.metrics.completions,1);
   assert.equal(p.xp,10);
 });
+
+
+test("all eleven milestones remain achievable with just one free habit", () => {
+  const e=engine(),logs={};
+  const start=new Date("2026-07-01T12:00:00Z");
+  for(let i=0;i<45;i++) {
+    const d=new Date(start);
+    d.setUTCDate(start.getUTCDate()+i);
+    logs[d.toISOString().slice(0,10)]=["a"];
+  }
+  const p=e.calculate({
+    habits:[habit("a",3,"2026-07-01")],logs
+  },"2026-09-20");
+  assert.equal(p.badges.length,11);
+  assert.equal(p.badges.filter(x=>x.unlocked).length,11);
+  assert.equal(p.metrics.activeDays,45);
+  assert.ok(p.badges.every(x=>!/100 hábit|100 hábitos/i.test(x.description)));
+});
