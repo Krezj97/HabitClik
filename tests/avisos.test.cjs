@@ -453,3 +453,49 @@ test("real WAV alarms feed a Web Audio gain node on mobile browsers", async () =
   const loud = gainValues[0].gain.value;
   assert.ok(loud > quiet, "gain must change while playing a licensed WAV");
 });
+
+
+test("Avisos shows one independent alarm card per habit and changes only the chosen habit", () => {
+  const habits=[
+    {id:"a",title:"Leer",category:"mente",createdAt:"2026-10-01",weeklyTarget:7},
+    {id:"b",title:"Caminar",category:"movimiento",createdAt:"2026-10-01",weeklyTarget:3}
+  ];
+  const page=openAvisos({data:{habits,logs:{"2026-10-19":["a"]}}});
+  assert.match(page.nodes("per-habit-alarm-list").innerHTML,/Leer/);
+  assert.match(page.nodes("per-habit-alarm-list").innerHTML,/Caminar/);
+  page.nodes("per-habit-alarm-list").listeners.change({
+    target:{dataset:{id:"b",habitAlarm:"enabled"},checked:true}
+  });
+  page.nodes("per-habit-alarm-list").listeners.change({
+    target:{dataset:{id:"b",habitAlarm:"time"},value:"07:45"}
+  });
+  page.nodes("per-habit-alarm-list").listeners.change({
+    target:{dataset:{id:"b",habitAlarm:"tone"},value:"energia"}
+  });
+  const saved=JSON.parse(page.saved.get("habitclik:v1"));
+  assert.equal(saved.habits[1].alarmEnabled,true);
+  assert.equal(saved.habits[1].alarmTime,"07:45");
+  assert.equal(saved.habits[1].alarmTone,"energia");
+  assert.equal(saved.habits[0].alarmEnabled,undefined);
+  assert.equal(saved.logs["2026-10-19"][0],"a");
+  assert.equal(saved.settings?.reminderEnabled??false,false);
+});
+
+test("independent Avisos alarm respects each habit's time and does not repeat", () => {
+  const data={habits:[
+    {id:"a",title:"Leer",category:"mente",createdAt:"2026-10-01",weeklyTarget:7,
+      alarmEnabled:true,alarmTime:"19:00",alarmTone:"campanas"},
+    {id:"b",title:"Caminar",category:"movimiento",createdAt:"2026-10-01",weeklyTarget:7,
+      alarmEnabled:true,alarmTime:"22:00",alarmTone:"digital"}
+  ],logs:{}};
+  const page=openAvisos({data});
+  const saved=JSON.parse(page.saved.get("habitclik:v1"));
+  assert.equal(saved.habits[0].lastAlarmAt,"2026-10-20");
+  assert.equal(saved.habits[1].lastAlarmAt,undefined);
+  assert.match(page.nodes("per-habit-alarm-list").innerHTML,/19:00/);
+  assert.equal(page.settings().reminderEnabled,false);
+  page.listeners["focus"]();
+  const latest=JSON.parse(page.saved.get("habitclik:v1"));
+  assert.equal(latest.habits[0].lastAlarmAt,"2026-10-20");
+  assert.equal(latest.habits[1].lastAlarmAt,undefined);
+});
