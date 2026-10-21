@@ -158,6 +158,11 @@ let data = loadData();
 function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    if (window.HABITCLIK_NATIVE && window.HABITCLIK_NATIVE.isNative() &&
+        window.HABITCLIK_NATIVE.isAvailable()) {
+      window.HABITCLIK_NATIVE.sync(data)
+        .catch((error) => console.warn("HabitClik: no se programaron los avisos Android.", error));
+    }
   } catch (error) {
     console.warn("HabitClik: no se pudieron guardar los datos.", error);
     showToast("No se pudieron guardar los cambios en este navegador.");
@@ -474,6 +479,7 @@ function renderHabitStreaks() {
 }
 
 function notificationCapability() {
+  if (window.HABITCLIK_NATIVE && window.HABITCLIK_NATIVE.isNative()) return "native";
   if (!window.isSecureContext || typeof window.Notification === "undefined") return "unsupported";
   return window.Notification.permission || "default";
 }
@@ -493,17 +499,22 @@ function renderReminderSettings() {
   const status = $("notification-status");
   status.classList.toggle("is-active", active);
   status.classList.toggle("is-warning", permission === "denied" || permission === "unsupported");
-  status.textContent = active
+  status.textContent = permission === "native" ? "Gestiona en Avisos"
+    : active
     ? data.settings.reminderEnabled ? "Activadas" : "Avisos pausados"
     : permission === "denied" ? "Bloqueadas"
     : permission === "unsupported" ? "No disponibles" : "Desactivadas";
 
-  $("notification-permission-btn").textContent = active
+  $("notification-permission-btn").textContent = permission === "native"
+    ? "Activar en Avisos"
+    : active
     ? "Desactivar notificaciones"
     : permission === "denied" ? "Cómo desbloquearlas"
     : permission === "unsupported" ? "Ver alternativas"
     : "Activar notificaciones";
-  $("notification-help").textContent = permission === "denied"
+  $("notification-help").textContent = permission === "native"
+    ? "Para recibir notificaciones nativas de Android, entra en Avisos y activa el permiso del móvil."
+    : permission === "denied"
     ? "El permiso está bloqueado. Abre los ajustes del sitio en tu navegador y permite las notificaciones."
     : permission === "unsupported"
     ? "Este navegador no permite notificaciones en este contexto. En iPhone, instala la web en la pantalla de inicio y ábrela desde allí si tu versión de iOS lo admite. Puedes usar el calendario como alternativa."
@@ -586,7 +597,7 @@ function downloadCalendarReminder() {
 }
 
 function showHabitReminders() {
-  if (document.hidden) return;
+  if ((window.HABITCLIK_NATIVE && window.HABITCLIK_NATIVE.isNative()) || document.hidden) return;
   const now = new Date();
   const day = keyForDate(now);
   const minutes = now.getHours() * 60 + now.getMinutes();
@@ -617,7 +628,8 @@ function showHabitReminders() {
 }
 
 function showPendingReminder() {
-  if (!data.settings.reminderEnabled || document.hidden) return;
+  if ((window.HABITCLIK_NATIVE && window.HABITCLIK_NATIVE.isNative()) ||
+      !data.settings.reminderEnabled || document.hidden) return;
   const now = new Date();
   const today = keyForDate(now);
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -1022,6 +1034,10 @@ $("alarm-volume").addEventListener("change", () => {
 
 $("notification-permission-btn").addEventListener("click", async () => {
   const permission = notificationCapability();
+  if (permission === "native") {
+    showToast("Abre Avisos para activar y probar las notificaciones del móvil.");
+    return;
+  }
   if (permission === "unsupported") {
     showToast("Usa un navegador compatible o el aviso de calendario. En iPhone, prueba la web instalada.");
     renderReminderSettings();
@@ -1063,6 +1079,10 @@ $("notification-permission-btn").addEventListener("click", async () => {
 
 $("test-notification-btn").addEventListener("click", async () => {
   const permission = notificationCapability();
+  if (permission === "native") {
+    showToast("En Avisos encontrarás la prueba directa de Android.");
+    return;
+  }
   if (permission !== "granted" || !data.settings.notificationEnabled) {
     $("notification-help").textContent = "Primero pulsa «Activar notificaciones» y concede permiso en el navegador.";
     showToast("Activa las notificaciones antes de probarlas.");
