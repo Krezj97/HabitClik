@@ -51,6 +51,13 @@ jobs:
           "$SDKMANAGER" --install "platforms;android-36" "build-tools;36.0.0"
       - name: Install pinned Capacitor build dependencies
         run: npm install --no-audit --no-fund
+      - name: Remove privileged exact-alarm permissions from preview
+        run: |
+          set -euo pipefail
+          manifest="node_modules/@capacitor/local-notifications/android/src/main/AndroidManifest.xml"
+          test -f "$manifest"
+          sed -i '/SCHEDULE_EXACT_ALARM/d; /USE_EXACT_ALARM/d' "$manifest"
+          ! grep -E 'SCHEDULE_EXACT_ALARM|USE_EXACT_ALARM' "$manifest"
       - name: Test static app and Android packaging
         run: npm test
       - name: Keep Android docs separate from generated native project
@@ -93,6 +100,18 @@ jobs:
         run: |
           test -s android-native/app/build/outputs/apk/debug/app-debug.apk
           sha256sum android-native/app/build/outputs/apk/debug/app-debug.apk
+          python3 - <<'PY'
+          import zipfile
+          apk="android-native/app/build/outputs/apk/debug/app-debug.apk"
+          with zipfile.ZipFile(apk) as z:
+              manifest=z.read("AndroidManifest.xml")
+              assert "android.permission.POST_NOTIFICATIONS".encode("utf-16le") in manifest, "Missing Android notification permission"
+              for privileged in ("SCHEDULE_EXACT_ALARM", "USE_EXACT_ALARM"):
+                  assert privileged.encode("utf-16le") not in manifest, "Unexpected privileged exact alarm permission: " + privileged
+              assert any(path.startswith("res/raw/hc_campanas") for path in z.namelist()), "Missing native notification sound"
+              assert any(path.endswith("assets/capacitor.plugins.json") for path in z.namelist()), "Missing Capacitor plugin registry"
+          print("Android notifications configured without exact-alarm privileges")
+          PY
       - name: Upload debug APK for Android testers
         uses: actions/upload-artifact@v4
         with:
