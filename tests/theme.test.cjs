@@ -93,3 +93,32 @@ test("habits, daily completion and XP are shown before artwork and secondary con
   assert.match(css,/\.today-priority\s*\{/);
   assert.match(css,/@media\s*\(max-width:\s*1230px\)/);
 });
+
+
+test("OFL typography loads locally, stays offline and Android bundles the same font", () => {
+  const font=path.join(root,"fonts","nunito-sans-latin-wght-normal.woff2");
+  assert.ok(fs.existsSync(font),"Nunito Sans must be checked in rather than loaded from a CDN");
+  const data=fs.readFileSync(font);
+  assert.equal(data.subarray(0,4).toString("ascii"),"wOF2","expected WOFF2");
+  assert.ok(data.length>20000&&data.length<200000);
+  const license=fs.readFileSync(path.join(root,"fonts","OFL-LICENSE.txt"),"utf8");
+  assert.match(license,/SIL OPEN FONT LICENSE/);
+  assert.match(css,/@font-face/);
+  assert.match(css,/font-family: "HabitClik Nunito"/);
+  assert.match(css,/fonts\/nunito-sans-latin-wght-normal\.woff2/);
+  assert.match(sw,/fonts\/nunito-sans-latin-wght-normal\.woff2/);
+  const build=fs.readFileSync(path.join(root,"android","prepare-web.cjs"),"utf8");
+  assert.match(build,/"fonts"/);
+});
+
+test("compact hero fits Android screens and captions each progress scene", () => {
+  assert.match(css,/#hero-main \{\s*min-height: 222px/);
+  assert.match(css,/#hero-main \{\s*min-height: 235px/);
+  assert.match(home,/id="hero-scene-caption"/);
+  const js=fs.readFileSync(path.join(root,"app.js"),"utf8");
+  for (const name of ["amanecer","enfoque","bosque","celebracion"]) {
+    assert.ok(js.includes(name+": \""),"each scene needs a motivating caption");
+    const asset=fs.readFileSync(path.join(root,"art",name+".svg"),"utf8");
+    assert.match(asset,/<g opacity="/);
+  }
+});
