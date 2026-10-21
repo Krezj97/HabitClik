@@ -1232,3 +1232,95 @@ input, select, textarea { min-width: 0; max-width: 100%; }
 
 /* File backup guidance, compact enough for the mobile Options menu. */
 .data-menu-hint { padding: 8px 11px 4px; margin: 0; font-size: 11px; color: #617c7c; line-height: 1.6; max-width: 285px; }
+
+
+/* v23 · A more human, rounder typographic voice. Self-hosted OFL Nunito Sans
+   is preloaded offline in Android and the web; system stack remains as fallback. */
+@font-face {
+  font-family: "HabitClik Nunito";
+  src: url("./fonts/nunito-sans-latin-wght-normal.woff2") format("woff2");
+  font-weight: 200 900;
+  font-display: swap;
+  font-style: normal;
+}
+:root, body, button, input, select, textarea, summary {
+  font-family: "HabitClik Nunito", "Nunito Sans", "Trebuchet MS", "Segoe UI", Roboto, sans-serif;
+}
+body { letter-spacing: -.07px; }
+.section-heading h2, .journey-intro h2, .topbar-title,
+.privacy-document h1, .hero h1, .settings-heading h2 {
+  letter-spacing: -.65px;
+  font-weight: 850;
+}
+.habit-title { font-weight: 820; font-size: 15px; }
+.hero h1 { letter-spacing: -1.1px; }
+
+/* The illustrated celebration is secondary to today's habits: less height,
+   more colorful landscape visible, and unobtrusive encouragement on the right. */
+#hero-main {
+  min-height: 222px;
+  padding: 24px clamp(23px, 3vw, 38px) 45px;
+  gap: 14px;
+  border-radius: 19px;
+}
+#hero-main .hero-kicker { font-size: 10px; letter-spacing: 1.35px; }
+#hero-main .hero-copy { max-width: 340px; }
+#hero-main .hero-copy h1 {
+  font-size: clamp(27px, 2.9vw, 39px);
+  line-height: 1.1;
+  margin: 12px 0 7px;
+}
+#hero-main .hero-copy p {
+  font-size: 13px; line-height: 1.5; margin-bottom: 13px;
+}
+#hero-main .date-chip { font-size: 11px; padding: 6px 11px; }
+#hero-main .ring-panel {
+  flex: 0 0 116px; width: 116px; height: 116px;
+  opacity: .94;
+}
+#hero-main .progress-ring { width: 116px; height: 116px; }
+#hero-main .ring-label strong { font-size: 26px; }
+#hero-main .ring-label span { font-size: 10px; }
+#hero-main::after {
+  background: linear-gradient(90deg,#1a3b4de9 0%,#1b4656b9 34%,#23515b43 63%,#23515b16 100%);
+}
+.hero-scene-caption {
+  position: absolute; z-index: 2; right: 16px; top: 15px;
+  max-width: 245px; color: #f7fff7; font-size: 11px; font-weight: 850;
+  text-shadow: 0 2px 7px #102e367a;
+  background: #153d4f72; border: 1px solid #edffec35;
+  padding: 7px 12px; border-radius: 999px;
+  backdrop-filter: blur(5px);
+  pointer-events: none;
+}
+#hero-main .hero-scene-next { min-height: 36px; bottom: 9px; font-size: 10px; }
+.motivation-card { background: linear-gradient(105deg,#ebf6ed,#f2f8f3); }
+.motivation-body h2 { font-weight: 830; }
+#motivation-phrase { font-size: 14px; line-height: 1.55; }
+@media (max-width: 760px) {
+  #hero-main { min-height: 216px; }
+  #hero-main::after {
+    background: linear-gradient(90deg,#1a3e4bdb 0%,#20495ac1 37%,#25576559 100%);
+  }
+}
+@media (max-width: 470px) {
+  #hero-main { min-height: 235px; padding: 24px 17px 39px; }
+  #hero-main .hero-copy { max-width: 258px; padding-right: 7px; }
+  #hero-main .hero-copy h1 { font-size: 29px; max-width: 253px; }
+  #hero-main .hero-copy p { font-size: 12px; max-width: 218px; margin-bottom: 13px; }
+  #hero-main .ring-panel {
+    position: absolute; right: 11px; bottom: 48px;
+    width: 90px; height: 90px; flex: none; opacity: .72;
+    transform: none;
+  }
+  #hero-main .progress-ring { width: 90px; height: 90px; }
+  #hero-main .ring-label strong { font-size: 20px; }
+  #hero-main .ring-label span { display: none; }
+  .hero-scene-caption { top: auto; bottom: 12px; left: 15px; right: auto; max-width: 62%; font-size: 9px; padding: 6px 9px; }
+  #hero-main .hero-scene-next { bottom: 9px; right: 9px; min-height: 36px; font-size: 9px; }
+  #hero-main::after { background: linear-gradient(100deg,#1b3c4ce8 0%,#1d4350ad 54%,#20526340 100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #hero-main::before { animation: none; }
+  #motivation-phrase { transition: none; }
+}
