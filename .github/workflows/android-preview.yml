@@ -21,8 +21,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: package-lock.json
       - name: Install Java 21
         uses: actions/setup-java@v4
         with:
@@ -35,13 +33,12 @@ jobs:
           yes | sdkmanager --licenses > /dev/null || true
           sdkmanager "platforms;android-36" "build-tools;36.0.0"
       - name: Install pinned Capacitor build dependencies
-        run: npm ci --no-audit --no-fund
+        run: npm install --no-audit --no-fund
       - name: Test static app and Android packaging
         run: npm test
       - name: Bundle and initialize preview Android project
         run: |
-          npm run android:prepare
-          npx cap sync android
+          npm run android:preview
       - name: Check Android 16 target SDK
         run: |
           grep -Eq 'targetSdkVersion[[:space:]]*=[[:space:]]*36' android/variables.gradle
