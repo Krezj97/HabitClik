@@ -69,14 +69,16 @@
             <div class="settings-icon settings-icon-blue" aria-hidden="true">♢</div>
             <div class="settings-detail">
               <div class="settings-heading">
-                <div><h2 id="notification-heading">Notificaciones</h2><p>Un aviso del navegador, cuando HabitClik esté activa.</p></div>
+                <div><h2 id="notification-heading">Notificaciones</h2><p>En Android, avisos del sistema que puedes probar incluso con la pantalla bloqueada. En la web, avisos del navegador.</p></div>
                 <span class="settings-status" id="notification-status" role="status">Desactivadas</span>
               </div>
               <div class="settings-actions">
                 <button type="button" class="settings-action settings-action-primary" id="notification-permission-btn">Activar notificaciones</button>
                 <button type="button" class="settings-action" id="test-notification-btn">Enviar prueba</button>
+                <button type="button" class="settings-action settings-action-primary" id="native-test-later-btn" hidden>📱 Probar con pantalla bloqueada (20 s)</button>
               </div>
               <p class="settings-note" id="notification-help" role="status">Te pediremos permiso cuando las actives.</p>
+              <p class="settings-note" id="native-test-help" hidden>Prueba rápida: activa las notificaciones, pulsa «Enviar prueba» y abre la cortina de notificaciones. Para comprobarlas al bloquear el móvil, usa el botón de 20 segundos.</p>
             </div>
           </section>
           <section class="settings-card" aria-labelledby="alarm-heading">
@@ -135,7 +137,7 @@
                 <div><h2 id="habit-alarm-heading">Un aviso para cada hábito</h2><p>¿Leer por la mañana y pasear por la tarde? Ponle a cada hábito su propia hora y melodía.</p></div>
               </div>
               <div id="per-habit-alarm-list" class="per-habit-alarm-list" aria-label="Alarmas independientes de tus hábitos"></div>
-              <p class="settings-note">Los avisos individuales funcionan cuando HabitClik está abierta; no dependen del interruptor del recordatorio general. Si necesitas avisos con la app cerrada, exporta el calendario.</p>
+              <p class="settings-note" id="individual-alarm-help">En Android, activa las notificaciones del sistema para recibir recordatorios de cada hábito con la app cerrada. En la web deben permanecer abiertas.</p>
             </div>
           </section>
           <section class="settings-card" aria-labelledby="calendar-alert-heading">
