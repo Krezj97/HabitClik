@@ -1102,9 +1102,26 @@ document.addEventListener("visibilitychange", () => {
   if (!document.hidden) {
     render();
     showPendingReminder();
+    showHabitReminders();
   }
 });
-window.addEventListener("focus", showPendingReminder);
+window.addEventListener("focus", () => {
+  showPendingReminder();
+  showHabitReminders();
+});
+window.addEventListener("storage", (event) => {
+  if (event.key === STORAGE_KEY) {
+    // Reflect edits to individual alarms from Avisos without overriding habits.
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      data = normalizeData(JSON.parse(raw));
+      render();
+    } catch (error) {
+      console.warn("HabitClik: no se pudo sincronizar un cambio de otra pestaña.", error);
+    }
+  }
+});
 setInterval(showPendingReminder, 60 * 1000);
 setInterval(showHabitReminders, 60 * 1000);
 
