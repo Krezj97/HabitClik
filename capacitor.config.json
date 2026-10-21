@@ -1,0 +1,12 @@
+{
+  "appId": "dev.habitclik.preview",
+  "appName": "HabitClik (Pruebas)",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "plugins": {}
+}
