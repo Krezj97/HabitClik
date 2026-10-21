@@ -1,4 +1,20 @@
 # Punto de continuación · HabitClik
+## Mejoras de usabilidad · edición v20
+
+La aplicación web y la próxima APK Android de pruebas incluyen:
+- Frases motivacionales que van rotando despacio cada **20 segundos**, se pausan con la pestaña oculta o movimiento reducido y siguen permitiendo cambio manual.
+- Importar/exportar una copia JSON dentro del menú **Opciones (⋯)**, en vez de botones grandes en la barra principal.
+- **Alarmas independientes por hábito**, cada una con activación, hora, sonido y fecha del último aviso; configurables tanto al editar el hábito como desde Avisos. El ajuste de sonido general es separado. Se conservan historial y preferencias antiguas. **Los avisos solo pueden reproducirse con la app abierta/activa; todavía no son AlarmManager nativo Android.**
+- Insignias accesibles incluso con un solo hábito gratuito; cuentan check-ins, días activos, rachas y metas reales, no la creación de 100 hábitos distintos.
+- Frases, textos de bienvenida y mensajes de logros reescritos con tono más conversacional.
+- Caché PWA **v20**. La rama `main` publica automáticamente en GitHub Pages.
+- GitHub Actions `Android preview APK` ahora reconstruye la APK debug ante modificaciones de app.
+- Antes de entregar una APK actualizada, comprobar que el artefacto pertenece al commit v20 más reciente y que el workflow concluyó **success**.
+
+**Por validar en móvil físico:** reproducción y volumen de alarmas personalizadas, interacción con archivos de copia JSON dentro de Capacitor/WebView y avisos tras suspensión de la aplicación. No afirmar notificaciones nativas cuando está cerrada.
+
+---
+
 ## Avance posterior · primera APK Android instalada como artefacto de pruebas
 
 **21 de octubre de 2026:** se ha añadido un empaquetado **Capacitor 8.5.3** en `capacitor.config.json`, `package.json`, `android/prepare-web.cjs` y el flujo `.github/workflows/android-preview.yml`. La web se copia al paquete y permanece intacta en GitHub Pages.
