@@ -25,7 +25,9 @@ El archivo es una **APK debug**, firmada con la clave de depuración generada du
 - Elegir cada MP3, escuchar una prueba y controlar el volumen. Subir un audio propio; verificar compatibilidad del selector nativo y su almacenamiento.
 - Exportar JSON, importarlo y comprobar que datos/historial sean correctos. **Importar o descargar archivos desde el WebView puede requerir una integración nativa**; no se ha homologado todavía.
 - Exportar un evento de calendario, solicitar notificaciones solo cuando haga falta, entrar en Privacidad y abrir enlaces externos.
-- Comprobar que no se prometen alarmas en segundo plano. La WebView puede suspenderse cuando se cierra la aplicación.
+- Verificar las **notificaciones nativas Android v21**: activar permiso, enviar prueba inmediata y programar prueba con pantalla bloqueada; configurar una hora por hábito y comprobar que aparece el aviso. La WebView puede suspender la música de prueba, pero las notificaciones locales las programa Android. Consulta [NOTIFICACIONES-ANDROID.md](NOTIFICACIONES-ANDROID.md).
+
+La programación es de **7 días renovables al abrir la app**; no se solicita permiso especial de alarmas exactas y la entrega puede retrasarse. El sonido elegido para una alarma personalizada se sustituye por Brisa en el canal nativo.
 
 ## Datos y migración
 
