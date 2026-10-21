@@ -41,7 +41,7 @@
         </header>
         <section class="settings-hero" aria-labelledby="reminders-page-title">
           <span class="section-overline">A TU RITMO</span>
-          <h1 id="reminders-page-title">Tus avisos, a tu manera<span class="hero-dot">.</span></h1>
+          <h1 id="reminders-page-title">Tus avisos, sin complicaciones<span class="hero-dot">.</span></h1>
           <p>Activa lo que te ayude. Podrás apagar cada opción siempre que quieras.</p>
         </section>
         <div class="settings-intro">
@@ -53,7 +53,7 @@
             <div class="settings-icon" aria-hidden="true">◷</div>
             <div class="settings-detail">
               <div class="settings-heading">
-                <div><h2 id="reminder-heading">Recordatorio diario</h2><p>Un aviso al tener HabitClik abierta y hábitos pendientes.</p></div>
+                <div><h2 id="reminder-heading">Recordatorio diario</h2><p>Un aviso general opcional cuando HabitClik está abierta. Los avisos de cada hábito se configuran aparte.</p></div>
                 <label class="settings-toggle">
                   <input id="reminder-enabled" type="checkbox" role="switch" aria-label="Activar recordatorio diario" />
                   <span class="settings-toggle-track" aria-hidden="true"></span>
@@ -82,7 +82,7 @@
             <div class="settings-icon settings-icon-purple" aria-hidden="true">♫</div>
             <div class="settings-detail">
               <div class="settings-heading">
-                <div><h2 id="alarm-heading">Sonido de alarma</h2><p>Elige uno de los cinco tonos o añade un audio propio, y prueba el volumen.</p></div>
+                <div><h2 id="alarm-heading">Sonido del aviso general</h2><p>Elige el sonido del recordatorio general. Cada hábito puede tener su propio tono más abajo.</p></div>
                 <label class="settings-toggle">
                   <input id="alarm-enabled" type="checkbox" role="switch" aria-label="Activar sonido de alarma" />
                   <span class="settings-toggle-track" aria-hidden="true"></span>
@@ -125,6 +125,16 @@
               </div>
               <p class="settings-note" id="alarm-status" role="status">Pulsa la prueba para comprobar el sonido.</p>
               <p class="settings-note alarm-credit">Cinco sonidos de naturaleza y música con licencia abierta · <a href="./SOUND-LICENSES.md" target="_blank" rel="noopener noreferrer">Licencia y procedencia (CC0)</a></p>
+            </div>
+          </section>
+          <section class="settings-card per-habit-settings" aria-labelledby="habit-alarm-heading">
+            <div class="settings-icon" aria-hidden="true">🔔</div>
+            <div class="settings-detail">
+              <div class="settings-heading">
+                <div><h2 id="habit-alarm-heading">Un aviso para cada hábito</h2><p>¿Leer por la mañana y pasear por la tarde? Ponle a cada hábito su propia hora y melodía.</p></div>
+              </div>
+              <div id="per-habit-alarm-list" class="per-habit-alarm-list" aria-label="Alarmas independientes de tus hábitos"></div>
+              <p class="settings-note">Los avisos individuales funcionan cuando HabitClik está abierta; no dependen del interruptor del recordatorio general. Si necesitas avisos con la app cerrada, exporta el calendario.</p>
             </div>
           </section>
           <section class="settings-card" aria-labelledby="calendar-alert-heading">
