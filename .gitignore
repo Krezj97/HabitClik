@@ -14,3 +14,6 @@ android/capacitor-cordova-android-plugins/
 *.key
 *.pem
 .DS_Store
+
+# Capacitor native preview project generated on demand.
+android-native/
