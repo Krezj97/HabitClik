@@ -212,6 +212,8 @@ function dueHabitAlarms(data, now) {
   const minutes = now.getHours() * 60 + now.getMinutes();
   const completed = Array.isArray(data.logs[today]) ? data.logs[today] : [];
   return data.habits.filter((habit) => {
+    if (Array.isArray(habit.alarmDays) && habit.alarmDays.length &&
+        !habit.alarmDays.includes(now.getDay())) return false;
     if (!habit.alarmEnabled || habit.lastAlarmAt === today ||
         !validTime(habit.alarmTime) || completed.includes(habit.id) ||
         habit.createdAt > today) return false;
@@ -244,7 +246,8 @@ function maybeRemindHabits() {
   catch (error) { console.warn("HabitClik: no se guardaron las alarmas individuales.", error); return; }
   due.forEach((habit, index) => {
     const announce = () => {
-      const message = "Un momento para " + habit.title + ". ¿Te apetece hacerlo ahora?";
+      const message = habit.alarmMessage ||
+        ("Un momento para " + habit.title + ". ¿Te apetece hacerlo ahora?");
       showToast(message);
       if (settings.notificationEnabled) notify(message, "habitclik-habit-" + habit.id);
       if (window.HABITCLIK_SOUNDS) {
