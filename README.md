@@ -9,19 +9,19 @@
 - 📊 Visualizar el progreso del día, las metas semanales de lunes a domingo, la actividad semanal y las estadísticas de los últimos 7 días.
 - 🔥 Consultar la racha general de días activos y las rachas por hábito: en días para hábitos diarios y en semanas completas con la meta alcanzada para los demás.
 - 💾 Guardar automáticamente los datos en el navegador (`localStorage`).
-- ⬇️ Exportar una copia de seguridad JSON e importar datos previamente exportados.
+- ⬇️ Guardar o recuperar copias JSON desde **Opciones (⋯)**, sin botones de archivo ocupando la pantalla principal.
 - 🗑️ Eliminar hábitos y su historial tras confirmación.
 - 📲 Instalar la web como aplicación cuando el navegador admita la instalación.
 - 📴 Abrir y utilizar la aplicación sin conexión **después de una primera visita con conexión**.
-- ⏰ Activar un **aviso diario opcional** dentro de la aplicación y elegir la hora; se muestra una vez al día cuando la app está activa y hay metas pendientes.
+- ⏰ Configurar **un recordatorio independiente para cada hábito**, con su propia hora, sonido y activación individual, al crear/editar el hábito o desde Avisos; el recordatorio diario general sigue siendo opcional. Los sonidos requieren la app abierta y permisos del navegador para reproducirse.
 - 🔔 Activar voluntariamente **notificaciones del navegador**, sujetas a sus permisos y a que la app esté abierta/activa.
 - ♪ Elegir entre **cinco alarmas naturales y musicales en MP3 con licencia CC0** (Brisa, Luz, Despertar, Buen día y Bosque) o subir **un archivo de audio propio** (MP3, M4A, WAV, OGG, AAC o WebM, máximo 8 MB), escucharlo, regular su volumen o eliminarlo. El volumen final está limitado por el navegador y el dispositivo.
 - 📆 Exportar un archivo de calendario `.ics` con un evento diario recurrente y alarma previa para recibir avisos a través del calendario del dispositivo, incluso con HabitClik cerrada si el calendario lo permite.
-- 💬 Ver **frases motivacionales** según el progreso del día y la duración de la racha, o pulsar para cambiar de frase.
+- 💬 Las **frases motivacionales cambian solas cada 20 segundos**, despacio y sin interrumpir, pero se pausan si la app no está visible o si el usuario prefiere reducir el movimiento. También puedes cambiarlas a mano.
 - 🖼️ Cuatro ilustraciones vectoriales originales en el encabezado: amanecer, enfoque, bosque y celebración. Cambian según el progreso, y también puedes elegir otro paisaje.
 - ✨ **Experiencia y niveles:** +10 XP por hábito, +20 XP por completar todos los hábitos activos de un día, +35 XP por cada meta semanal lograda. Una barra muestra cuánto falta para el siguiente nivel.
 - 🎯 **Pantalla principal orientada a la acción:** lo primero que aparece es el progreso diario, la lista para marcar tus hábitos y la tarjeta de nivel/XP. Los paisajes, frases y detalles de la semana quedan debajo.
-- 🏅 **Once insignias** por avances reales, rachas y metas. Los logros se ven en Estadísticas. Sin tablas de clasificación, presión social ni pérdidas de XP por descansar; los puntos se calculan desde el historial.
+- 🏅 **Once insignias alcanzables con un único hábito**: reconocen días activos, veces que has cumplido, rachas, metas y niveles. No piden crear 100 hábitos distintos. Sin rankings ni castigos por descansar.
 
 ## Plan gratuito y Premium
 
@@ -32,6 +32,10 @@ HabitClik admite **hasta 3 hábitos nuevos en el plan gratuito**. En una instala
 - Puedes seguir completando, editando o eliminando hábitos con independencia del número.
 - Si una persona ya tenía más de 3 hábitos antes de esta actualización, **todos sus datos y rachas se conservan** y no puede añadir otro hasta estar por debajo del límite.
 - Las copias JSON con **más de 3 hábitos** no se importan al plan gratuito, para evitar saltarse el límite o truncar silenciosamente el historial. Conviene conservar la copia original hasta que exista Premium.
+
+## Experiencia mejorada
+
+Los controles de importación/exportación ahora están en el menú **Opciones**, el texto se ha hecho más natural y el recordatorio de cada hábito se puede configurar de forma independiente. **No son alarmas nativas en segundo plano**: en la APK Android con Capacitor los sonidos web se pueden suspender cuando la app está cerrada. Para garantizar avisos cerrada se necesitará una implementación nativa específica y pruebas en dispositivos reales.
 
 ## Android y futura publicación en Google Play
 
@@ -95,7 +99,7 @@ El flujo de GitHub Actions `.github/workflows/tests.yml` ejecuta automáticament
 
 En **Avisos → Sonido de alarma → Mi alarma personalizada**, selecciona un archivo de audio desde tu dispositivo. La app lo guarda en **IndexedDB dentro de ese mismo navegador**, sin subirlo a servidores ni al repositorio. Al guardarlo, queda seleccionado automáticamente; puedes escucharlo con «Escuchar prueba» o eliminarlo desde «Eliminar audio».
 
-Las copias de seguridad JSON de hábitos guardan el nombre del tono seleccionado, **pero no incluyen el archivo de audio**. Si cambias de navegador o dispositivo, necesitas volver a añadirlo. El audio personalizado puede borrarse si eliminas los datos del sitio. Si tu navegador bloquea IndexedDB, la aplicación mostrará el problema y podrás seguir utilizando los cinco sonidos integrados. Las alarmas solo funcionan mientras la aplicación está activa y el navegador permite reproducir sonido. Los sonidos de la biblioteca se han cambiado por mezclas de naturaleza, campanillas y música licenciadas. Los cinco tonos integrados se distribuyen con su documentación de origen y licencia en [SOUND-LICENSES.md](SOUND-LICENSES.md).
+Las copias de seguridad JSON de hábitos guardan el nombre del tono seleccionado, **pero no incluyen el archivo de audio**. Si cambias de navegador o dispositivo, necesitas volver a añadirlo. El audio personalizado puede borrarse si eliminas los datos del sitio. Si tu navegador bloquea IndexedDB, la aplicación mostrará el problema y podrás seguir utilizando los cinco sonidos integrados. Las alarmas solo funcionan mientras la aplicación está activa y el navegador permite reproducir sonido. Cada hábito conserva `alarmEnabled`, `alarmTime`, `alarmTone` y `lastAlarmAt` en su registro; los ajustes antiguos se conservan y las nuevas alarmas empiezan desactivadas para cada hábito hasta que se activen explícitamente. Los sonidos de la biblioteca se han cambiado por mezclas de naturaleza, campanillas y música licenciadas. Los cinco tonos integrados se distribuyen con su documentación de origen y licencia en [SOUND-LICENSES.md](SOUND-LICENSES.md).
 
 ## Diseño
 
