@@ -1229,3 +1229,6 @@ input, select, textarea { min-width: 0; max-width: 100%; }
 /* On Android WebView, [hidden] must beat flex/grid button styling. */
 [hidden] { display: none !important; }
 #native-test-later-btn { width: 100%; }
+
+/* File backup guidance, compact enough for the mobile Options menu. */
+.data-menu-hint { padding: 8px 11px 4px; margin: 0; font-size: 11px; color: #617c7c; line-height: 1.6; max-width: 285px; }
