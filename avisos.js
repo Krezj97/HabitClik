@@ -82,6 +82,11 @@ function saveSettings() {
       // Do not initialize an empty HabitClik data set; preserve first-run examples.
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     }
+    if (isAndroidApp() && window.HABITCLIK_NATIVE.isAvailable()) {
+      const current = readSavedData() || {habits: [], logs: {}, settings};
+      window.HABITCLIK_NATIVE.sync(current)
+        .catch((error) => console.warn("HabitClik: error programando avisos Android.", error));
+    }
     return true;
   } catch (error) {
     console.warn("HabitClik: no se pudieron guardar las preferencias.", error);
@@ -96,6 +101,46 @@ function showToast(message) {
   toast.classList.add("is-visible");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove("is-visible"), 4500);
+}
+
+function isAndroidApp() {
+  return !!(window.HABITCLIK_NATIVE && window.HABITCLIK_NATIVE.isNative());
+}
+
+async function showNativeNotificationStatus() {
+  if (!isAndroidApp()) return;
+  const native = window.HABITCLIK_NATIVE;
+  const status = $("notification-status");
+  $("native-test-later-btn").hidden = !native.isAvailable();
+  $("native-test-help").hidden = !native.isAvailable();
+  $("individual-alarm-help").textContent = native.isAvailable()
+    ? "En Android, cada hábito con aviso activo se programa en el sistema durante los próximos 7 días, con su propio tono. Abre la app semanalmente para renovarlos; la hora puede retrasarse por el ahorro de batería."
+    : "Esta APK es anterior al sistema de notificaciones nativas. Actualiza HabitClik (Pruebas) para recibirlas.";
+  if (!native.isAvailable()) {
+    status.textContent = "Actualiza la APK";
+    $("notification-permission-btn").textContent = "Instala la nueva APK";
+    $("notification-help").textContent = "No se encuentra el complemento de notificaciones Android. Esta prueba requiere la nueva versión de HabitClik.";
+    return;
+  }
+  try {
+    const permission = await native.checkPermission();
+    const granted = permission.display === "granted";
+    status.textContent = granted
+      ? settings.notificationEnabled ? "Android activado" : "Pausadas en HabitClik"
+      : permission.display === "denied" ? "Bloqueadas en Android" : "Sin permiso de Android";
+    $("notification-permission-btn").textContent = granted && settings.notificationEnabled
+      ? "Desactivar en HabitClik" : "Activar en Android";
+    $("notification-help").textContent = granted
+      ? settings.notificationEnabled
+        ? "¡Perfecto! Android tiene permiso. Haz una prueba ahora o con la pantalla bloqueada. Los tonos se regulan desde Notificaciones del sistema."
+        : "Android permite los avisos, pero los has pausado dentro de HabitClik."
+      : permission.display === "denied"
+        ? "Android ha bloqueado los avisos. Ve a Ajustes > Apps > HabitClik (Pruebas) > Notificaciones y permítelos."
+        : "Pulsa «Activar en Android». Tu móvil te preguntará si quieres permitir notificaciones.";
+  } catch (error) {
+    $("notification-help").textContent = "No he podido comprobar los permisos de Android. Cierra y abre HabitClik para probar de nuevo.";
+    console.warn("HabitClik: no se pudo consultar el permiso Android.", error);
+  }
 }
 
 function notificationPermission() {
@@ -151,6 +196,10 @@ function updateHabitAlarm(id, update) {
   if (update.alarmEnabled === false) habit.lastAlarmAt = null;
   try {
     localStorage.setItem(DATA_KEY, JSON.stringify(data));
+    if (isAndroidApp() && window.HABITCLIK_NATIVE.isAvailable()) {
+      window.HABITCLIK_NATIVE.sync(data)
+        .catch((error) => console.warn("HabitClik: no se pudo actualizar el aviso Android.", error));
+    }
     return true;
   } catch (error) {
     console.warn("HabitClik: no se pudo guardar el aviso del hábito.", error);
@@ -183,7 +232,7 @@ function dueHabitAlarms(data, now) {
 }
 
 function maybeRemindHabits() {
-  if (document.hidden) return;
+  if (isAndroidApp() || document.hidden) return;
   const data = readSavedData();
   if (!data) return;
   const now = new Date();
@@ -242,6 +291,9 @@ function render() {
     : active
     ? "Permiso concedido. Pulsa «Enviar prueba» para comprobarlo. Funcionan mientras HabitClik está activa."
     : "Actívalas y concede el permiso. Después pulsa «Enviar prueba» para verificarlo.";
+  if (isAndroidApp()) {
+    showNativeNotificationStatus();
+  }
 }
 
 function renderToneDescription() {
@@ -389,7 +441,7 @@ function pendingCount() {
 }
 
 function maybeRemind() {
-  if (!settings.reminderEnabled || document.hidden) return;
+  if (isAndroidApp() || !settings.reminderEnabled || document.hidden) return;
   const now = new Date();
   const today = dateKey(now);
   if (settings.lastRemindedAt === today ||
@@ -576,6 +628,42 @@ $("alarm-enabled").addEventListener("change", async () => {
 });
 
 $("notification-permission-btn").addEventListener("click", async () => {
+  if (isAndroidApp()) {
+    const native = window.HABITCLIK_NATIVE;
+    if (!native.isAvailable()) {
+      showToast("Actualiza la APK: este complemento no está instalado.");
+      await showNativeNotificationStatus();
+      return;
+    }
+    try {
+      const status = await native.checkPermission();
+      if (status.display === "granted" && settings.notificationEnabled) {
+        settings.notificationEnabled = false;
+        saveSettings();
+        showToast("Notificaciones de HabitClik pausadas. Puedes volver a activarlas.");
+      } else {
+        const permission = status.display === "granted" ? status : await native.requestPermission();
+        if (permission.display !== "granted") {
+          settings.notificationEnabled = false;
+          saveSettings();
+          showToast("Android no ha concedido permiso. Revisa los ajustes de la app.");
+        } else {
+          settings.notificationEnabled = true;
+          saveSettings();
+          const result = await native.sync(readSavedData() || {habits: [],logs: {}, settings});
+          showToast(result.ok
+            ? "¡Notificaciones Android activadas! Ya puedes probarlas."
+            : "Permiso concedido, pero no se pudo programar el recordatorio.");
+        }
+      }
+      await showNativeNotificationStatus();
+    } catch (error) {
+      console.warn("HabitClik: notificaciones Android.", error);
+      showToast("No se pudo configurar Android. Revisa los permisos en Ajustes.");
+      await showNativeNotificationStatus();
+    }
+    return;
+  }
   const permission = notificationPermission();
   if (permission === "unsupported") {
     $("notification-help").textContent = "Puedes instalar la web en un navegador compatible o usar el calendario del dispositivo.";
@@ -615,6 +703,19 @@ $("notification-permission-btn").addEventListener("click", async () => {
 });
 
 $("test-notification-btn").addEventListener("click", async () => {
+  if (isAndroidApp()) {
+    try {
+      const result = await window.HABITCLIK_NATIVE.test();
+      $("notification-help").textContent = result.ok
+        ? "Prueba enviada directamente desde Android. Abre la barra de notificaciones si no aparece como banner."
+        : "Primero activa y permite las notificaciones de HabitClik en Android.";
+      showToast(result.ok ? "📱 Mira las notificaciones de tu móvil." : "Activa primero los avisos de Android.");
+    } catch (error) {
+      console.warn("HabitClik: prueba Android.", error);
+      showToast("No se pudo enviar la prueba nativa. Comprueba los ajustes de Android.");
+    }
+    return;
+  }
   if (!settings.notificationEnabled || notificationPermission() !== "granted") {
     $("notification-help").textContent = "Primero activa las notificaciones y concede permiso al navegador.";
     showToast("Primero activa las notificaciones.");
@@ -628,12 +729,30 @@ $("test-notification-btn").addEventListener("click", async () => {
   showToast(sent ? "Prueba de notificación enviada." : "No se pudo mostrar la notificación.");
 });
 
+$("native-test-later-btn").addEventListener("click", async () => {
+  if (!isAndroidApp() || !window.HABITCLIK_NATIVE.isAvailable()) return;
+  try {
+    const result = await window.HABITCLIK_NATIVE.test(20);
+    $("notification-help").textContent = result.ok
+      ? "Prueba programada. Bloquea la pantalla: Android debería avisarte en unos 20 segundos o un poco después."
+      : "Activa antes las notificaciones de Android y vuelve a probar.";
+    showToast(result.ok ? "📱 Bloquea el móvil para probarlo." : "Primero activa los permisos de Android.");
+  } catch (error) {
+    console.warn("HabitClik: no se pudo programar una prueba.", error);
+    showToast("No se pudo programar la prueba. Comprueba los ajustes de Android.");
+  }
+});
+
 $("calendar-export-btn").addEventListener("click", downloadCalendar);
 
 window.addEventListener("focus", () => {
   render();
   maybeRemind();
   maybeRemindHabits();
+  if (isAndroidApp() && window.HABITCLIK_NATIVE.isAvailable()) {
+    window.HABITCLIK_NATIVE.sync(readSavedData() || {habits: [], logs: {}, settings})
+      .catch((error) => console.warn("HabitClik: no se pudieron renovar los avisos.", error));
+  }
 });
 document.addEventListener("visibilitychange", () => {
   if (!document.hidden) {
@@ -663,3 +782,7 @@ refreshCustomAudio().catch((error) =>
 );
 maybeRemind();
 maybeRemindHabits();
+if (isAndroidApp() && window.HABITCLIK_NATIVE.isAvailable()) {
+  window.HABITCLIK_NATIVE.sync(readSavedData() || {habits: [], logs: {}, settings})
+    .catch((error) => console.warn("HabitClik: sincronización de avisos Android.", error));
+}
