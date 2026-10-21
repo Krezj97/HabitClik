@@ -126,3 +126,19 @@ test("Android sound channels reference five bundled licensed MP3s and plugin is 
   const prep=fs.readFileSync(path.join(root,"android/prepare-web.cjs"),"utf8");
   assert.match(prep,/native-notifications.js/);
 });
+
+
+test("native Android weekday schedule and custom message match the habit editor", () => {
+  const r=setup();
+  const selected=habit("a","21:15","campanas");
+  selected.alarmDays=[3,5]; // Wednesday and Friday, not Tuesday
+  selected.alarmMessage="¡Un vaso de agua te dará energía!";
+  const candidates=r.api.nextNotifications({
+    habits:[selected],logs:{},settings:{notificationEnabled:true}
+  },new Date(2026,9,20,12,0,0));
+  const habitAlerts=candidates.filter(item=>item.extra.type==="habit");
+  assert.ok(habitAlerts.length>=1);
+  assert.ok(habitAlerts.every(n=>[3,5].includes(n.schedule.at.getDay())));
+  assert.ok(habitAlerts.every(n=>n.body==="¡Un vaso de agua te dará energía!"));
+  assert.ok(habitAlerts.every(n=>n.schedule.at.getDate()!==20));
+});
