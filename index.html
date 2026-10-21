@@ -307,7 +307,25 @@
               </select>
             </div>
           </div>
-          <p class="field-hint">Cada hábito tiene su propia hora y sonido. El aviso suena solo con HabitClik abierta. Puedes cambiar el volumen en Avisos.</p>
+          <div class="habit-alarm-days">
+            <span>Días del aviso</span>
+            <div class="alarm-days-picker" aria-label="Elegir los días del recordatorio">
+              <label><input type="checkbox" data-alarm-day="1" checked /><span>L</span></label>
+              <label><input type="checkbox" data-alarm-day="2" checked /><span>M</span></label>
+              <label><input type="checkbox" data-alarm-day="3" checked /><span>X</span></label>
+              <label><input type="checkbox" data-alarm-day="4" checked /><span>J</span></label>
+              <label><input type="checkbox" data-alarm-day="5" checked /><span>V</span></label>
+              <label><input type="checkbox" data-alarm-day="6" checked /><span>S</span></label>
+              <label><input type="checkbox" data-alarm-day="0" checked /><span>D</span></label>
+            </div>
+          </div>
+          <div class="habit-alarm-buttons">
+            <button class="button-secondary" id="habit-tone-preview" type="button">♫ Escuchar sonido</button>
+            <button class="button-secondary" id="habit-notification-test" type="button">♧ Enviar prueba</button>
+          </div>
+          <label for="habit-alarm-message">Mensaje personalizado</label>
+          <input id="habit-alarm-message" maxlength="100" placeholder="¡Un momento para cuidarte!" />
+          <p class="field-hint">En Android, activa el permiso de notificaciones en Avisos. Puedes elegir los días, la hora y el mensaje de cada hábito.</p>
         </fieldset>
         <div class="dialog-actions"><button type="button" class="button-secondary" id="cancel-dialog">Cancelar</button><button type="submit" class="button-primary" id="save-habit-btn">Crear hábito <span aria-hidden="true">↗</span></button></div>
       </form>
