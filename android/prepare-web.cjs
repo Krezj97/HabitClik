@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, "..");
 const dest = path.join(root, "www");
 const files = Object.freeze([
   "index.html", "avisos.html", "privacy.html", "styles.css",
-  "app.js", "avisos.js", "alarm-sounds.js", "progress.js", "phrases.js",
+  "app.js", "avisos.js", "alarm-sounds.js", "native-notifications.js", "progress.js", "phrases.js",
   "sw.js", "manifest.webmanifest", "icon.svg", "SOUND-LICENSES.md"
 ]);
 const directories = Object.freeze(["art", "icons", "sounds"]);
