@@ -88,6 +88,11 @@ function normalizeData(input) {
         habit.weeklyTarget <= 7 ? habit.weeklyTarget : 7,
       alarmEnabled: habit.alarmEnabled === true,
       alarmTime: isValidReminderTime(habit.alarmTime) ? habit.alarmTime : "19:00",
+      alarmDays: Array.isArray(habit.alarmDays) && habit.alarmDays.length &&
+        habit.alarmDays.every((day) => Number.isInteger(day) && day >= 0 && day <= 6)
+        ? [...new Set(habit.alarmDays)] : [1, 2, 3, 4, 5, 6, 0],
+      alarmMessage: typeof habit.alarmMessage === "string"
+        ? habit.alarmMessage.slice(0, 100).trim() : "",
       alarmTone: window.HABITCLIK_SOUNDS && window.HABITCLIK_SOUNDS.isValid(habit.alarmTone)
         ? habit.alarmTone : "campanas",
       lastAlarmAt: typeof habit.lastAlarmAt === "string" && isValidDateKey(habit.lastAlarmAt)
@@ -618,6 +623,7 @@ function showHabitReminders() {
   const minutes = now.getHours() * 60 + now.getMinutes();
   const due = data.habits.filter((habit) => {
     if (!habit.alarmEnabled || habit.lastAlarmAt === day ||
+        (Array.isArray(habit.alarmDays) && !habit.alarmDays.includes(now.getDay())) ||
         !isValidReminderTime(habit.alarmTime) || completedIds(day).includes(habit.id) ||
         habit.createdAt > day || completionsThisWeek(habit) >= targetFor(habit)) return false;
     const [hours, mins] = habit.alarmTime.split(":").map(Number);
@@ -627,7 +633,8 @@ function showHabitReminders() {
   for (const habit of due) habit.lastAlarmAt = day;
   persist();
   due.forEach((habit, index) => {
-    const message = "Un momento para " + habit.title + ". Si hoy te viene bien, adelante.";
+    const message = habit.alarmMessage ||
+      ("Un momento para " + habit.title + ". Si hoy te viene bien, adelante.");
     // Do not make one sound cut off another when two reminders share a minute.
     const deliver = () => {
       showToast(message);
@@ -788,6 +795,12 @@ function openDialog(id = null) {
   }
   $("habit-alarm-enabled").checked = habit ? habit.alarmEnabled === true : false;
   $("habit-alarm-time").value = habit && isValidReminderTime(habit.alarmTime) ? habit.alarmTime : "19:00";
+  const alarmDays = habit && Array.isArray(habit.alarmDays) && habit.alarmDays.length
+    ? habit.alarmDays : [1,2,3,4,5,6,0];
+  document.querySelectorAll(".alarm-days-picker input[data-alarm-day]").forEach((field) => {
+    field.checked = alarmDays.includes(Number(field.dataset.alarmDay));
+  });
+  $("habit-alarm-message").value = habit && habit.alarmMessage ? habit.alarmMessage : "";
   $("habit-alarm-tone").value = habit && window.HABITCLIK_SOUNDS &&
     window.HABITCLIK_SOUNDS.isValid(habit.alarmTone) ? habit.alarmTone : "campanas";
   $("habit-dialog").showModal();
@@ -912,10 +925,13 @@ $("habit-form").addEventListener("submit", (event) => {
   const alarmEnabled = $("habit-alarm-enabled").checked;
   const alarmTime = $("habit-alarm-time").value;
   const alarmTone = $("habit-alarm-tone").value;
+  const alarmDays = [...document.querySelectorAll(".alarm-days-picker input[data-alarm-day]")]
+    .filter((field) => field.checked).map((field) => Number(field.dataset.alarmDay));
+  const alarmMessage = $("habit-alarm-message").value.trim().slice(0, 100);
   if (title.length < 2 || title.length > 60 || !Object.hasOwn(CATEGORIES, category) ||
       !Number.isInteger(weeklyTarget) || weeklyTarget < 1 || weeklyTarget > 7 ||
-      !isValidReminderTime(alarmTime) || !(window.HABITCLIK_SOUNDS &&
-        window.HABITCLIK_SOUNDS.isValid(alarmTone))) {
+      !isValidReminderTime(alarmTime) || (alarmEnabled && !alarmDays.length) ||
+      !(window.HABITCLIK_SOUNDS && window.HABITCLIK_SOUNDS.isValid(alarmTone))) {
     showToast("Introduce un nombre válido.");
     return;
   }
@@ -930,6 +946,8 @@ $("habit-form").addEventListener("submit", (event) => {
     habit.weeklyTarget = weeklyTarget;
     habit.alarmEnabled = alarmEnabled;
     habit.alarmTime = alarmTime;
+    habit.alarmDays = alarmDays;
+    habit.alarmMessage = alarmMessage;
     habit.alarmTone = alarmTone;
     if (!alarmEnabled) habit.lastAlarmAt = null;
   } else {
@@ -941,7 +959,7 @@ $("habit-form").addEventListener("submit", (event) => {
       return;
     }
     data.habits.push({ id: newId(), title, category, createdAt: keyForDate(new Date()),
-      weeklyTarget, alarmEnabled, alarmTime, alarmTone, lastAlarmAt: null });
+      weeklyTarget, alarmEnabled, alarmTime, alarmDays, alarmMessage, alarmTone, lastAlarmAt: null });
   }
   persist();
   render();
@@ -973,6 +991,21 @@ $("motivation-short-toggle").addEventListener("change", () => {
   renderMotivation();
 });
 $("habit-add-inline").addEventListener("click", () => openDialog());
+$("habit-tone-preview").addEventListener("click", () => {
+  if (!window.HABITCLIK_SOUNDS) return;
+  window.HABITCLIK_SOUNDS.play($("habit-alarm-tone").value, data.settings.alarmVolume)
+    .then(() => showToast("♪ Así sonará tu recordatorio."))
+    .catch(() => showToast("No se pudo reproducir el sonido."));
+});
+$("habit-notification-test").addEventListener("click", async () => {
+  if (window.HABITCLIK_NATIVE && window.HABITCLIK_NATIVE.isNative()) {
+    const result = await window.HABITCLIK_NATIVE.test().catch(() => ({ok:false}));
+    showToast(result.ok ? "¡Prueba enviada! Revisa las notificaciones de Android." :
+      "Primero activa las notificaciones desde Avisos.");
+  } else {
+    showToast("En Android puedes enviar una prueba desde Avisos.");
+  }
+});
 $("close-options-btn").addEventListener("click", () => { $("top-data-menu").open = false; });
 $("options-edit-habits").addEventListener("click", () => {
   $("top-data-menu").open = false;
