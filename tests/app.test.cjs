@@ -20,7 +20,10 @@ function boot(seed, hour = 20, options = {}) {
   function element(id) {
     if (!elements.has(id)) {
       elements.set(id, {
-        value: id === "habit-target" ? "7" : id === "reminder-time" ? "19:00" : id === "alarm-volume" ? "50" : "",
+        value: id === "habit-target" ? "7" :
+          id === "habit-alarm-time" || id === "reminder-time" ? "19:00" :
+          id === "habit-alarm-tone" ? "campanas" :
+          id === "alarm-volume" ? "50" : "",
         checked: false,
         hidden: false,
         textContent: "",
@@ -58,6 +61,7 @@ function boot(seed, hour = 20, options = {}) {
     HABITCLIK_PHRASES: options.phrases,
     history: options.history,
     location: options.location,
+    matchMedia: options.matchMedia,
     addEventListener(type, fn) { handlers["window:" + type] = fn; },
     scrollTo() {}
   };
@@ -85,10 +89,17 @@ function boot(seed, hour = 20, options = {}) {
     console: { warn() {} }
   };
   vm.runInNewContext(alarmSource, context, { filename: "alarm-sounds.js" });
+  if (options.alarmPlays) {
+    const engine = window.HABITCLIK_SOUNDS;
+    window.HABITCLIK_SOUNDS = {
+      ...engine,
+      play(id, volume) { options.alarmPlays.push({ id, volume }); return Promise.resolve(true); }
+    };
+  }
   vm.runInNewContext(progressSource, context, { filename: "progress.js" });
   vm.runInNewContext(source + "\nglobalThis.testApi = {" +
     "getData: () => data, normalizeData, completionsThisWeek, weeklyStreak, " +
-    "toggleHabit, showPendingReminder, renderCalendar, motivationForToday };", context, { filename: "app.js" });
+    "toggleHabit, showPendingReminder, showHabitReminders, advanceMotivation, openDialog, renderCalendar, motivationForToday };", context, { filename: "app.js" });
 
   return { api: context.testApi, element, storage, intervals, handlers };
 }
@@ -554,4 +565,83 @@ test("Android bottom navigation supports the system back button", () => {
   const numberBefore=element("quick-progress-percent").textContent;
   handlers["window:pageshow"]();
   assert.equal(element("quick-progress-percent").textContent,numberBefore);
+});
+
+
+test("independent alarms keep their own time and tune without changing the old daily reminder", () => {
+  const played=[];
+  const seed={
+    habits:[
+      {id:"a",title:"Leer",category:"mente",createdAt:"2026-10-01",weeklyTarget:7,
+        alarmEnabled:true,alarmTime:"19:00",alarmTone:"digital",lastAlarmAt:null},
+      {id:"b",title:"Pasear",category:"movimiento",createdAt:"2026-10-01",weeklyTarget:3,
+        alarmEnabled:true,alarmTime:"21:30",alarmTone:"energia",lastAlarmAt:null},
+      {id:"c",title:"Meditar",category:"bienestar",createdAt:"2026-10-01",weeklyTarget:7,
+        alarmEnabled:false,alarmTime:"18:00",alarmTone:"alegre",lastAlarmAt:null}
+    ],logs:{},settings:{reminderEnabled:false,alarmVolume:70,alarmEnabled:false}
+  };
+  const {api,storage}=boot(seed,20,{alarmPlays:played});
+  assert.equal(played.length,1,"only the 19:00 alarm should play at 20:00");
+  assert.equal(played[0].id,"digital");
+  assert.equal(played[0].volume,70);
+  assert.equal(api.getData().habits[0].lastAlarmAt,"2026-10-20");
+  assert.equal(api.getData().habits[1].lastAlarmAt,null);
+  assert.equal(api.getData().habits[2].lastAlarmAt,null);
+  assert.equal(api.getData().settings.reminderEnabled,false,"independent schedules do not depend on global reminders");
+  api.showHabitReminders();
+  assert.equal(played.length,1,"individual alarms fire at most once per day");
+  const backup=JSON.parse(storage.get("habitclik:v1"));
+  assert.equal(backup.habits[0].alarmTone,"digital");
+  assert.equal(backup.habits[1].alarmTime,"21:30");
+  const followup=boot(backup,22,{alarmPlays:[]});
+  assert.equal(followup.api.getData().habits[1].lastAlarmAt,"2026-10-20");
+});
+
+test("editing a habit preserves its logs while giving it an independent sound and time", () => {
+  const {api,element,storage}=boot({
+    habits:[{id:"a",title:"Leer",category:"mente",createdAt:"2026-10-01",weeklyTarget:5}],
+    logs:{"2026-10-19":["a"]}
+  });
+  api.openDialog("a");
+  element("habit-name").value="Leer un ratito";
+  element("habit-category").value="mente";
+  element("habit-target").value="5";
+  element("habit-alarm-enabled").checked=true;
+  element("habit-alarm-time").value="08:15";
+  element("habit-alarm-tone").value="clasica";
+  element("habit-form").handlers.submit({preventDefault(){}});
+  assert.equal(api.getData().habits[0].id,"a");
+  assert.equal(api.getData().habits[0].alarmEnabled,true);
+  assert.equal(api.getData().habits[0].alarmTime,"08:15");
+  assert.equal(api.getData().habits[0].alarmTone,"clasica");
+  assert.ok(api.getData().logs["2026-10-19"].includes("a"));
+  const stored=JSON.parse(storage.get("habitclik:v1"));
+  assert.equal(stored.habits[0].alarmTime,"08:15");
+});
+
+test("gentle phrase rotation pauses when hidden and never rotates in reduced-motion mode", () => {
+  const base={habits:[],logs:{}};
+  const phrases={start:["Una cosa cada vez.","Hoy basta con intentarlo.","Si necesitas descansar, hazlo."]};
+  const {api,element,handlers}=boot(base,12,{phrases});
+  const first=element("motivation-phrase").textContent;
+  api.advanceMotivation();
+  const second=element("motivation-phrase").textContent;
+  assert.notEqual(first,second);
+  element("motivation-next").handlers.click();
+  assert.notEqual(second,element("motivation-phrase").textContent);
+  assert.equal(typeof handlers["document:visibilitychange"],"function");
+  const reduced=boot(base,12,{phrases,matchMedia:()=>({matches:true})});
+  const before=reduced.element("motivation-phrase").textContent;
+  reduced.api.advanceMotivation();
+  assert.equal(reduced.element("motivation-phrase").textContent,before);
+});
+
+test("backups live in Options menus, not exposed as primary header buttons", () => {
+  const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
+  assert.match(html,/<details class="data-menu" id="data-menu">/);
+  assert.match(html,/<details class="data-menu data-menu--top" id="top-data-menu">/);
+  assert.match(html,/<button[^>]*id="top-export-btn">/);
+  assert.match(html,/<button[^>]*id="top-import-btn">/);
+  assert.match(html,/<button[^>]*id="export-btn">/);
+  assert.match(html,/<button[^>]*id="import-btn">/);
 });
