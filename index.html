@@ -31,9 +31,16 @@
           <a class="nav-item" href="./avisos.html"><span aria-hidden="true">◷</span> Avisos</a>
         </nav>
         <div class="sidebar-bottom">
-          <div class="tip-card"><span class="tip-icon" aria-hidden="true">✦</span><strong>La constancia gana.</strong><p>No necesitas un día perfecto. Solo dar un paso más.</p></div>
+          <div class="tip-card"><span class="tip-icon" aria-hidden="true">✦</span><strong>Vuelve cuando quieras.</strong><p>Habrá días mejores y otros más tranquilos. Todos cuentan.</p></div>
           <button type="button" id="install-app-btn" class="install-button" hidden>↧ Instalar HabitClik</button>
-          <div class="data-actions"><button type="button" id="export-btn">↓ Exportar datos</button><button type="button" id="import-btn">↑ Importar datos</button></div>
+          <details class="data-menu" id="data-menu">
+            <summary aria-label="Abrir opciones de la aplicación">⚙ Opciones <span aria-hidden="true">⌄</span></summary>
+            <div class="data-menu-items">
+              <button type="button" id="export-btn">↓ Guardar copia de mis hábitos</button>
+              <button type="button" id="import-btn">↑ Recuperar una copia</button>
+              <a href="./privacy.html">Privacidad y datos</a>
+            </div>
+          </details>
           <p class="privacy-note">Tus datos se guardan en este dispositivo. <a href="./privacy.html">Privacidad</a></p>
         </div>
       </aside>
@@ -44,6 +51,14 @@
             <span class="free-plan-label" id="free-plan-count" aria-live="polite">Plan gratis · 0/3</span>
             <button type="button" class="plan-info-link" id="upgrade-info-btn">Premium</button>
             <button class="button-primary top-add" type="button" id="open-add-btn"><span aria-hidden="true">＋</span> Nuevo hábito</button>
+            <details class="data-menu data-menu--top" id="top-data-menu">
+              <summary aria-label="Más opciones de HabitClik" title="Más opciones">⋯</summary>
+              <div class="data-menu-items">
+                <button type="button" id="top-export-btn">↓ Guardar copia de mis hábitos</button>
+                <button type="button" id="top-import-btn">↑ Recuperar una copia</button>
+                <a href="./privacy.html">Privacidad y datos</a>
+              </div>
+            </details>
           </div>
         </header>
 
@@ -60,7 +75,7 @@
               </div>
               <p id="quick-progress-count" class="quick-daily-caption">0 de 0 hábitos completados</p>
             </div>
-          <section class="content-section habit-section" aria-labelledby="habits-title"><div class="section-heading"><div><span class="section-overline">PEQUEÑOS COMPROMISOS</span><h2 id="habits-title">Tus hábitos <span class="count-pill" id="habit-count">0</span></h2></div><span class="subtle-text">Marca los que completes hoy</span></div><div id="habit-list" class="habit-list"></div></section>
+          <section class="content-section habit-section" aria-labelledby="habits-title"><div class="section-heading"><div><span class="section-overline">PEQUEÑOS COMPROMISOS</span><h2 id="habits-title">Tus hábitos <span class="count-pill" id="habit-count">0</span></h2></div><span class="subtle-text">Hazlo a tu ritmo</span></div><div id="habit-list" class="habit-list"></div></section>
             </div>
           <section class="journey-card" aria-labelledby="journey-title">
             <div class="journey-top">
@@ -80,16 +95,16 @@
           </section>
           </div>
           <div class="hero hero--amanecer" id="hero-main">
-            <div class="hero-copy"><span class="hero-kicker">UN DÍA A LA VEZ <span aria-hidden="true">↗</span></span><h1 id="today-title">Haz que hoy cuente<span class="hero-dot">.</span></h1><p>Cada pequeño paso que das es parte de algo grande.</p><span id="current-date" class="date-chip"></span></div>
+            <div class="hero-copy"><span class="hero-kicker">UN DÍA A LA VEZ <span aria-hidden="true">↗</span></span><h1 id="today-title">Haz que hoy cuente<span class="hero-dot">.</span></h1><p>Un ratito para ti también cuenta.</p><span id="current-date" class="date-chip"></span></div>
             <div class="ring-panel"><svg class="progress-ring" viewBox="0 0 140 140" role="img" aria-labelledby="ring-title"><title id="ring-title">Progreso de hoy</title><circle class="ring-track" cx="70" cy="70" r="54"></circle><circle class="ring-fill" id="progress-circle" cx="70" cy="70" r="54"></circle></svg><div class="ring-label"><strong id="progress-number">0%</strong><span>completado</span></div></div>
             <button type="button" class="hero-scene-next" id="hero-scene-next" aria-label="Cambiar imagen de fondo" title="Cambiar paisaje">◈ <span>Otro paisaje</span></button>
           </div>
           <section class="motivation-card" aria-labelledby="motivation-heading">
             <div class="motivation-symbol" aria-hidden="true">✦</div>
             <div class="motivation-body">
-              <span class="section-overline">TU IMPULSO DE HOY</span>
+              <span class="section-overline">UNA IDEA PARA ACOMPAÑARTE</span>
               <h2 id="motivation-heading">Un paso a la vez</h2>
-              <p id="motivation-phrase" aria-live="polite">Tu progreso empieza con un pequeño gesto.</p>
+              <p id="motivation-phrase" aria-live="off">Tu progreso empieza con un pequeño gesto.</p>
             </div>
             <button type="button" class="motivation-next" id="motivation-next" aria-label="Mostrar otra frase motivacional" title="Otra frase">↻</button>
           </section>
@@ -251,6 +266,23 @@
           <option value="7" selected>Todos los días (7 por semana)</option>
         </select>
         <p class="field-hint">Cada día completado cuenta una vez. La semana va de lunes a domingo.</p>
+        <fieldset class="habit-alarm-fields">
+          <legend>Un recordatorio solo para este hábito</legend>
+          <label class="habit-alarm-switch"><input type="checkbox" id="habit-alarm-enabled" /><span>Recordármelo a su hora</span></label>
+          <div class="habit-alarm-grid">
+            <div><label for="habit-alarm-time">¿A qué hora?</label><input id="habit-alarm-time" type="time" value="19:00" /></div>
+            <div><label for="habit-alarm-tone">¿Con qué sonido?</label>
+              <select id="habit-alarm-tone">
+                <option value="campanas">Brisa · campanillas</option>
+                <option value="digital">Luz · suave</option>
+                <option value="clasica">Despertar · clásica</option>
+                <option value="alegre">Buen día · alegre</option>
+                <option value="energia">Bosque · pájaros</option>
+              </select>
+            </div>
+          </div>
+          <p class="field-hint">Cada hábito tiene su propia hora y sonido. El aviso suena solo con HabitClik abierta. Puedes cambiar el volumen en Avisos.</p>
+        </fieldset>
         <div class="dialog-actions"><button type="button" class="button-secondary" id="cancel-dialog">Cancelar</button><button type="submit" class="button-primary" id="save-habit-btn">Crear hábito <span aria-hidden="true">↗</span></button></div>
       </form>
     </dialog>
