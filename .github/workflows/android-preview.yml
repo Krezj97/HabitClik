@@ -11,6 +11,7 @@ on:
       - app.js
       - avisos.js
       - alarm-sounds.js
+      - native-notifications.js
       - phrases.js
       - progress.js
       - styles.css
@@ -69,10 +70,20 @@ jobs:
               cp icons/icon-512.png "$target/$icon"
             done
           done
+      - name: Install licensed alarm tones as Android notification sounds
+        run: |
+          set -euo pipefail
+          mkdir -p android-native/app/src/main/res/raw
+          for tone in campanas digital clasica alegre energia; do
+            cp "sounds/${tone}.mp3" "android-native/app/src/main/res/raw/hc_${tone}.mp3"
+            test -s "android-native/app/src/main/res/raw/hc_${tone}.mp3"
+          done
       - name: Check Android 16 target SDK
         run: |
           grep -Eq 'targetSdkVersion[[:space:]]*=[[:space:]]*36' android-native/variables.gradle
           grep -Eq 'compileSdkVersion[[:space:]]*=[[:space:]]*36' android-native/variables.gradle
+          grep -R -q 'LocalNotificationsPlugin' android-native/app/src/main/assets/capacitor.plugins.json
+          grep -R -q 'POST_NOTIFICATIONS' node_modules/@capacitor/local-notifications/android/src/main/AndroidManifest.xml
       - name: Assemble installable DEBUG APK
         working-directory: android-native
         run: |
