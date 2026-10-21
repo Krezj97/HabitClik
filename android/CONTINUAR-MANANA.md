@@ -1,4 +1,15 @@
 # Punto de continuación · HabitClik
+
+## Avance siguiente · recuperación y copia Android v22
+
+- Tras confirmar el usuario que la APK v21 envía correctamente la notificación inmediata y la de pantalla bloqueada, se ha preparado **exportación JSON nativa Android** con Capacitor Filesystem y Share, sin permisos de almacenamiento global.
+- Usa la opción **Guardar copia** en la APK para abrir el selector nativo de compartir/guardar y almacenar el archivo fuera de HabitClik. El archivo temporal dentro de la app no es una copia duradera por sí mismo.
+- Al **importar**, se mantiene el selector de archivo HTML del WebView y validación previa de JSON. Es imprescindible probar importación y exportación en un Android real antes de desinstalar la versión anterior.
+- Las builds de pruebas siguen firmadas con claves debug posiblemente distintas; la instalación encima de una APK anterior puede fallar y requerir desinstalar (cuidado: datos locales).
+- El sistema de pagos Premium, certificado Play Signing, identificador definitivo del paquete y AAB de producción siguen pendientes.
+
+---
+
 ## Mejoras de usabilidad · edición v20
 
 La aplicación web y la próxima APK Android de pruebas incluyen:
