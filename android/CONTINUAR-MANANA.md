@@ -1,5 +1,48 @@
 # Punto de continuación · HabitClik
 
+## ESTADO VIGENTE — 21 de octubre de 2026, 20:02 (Madrid)
+
+**Esta es la sección vigente al retomar.** Los apartados siguientes son históricos y pueden describir versiones anteriores.
+
+- Repositorio: https://github.com/Krezj97/HabitClik — rama main.
+- App: https://krezj97.github.io/HabitClik/
+- Commit funcional comprobado: cf96debc750daddf4815f8c95e4a4e41d356d268.
+- Versión PWA: **v26**.
+- [Pruebas automáticas — SUCCESS](https://github.com/Krezj97/HabitClik/actions/runs/39633880745).
+- [Android preview APK — SUCCESS](https://github.com/Krezj97/HabitClik/actions/runs/39633880489), artefacto HabitClik-Android-PRUEBAS-APK, disponible hasta 04/11/2026.
+- [GitHub Pages — SUCCESS](https://github.com/Krezj97/HabitClik/actions/runs/39633879901).
+- Los tres procesos verificados corresponden al mismo commit.
+
+### Diseño actual
+
+- La imagen compartida por el usuario es la referencia clave: cabecera con paisaje y saludo, progreso flotante, hábitos compactos, frases ilustradas cambiantes, nivel e insignias, y barra inferior.
+- Estructura implementada en pantalla principal: home-welcome, hero-main, motivation-poster, top-data-menu; tipografía Nunito Sans local, fondos SVG.
+- La última incidencia visible fue la **escasa legibilidad de los textos de la barra lateral de escritorio**. El CSS v26 actual incluye una corrección real del contraste para textos, iconos, enlaces y estados activos/inactivos. Incluye además mejoras de presentación en Estadísticas e insignias.
+- No se trata solo del CSS sugerido en el chat: la corrección está en el repositorio. Las pruebas, APK y Pages ya han pasado; cualquier validación visual debe hacerse en navegador real.
+- Frases configurables cada 15 s, con controles manuales; verificar en móvil si persisten incidencias.
+
+### Verificaciones reales del usuario
+
+- Llegaron las notificaciones nativas Android, inmediata y con pantalla bloqueada.
+- El usuario pudo **exportar e importar su JSON** en Android.
+- Antes de desinstalar una APK debug, guardar una copia fuera del dispositivo y confirmar el archivo, pues las firmas debug pueden cambiar. El JSON no contiene el audio personalizado.
+
+### Para continuar hacia Google Play
+
+1. Revisar v26 en escritorio y Android comparando con la imagen de referencia, especialmente el contraste del menú lateral.
+2. Elegir un identificador de paquete definitivo. dev.habitclik.preview es temporal, **no de producción**.
+3. Confirmar la cuenta Google Play Console y si es personal u organización, cuando resulte necesario.
+4. Preparar AAB release firmado, gestionar Play App Signing y nunca subir claves privadas ni contraseñas al repositorio.
+5. Completar datos reales de privacidad y soporte, capturas auténticas, ficha de Play Store y declaración de Seguridad de los datos, y pruebas según el tipo de cuenta.
+6. Premium no tiene cobro ni desbloqueo real; no anunciarlo como función operativa.
+
+Guías: android/LANZAMIENTO-GOOGLE-PLAY.md, android/PLAYSTORE.md, android/ANDROID-TESTING.md, android/NOTIFICACIONES-ANDROID.md.
+
+---
+
+## Historial anterior (puede describir versiones antiguas)
+
+
 ## Avance siguiente · recuperación y copia Android v22
 
 - Tras confirmar el usuario que la APK v21 envía correctamente la notificación inmediata y la de pantalla bloqueada, se ha preparado **exportación JSON nativa Android** con Capacitor Filesystem y Share, sin permisos de almacenamiento global.
