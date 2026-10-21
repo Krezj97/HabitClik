@@ -23,7 +23,7 @@ El archivo es una **APK debug**, firmada con la clave de depuración generada du
 - Crear, editar, completar y desmarcar hasta tres hábitos; comparar el progreso y XP; usar navegación inferior y botón Atrás.
 - Cerrar y reabrir; reiniciar el móvil; probar sin conexión y verificar que los hábitos siguen ahí.
 - Elegir cada MP3, escuchar una prueba y controlar el volumen. Subir un audio propio; verificar compatibilidad del selector nativo y su almacenamiento.
-- Exportar JSON, importarlo y comprobar que datos/historial sean correctos. **Importar o descargar archivos desde el WebView puede requerir una integración nativa**; no se ha homologado todavía.
+- **Android v22:** desde Opciones → Guardar copia de mis hábitos, comprobar que se abre el diálogo del sistema para compartir el JSON; elegir Archivos, Drive u otro destino y comprobar el archivo fuera de HabitClik. Abrir el JSON y verificar que contiene los hábitos (no audio). Después, en un entorno de prueba, importar desde Opciones → Recuperar una copia y comprobar datos/historial. **La selección de archivos e importación con Android WebView aún requieren una prueba física**.
 - Exportar un evento de calendario, solicitar notificaciones solo cuando haga falta, entrar en Privacidad y abrir enlaces externos.
 - Verificar las **notificaciones nativas Android v21**: activar permiso, enviar prueba inmediata y programar prueba con pantalla bloqueada; configurar una hora por hábito y comprobar que aparece el aviso. La WebView puede suspender la música de prueba, pero las notificaciones locales las programa Android. Consulta [NOTIFICACIONES-ANDROID.md](NOTIFICACIONES-ANDROID.md).
 
