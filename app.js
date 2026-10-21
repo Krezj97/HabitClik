@@ -451,10 +451,11 @@ function renderHabits() {
       '<button type="button" class="habit-check" data-action="toggle" data-id="' + habit.id +
       '" aria-pressed="' + checked + '" aria-label="' + (checked ? 'Desmarcar ' : 'Completar ') +
       escapeHtml(habit.title) + '">' + (checked ? '✓ Hecho' : '○ Completar') + '</button>' +
-      '<span class="habit-action-buttons"><button type="button" class="edit-habit" data-action="edit" data-id="' + habit.id +
-      '" aria-label="Editar ' + escapeHtml(habit.title) + '" title="Editar hábito">✎</button>' +
+      '<details class="habit-action-menu"><summary aria-label="Opciones de ' + escapeHtml(habit.title) + '" title="Opciones del hábito">⋮</summary>' +
+      '<div class="habit-action-popover"><button type="button" class="edit-habit" data-action="edit" data-id="' + habit.id +
+      '" aria-label="Editar ' + escapeHtml(habit.title) + '">✎ Editar hábito</button>' +
       '<button type="button" class="delete-habit" data-action="delete" data-id="' + habit.id +
-      '" aria-label="Eliminar ' + escapeHtml(habit.title) + '" title="Eliminar hábito">×</button></span>' +
+      '" aria-label="Eliminar ' + escapeHtml(habit.title) + '">× Eliminar hábito</button></div></details>' +
       '</article>';
   }).join("");
 }
