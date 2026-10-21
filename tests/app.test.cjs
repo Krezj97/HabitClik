@@ -47,7 +47,7 @@ function boot(seed, hour = 20, options = {}) {
   }
 
   const document = {
-    hidden: false,
+    hidden: options.hidden ?? false,
     getElementById: element,
     querySelectorAll(selector) { return selector === "[data-view]" ? (options.navButtons ?? []) : []; },
     addEventListener(type, fn) { handlers[type] = fn; },
@@ -629,7 +629,11 @@ test("gentle phrase rotation pauses when hidden and never rotates in reduced-mot
   assert.notEqual(first,second);
   element("motivation-next").handlers.click();
   assert.notEqual(second,element("motivation-phrase").textContent);
-  assert.equal(typeof handlers["document:visibilitychange"],"function");
+  assert.equal(typeof handlers["visibilitychange"],"function");
+  const hidden=boot(base,12,{phrases,hidden:true});
+  const hiddenPhrase=hidden.element("motivation-phrase").textContent;
+  hidden.api.advanceMotivation();
+  assert.equal(hidden.element("motivation-phrase").textContent,hiddenPhrase);
   const reduced=boot(base,12,{phrases,matchMedia:()=>({matches:true})});
   const before=reduced.element("motivation-phrase").textContent;
   reduced.api.advanceMotivation();
