@@ -12,7 +12,7 @@ const files = Object.freeze([
   "app.js", "avisos.js", "alarm-sounds.js", "native-notifications.js", "progress.js", "phrases.js",
   "sw.js", "manifest.webmanifest", "icon.svg", "native-backup.js", "SOUND-LICENSES.md"
 ]);
-const directories = Object.freeze(["art", "icons", "sounds"]);
+const directories = Object.freeze(["art", "icons", "sounds", "fonts"]);
 const required = [...files, ...directories];
 
 for (const name of required) {
