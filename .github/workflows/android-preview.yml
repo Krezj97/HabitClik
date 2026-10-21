@@ -29,9 +29,10 @@ jobs:
       - name: Install Android 16 SDK
         run: |
           echo "Android SDK: ${ANDROID_HOME:-not configured}"
-          command -v sdkmanager
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -maxdepth 3 -type f -name sdkmanager | sort -V | tail -n 1)"
+          test -x "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses > /dev/null || true
+          "$SDKMANAGER" --install "platforms;android-36" "build-tools;36.0.0"
       - name: Install pinned Capacitor build dependencies
         run: npm install --no-audit --no-fund
       - name: Test static app and Android packaging
