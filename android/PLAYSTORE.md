@@ -6,7 +6,7 @@
 
 **Ya se ha preparado un proceso independiente para compilar una APK de pruebas con Capacitor 8**, sin mover la web de GitHub Pages ni necesitar un dominio propio. El empaquetado se realiza desde `.github/workflows/android-preview.yml`, con identificador temporal `dev.habitclik.preview`, incluyendo todos los recursos de la app. Consulta [ANDROID-TESTING.md](ANDROID-TESTING.md) para las instrucciones y las limitaciones de la APK.
 
-Este prototipo **no equivale** a una versión firmada para producción ni a una publicación en Google Play. Su almacenamiento es independiente del origen web de Chrome; la importación/exportación en WebView, las alarmas con la app cerrada y el funcionamiento en dispositivos reales requieren pruebas específicas. No se han creado certificados ni credenciales de producción.
+Este prototipo **no equivale** a una versión firmada para producción ni a una publicación en Google Play. Su almacenamiento es independiente del origen web de Chrome; la importación/exportación en WebView, las notificaciones locales con la app cerrada y el funcionamiento en dispositivos reales requieren pruebas específicas. La APK v21 ya integra el complemento nativo de Android para avisos de los próximos 7 días, **sin privilegios de alarma exacta**, como se documenta en [NOTIFICACIONES-ANDROID.md](NOTIFICACIONES-ANDROID.md). No se han creado certificados ni credenciales de producción.
 
 ### Alternativas para el lanzamiento comercial
 - **Capacitor:** permite alojar los recursos localmente, añadir capacidades nativas cuando se implementen y compilar un AAB sin verificación de TWA en un dominio público; falta definir identificador definitivo, iconos, pagos, permisos y firma real.
