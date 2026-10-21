@@ -89,7 +89,7 @@ test("Avisos navigation uses an independent real HTML link", () => {
   for (const [,id] of script.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(html.includes('id="' + id + '"'), "missing on Avisos page: " + id);
   }
-  assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /habitclik-static-v21/);
+  assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /habitclik-static-v22/);
   assert.match(fs.readFileSync(path.join(root,"sw.js"),"utf8"), /"\.\/avisos\.html"/);
 });
 
