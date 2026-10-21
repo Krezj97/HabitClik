@@ -84,7 +84,7 @@ function openAvisos(options = {}) {
 test("Avisos navigation uses an independent real HTML link", () => {
   assert.match(index, /<a[^>]+href="\.\/avisos\.html"[^>]*>[\s\S]*?Avisos<\/a>/);
   assert.match(html, /<title>Avisos · HabitClik<\/title>/);
-  assert.match(html, /<script src="\.\/avisos\.js\?v=21" defer><\/script>/);
+  assert.match(html, /<script src="\.\/avisos\.js\?v=22" defer><\/script>/);
   assert.doesNotMatch(html, /src="app\.js"/);
   for (const [,id] of script.matchAll(/\$\("([^"]+)"\)/g)) {
     assert.ok(html.includes('id="' + id + '"'), "missing on Avisos page: " + id);
