@@ -904,6 +904,14 @@ $("motivation-next").addEventListener("click", () => {
   motivationShift++;
   renderMotivation();
 });
+// Unhurried phrase rotation: pause when the app is not visible and respect motion preferences.
+function advanceMotivation() {
+  if (document.hidden || currentView !== "today") return;
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  motivationShift++;
+  renderMotivation();
+}
+setInterval(advanceMotivation, 20000);
 function moveCalendarMonth(direction) {
   const next = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + direction, 1, 12);
   const now = new Date();
@@ -947,8 +955,16 @@ $("habit-list").addEventListener("click", (event) => {
   if (button.dataset.action === "delete") deleteHabit(button.dataset.id);
 });
 
-$("export-btn").addEventListener("click", exportData);
-$("import-btn").addEventListener("click", () => $("import-file").click());
+function closeDataMenus() {
+  for (const id of ["data-menu", "top-data-menu"]) {
+    const menu = $(id);
+    if (menu && menu.open) menu.open = false;
+  }
+}
+$("export-btn").addEventListener("click", () => { closeDataMenus(); exportData(); });
+$("import-btn").addEventListener("click", () => { closeDataMenus(); $("import-file").click(); });
+$("top-export-btn").addEventListener("click", () => { closeDataMenus(); exportData(); });
+$("top-import-btn").addEventListener("click", () => { closeDataMenus(); $("import-file").click(); });
 $("import-file").addEventListener("change", async (event) => {
   await importData(event.target.files[0]);
   event.target.value = "";
