@@ -1324,3 +1324,6 @@ body { letter-spacing: -.07px; }
   #hero-main::before { animation: none; }
   #motivation-phrase { transition: none; }
 }
+
+.motivation-automatic-label { font-size: 10px; font-weight: 800; letter-spacing: .15px; color: #3a8577; text-transform: none; }
+@media (max-width: 470px) { .motivation-automatic-label { display: block; margin-top: 5px; } }
