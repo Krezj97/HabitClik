@@ -1327,3 +1327,294 @@ body { letter-spacing: -.07px; }
 
 .motivation-automatic-label { font-size: 10px; font-weight: 800; letter-spacing: .15px; color: #3a8577; text-transform: none; }
 @media (max-width: 470px) { .motivation-automatic-label { display: block; margin-top: 5px; } }
+
+
+/* HabitClik 24 — Visual reference implementation.
+   Phone-first scenic dashboard, thumb-friendly habit rows, white sheet menus,
+   a real picture-card quote carousel, and compact XP / achievement badges. */
+:root {
+  --hc-bg:#f6f9fc;
+  --hc-text:#112445;
+  --hc-muted:#64758d;
+  --hc-accent:#13a864;
+  --hc-accent-dark:#087e51;
+  --hc-soft:#e5f7ed;
+  --hc-border:#e6ecf2;
+  --hc-panel:#ffffff;
+  --hc-hero:#a4dcc6;
+}
+body { background:#f6f9fc; color:#172844; }
+.dashboard-app .main-content { overflow-x:clip; }
+.dashboard-app .home-welcome { position:relative; margin-bottom:12px; }
+.dashboard-app #hero-main {
+  position:relative; min-height:190px; padding:23px 27px 55px; margin:0;
+  overflow:hidden; border-radius:23px; background:#acd7c6; color:#122e35;
+}
+.dashboard-app #hero-main.hero--amanecer::before { background-image:url("./art/amanecer.svg"); }
+.dashboard-app #hero-main.hero--enfoque::before { background-image:url("./art/enfoque.svg"); }
+.dashboard-app #hero-main.hero--bosque::before { background-image:url("./art/bosque.svg"); }
+.dashboard-app #hero-main.hero--celebracion::before { background-image:url("./art/celebracion.svg"); }
+.dashboard-app #hero-main::after {
+  background:linear-gradient(90deg,rgba(212,247,225,.89) 0%,rgba(204,241,226,.58) 40%,rgba(201,242,224,.03) 83%);
+}
+.dashboard-app #hero-main .hero-copy { position:relative; z-index:2; max-width:290px; }
+.dashboard-app #hero-main h1 {
+  color:#12283d; text-shadow:0 1px 8px #ebfff787;
+  font-size:clamp(24px,3vw,33px); letter-spacing:-1px; font-weight:900;
+  margin:6px 0 3px; line-height:1.2;
+}
+.dashboard-app #hero-main .hero-copy p { color:#21464c; font-size:13px; font-weight:660; max-width:255px; margin:0 0 9px; }
+.dashboard-app #hero-main .date-chip { color:#21464c; background:#ffffff77; font-size:10px; border-color:#ffffff65; }
+.dashboard-app #hero-main .hero-kicker { color:#356f6e; font-weight:870; font-size:9px; letter-spacing:1.7px; }
+.dashboard-app #hero-main .ring-panel { display:none; }
+.dashboard-app #hero-main .hero-scene-caption { display:none; }
+.dashboard-app #hero-main .hero-scene-next {
+  position:absolute; right:13px; bottom:10px; color:#fff;
+  background:#152f486e; border-color:#ffffff8e; border-radius:999px;
+  padding:5px 11px; font-size:10px; min-height:30px; z-index:2;
+}
+.dashboard-app .home-welcome .quick-daily-progress {
+  position:relative; z-index:3; margin:-45px 18px 0; padding:17px 19px 15px;
+  border-radius:18px; background:#fff; box-shadow:0 11px 29px #17384819;
+  border:1px solid #f0f1f1;
+}
+.dashboard-app .quick-daily-heading strong { color:#122443; font-size:16px; font-weight:900; letter-spacing:-.45px; margin:0; }
+.dashboard-app .quick-daily-percent { color:#162b4e; font-size:18px; }
+.dashboard-app .quick-daily-caption { color:#4b607b; font-weight:760; font-size:12px; }
+.dashboard-app .quick-daily-track { height:12px; margin-top:11px; background:#e7eee9; }
+.dashboard-app .quick-daily-track span { background:linear-gradient(90deg,#13b970,#0e9a5a); }
+.dashboard-app .today-priority { display:block; }
+.dashboard-app .today-priority-habits { width:100%; }
+.dashboard-app .today-priority .habit-section { margin-top:10px; }
+.dashboard-app .habit-section .section-heading {
+  display:flex; align-items:center; justify-content:space-between; margin-bottom:13px;
+}
+.dashboard-app .habit-section .section-overline { display:none; }
+.dashboard-app #habits-title { color:#152646; font-weight:900; font-size:20px; }
+.dashboard-app #habits-title .count-pill { font-size:11px; background:#e8f2ee; color:#298464; }
+.dashboard-app .habit-add-inline {
+  min-height:37px; border-radius:12px; padding:7px 15px;
+  font-weight:850; font-size:13px; border:none;
+  background:linear-gradient(140deg,#23bf7a,#0e9a61); color:#fff;
+  box-shadow:0 4px 10px #17996022;
+}
+.dashboard-app .habit-list { display:grid; gap:9px; }
+.dashboard-app .habit-card {
+  display:flex; align-items:center; gap:11px; width:100%;
+  min-height:68px; padding:11px 12px; border:1px solid #f0f2f5;
+  border-radius:16px; box-shadow:0 6px 18px #1c38580b; background:#fff;
+}
+.dashboard-app .habit-card .habit-symbol {
+  display:grid; place-items:center; flex:0 0 43px; width:43px; height:43px;
+  border-radius:14px; font-size:22px; background:var(--soft,#eef7f6);
+}
+.dashboard-app .habit-info { flex:1 1 0; min-width:0; }
+.dashboard-app .habit-title { font-size:14px; line-height:1.2; color:#182d4e; font-weight:890; margin:0; overflow-wrap:anywhere; }
+.dashboard-app .habit-category { display:block; color:#8791a0; font-size:10px; margin-top:5px; }
+.dashboard-app .habit-card.is-done .habit-category { color:#13a064; }
+.dashboard-app .habit-alarm-pill {
+  padding:6px 7px; border-radius:9px; font-size:10px; font-weight:770;
+  background:#f3f6fb; color:#33455f; white-space:nowrap;
+}
+.dashboard-app .habit-check {
+  flex:0 0 36px; width:36px; height:36px; min-height:36px; padding:0;
+  display:grid;place-items:center; border-radius:50%;
+  font-size:0 !important; background:#f8f9fa; border:4px solid #d6dadd;
+  box-shadow:none; transition:background .15s ease,transform .15s ease;
+}
+.dashboard-app .habit-check::before {
+  content:""; width:12px; height:12px; border-radius:50%;
+}
+.dashboard-app .habit-card.is-done .habit-check {
+  background:#14aa69; color:#fff; border:3px solid #14aa69;
+}
+.dashboard-app .habit-card.is-done .habit-check::before {
+  content:"✓"; font-size:19px; font-weight:850; width:auto; height:auto;
+}
+.dashboard-app .habit-check:active {transform:scale(.92);}
+.dashboard-app .habit-action-buttons { flex:0 0 auto; display:flex; align-items:center; gap:1px; }
+.dashboard-app .habit-action-buttons .edit-habit,
+.dashboard-app .habit-action-buttons .delete-habit {
+  display:grid;place-items:center; width:31px; height:38px; padding:0;
+  color:#63718a; background:transparent; border:0; font-size:18px;
+}
+.dashboard-app .habit-action-buttons .delete-habit { color:#a7adb6; }
+.dashboard-app .motivation-card {
+  margin:15px 0 11px; display:block; padding:14px; border:1px solid #e2e8ee;
+  border-radius:17px; box-shadow:0 6px 16px #2d48670b;
+  background:#fff;
+}
+.motivation-topline { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+.motivation-topline .section-overline { font-size:9px; color:#168a6a; letter-spacing:.9px; }
+.motivation-topline h2 { font-size:16px; font-weight:880; margin:2px 0 0; color:#1b2e4d; }
+.motivation-settings {
+  display:grid;place-items:center; flex:0 0 37px; width:37px;height:37px; border-radius:50%;
+  background:#edf4f5; border:1px solid #e2ebeb; color:#285f67; font-size:18px;
+  cursor:pointer;
+}
+.motivation-poster {
+  position:relative; min-height:130px;
+  display:flex; justify-content:space-between; align-items:flex-end; gap:9px;
+  border-radius:13px; padding:25px 11px 13px;
+  background-image:linear-gradient(0deg,#142f4ebf,#142e4910 78%),url("./art/amanecer.svg");
+  background-position:center; background-size:cover; overflow:hidden; color:#fff;
+}
+.motivation-poster[data-landscape="forest"] {background-image:linear-gradient(0deg,#142f4ebf,#142e4910 78%),url("./art/bosque.svg");}
+.motivation-poster[data-landscape="lake"] {background-image:linear-gradient(0deg,#142f4ebf,#142e4910 78%),url("./art/enfoque.svg");}
+.motivation-poster[data-landscape="night"] {background-image:linear-gradient(0deg,#142f4ebf,#142e4910 78%),url("./art/celebracion.svg");}
+.motivation-poster-copy { flex:1; min-width:0; text-align:center; }
+.motivation-poster #motivation-phrase {
+  margin:0; color:#fff; font-size:clamp(14px,2vw,17px); line-height:1.35;
+  font-weight:850; text-shadow:0 2px 8px #0e234b85;
+}
+.motivation-poster.is-compact #motivation-phrase {
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:block; max-width:100%;
+}
+.motivation-counter { display:block; font-size:10px; color:#e9fffa; margin-top:6px; }
+.motivation-previous, .motivation-poster .motivation-next {
+  display:grid;place-items:center; flex:0 0 32px; width:32px; height:32px;
+  padding:0; border:1px solid #efffff70; border-radius:50%;
+  color:#163b54; background:#ffffffbe; font-size:25px; line-height:1; cursor:pointer;
+}
+.motivation-bottomline {
+  display:flex; flex-wrap:wrap; justify-content:space-between; gap:6px;
+  color:#708198; font-size:10px; padding:9px 1px 0;
+}
+.motivation-bottomline span:last-child { color:#168d68; font-weight:800; }
+.dashboard-app .journey-card {
+  margin:10px 0 16px; padding:15px 17px; border-radius:16px;
+  background:#fff; border-color:#e9eef2; box-shadow:0 5px 15px #273c530c;
+}
+.dashboard-app .journey-top { gap:10px; }
+.dashboard-app .journey-emblem {
+  background:transparent; font-size:29px; color:#ffb42f; width:37px; height:37px; flex-basis:37px;
+}
+.dashboard-app .journey-emblem::first-letter { color:#f5b32b; }
+.dashboard-app .journey-intro h2 { font-size:17px; font-weight:870; color:#1d3154; margin:2px 0 0; }
+.dashboard-app .journey-intro .section-overline {display:none;}
+.dashboard-app .journey-total { font-size:11px; padding:5px 9px; background:#eff8f2; color:#088653; }
+.dashboard-app .journey-progress-meta {margin-top:10px;}
+.dashboard-app .journey-progress-track {height:9px; background:#e9edf2; }
+.dashboard-app .journey-progress-track span {background:linear-gradient(90deg,#18bb74,#0e9f66);}
+.dashboard-app .journey-milestone {margin-top:10px;}
+.dashboard-app .achievement-card.is-unlocked {
+  background:linear-gradient(115deg,#fff8e7,#f1fbf1); border-color:#e5e9d9;
+}
+.dashboard-app .achievement-card.is-unlocked .achievement-icon {background:#fff1ca;}
+/* Full-height reference-style white Options sheet. */
+.dashboard-app .data-menu--top > summary {
+  background:#ffffffec; border-color:#e5f2eb; color:#1b564a;
+  border-radius:50%; width:43px; height:43px; font-size:23px;
+  padding:0; box-shadow:0 4px 13px #2346311c;
+}
+.dashboard-app #top-data-menu[open]::before {
+  content:""; position:fixed; inset:0; background:#102f33a6; z-index:94;
+  backdrop-filter:blur(4px);
+}
+.dashboard-app #top-data-menu .data-menu-items {
+  position:fixed; z-index:95; top:50%; left:50%; right:auto;
+  transform:translate(-50%,-50%); max-width:min(440px,calc(100vw - 36px));
+  width:400px; max-height:min(82dvh,740px); overflow:auto;
+  padding:18px 18px 23px; gap:5px; background:#fff;
+  border:0; border-radius:24px; box-shadow:0 18px 55px #071c3665;
+}
+.dashboard-app #top-data-menu:not([open]) .data-menu-items {display:none;}
+.options-panel-title {display:flex;align-items:center;gap:9px;margin:0 0 8px;font-size:18px;color:#142441;}
+.options-logo { font-size:20px; }
+.options-panel-title strong {flex:1; font-size:18px; font-weight:900;}
+.options-panel-title button {
+  width:37px;height:37px;border:0;border-radius:50%;background:#eff1f5;color:#23324d;font-size:22px;
+}
+.dashboard-app #top-data-menu .data-menu-items > button:not(.options-panel-title button),
+.dashboard-app #top-data-menu .data-menu-items > a {
+  border:1px solid #e5e9f0; border-radius:12px; background:#fff; padding:12px 14px;
+  min-height:43px; color:#22334f; font-size:12px; font-weight:790;
+}
+.dashboard-app #top-data-menu .data-menu-items > button:hover,
+.dashboard-app #top-data-menu .data-menu-items > a:hover {background:#f1faf7;}
+.options-group-label {
+  font-size:12px; font-weight:900; color:#203554; margin:13px 2px 2px;
+}
+/* Inspiration settings view, same visual language as the user's reference. */
+.motivation-dialog { max-width:480px; width:min(480px,calc(100vw - 24px)); }
+.motivation-dialog-landscape {
+  display:grid;place-items:end center; height:158px; border-radius:15px;
+  padding:17px;text-align:center;color:white;font-size:16px;font-weight:860;
+  background:linear-gradient(0deg,#173b5785,transparent),url("./art/bosque.svg") center/cover;
+  text-shadow:0 2px 5px #12335fba;
+}
+.preference-line {
+  display:flex; align-items:center; justify-content:space-between; gap:15px;
+  padding:13px 0; cursor:pointer; color:#1a2d49;
+}
+.preference-line span {display:grid;gap:3px;}
+.preference-line strong {font-size:14px;}
+.preference-line small {font-size:11px;color:#6e7e94;}
+.preference-line input[type="checkbox"] {
+  appearance:none; width:43px; height:25px; border-radius:40px;
+  background:#ccd4dd; position:relative;flex-shrink:0;cursor:pointer;
+  transition:background .15s ease;
+}
+.preference-line input[type="checkbox"]::before {
+  content:""; width:19px;height:19px; position:absolute;top:3px;left:3px;
+  border-radius:50%;background:#fff;transition:transform .15s ease;
+}
+.preference-line input[type="checkbox"]:checked {background:#0db66b;}
+.preference-line input[type="checkbox"]:checked::before {transform:translateX(18px);}
+.motivation-examples {display:grid;gap:9px; margin-top:6px;}
+.motivation-examples strong {font-size:13px;color:#253957;}
+.motivation-examples p {
+  margin:0; padding:13px 14px; border:1px solid #e5e9f0; border-radius:12px;
+  color:#475b7a; background:#fbfcff; font-size:12px;
+}
+@media (max-width:760px) {
+  .dashboard-app .sidebar {padding:0;height:0;min-height:0;}
+  .dashboard-app .sidebar .brand, .dashboard-app .sidebar-caption,
+  .dashboard-app .sidebar-bottom {display:none;}
+  .dashboard-app .sidebar .main-nav {z-index:70;background:#fffffffa;border-top:1px solid #e5eaf0;box-shadow:0 -7px 20px #142d4810;}
+  .dashboard-app .sidebar .main-nav .nav-item {color:#314661; font-weight:780;}
+  .dashboard-app .sidebar .main-nav .nav-item.is-active {color:#059958;background:#e6f8ef;}
+  .dashboard-app .sidebar .main-nav .nav-item span {font-size:22px;}
+  .dashboard-app .main-content {padding:0 13px calc(96px + env(safe-area-inset-bottom,0px));}
+  .dashboard-app .topbar {position:absolute; top:13px; right:17px; z-index:13; margin:0;padding:0;width:auto;background:none;border:0;}
+  .dashboard-app .topbar > div:first-child {display:none;}
+  .dashboard-app .topbar-actions {display:block;width:auto;}
+  .dashboard-app .topbar-actions > :not(.data-menu--top) {display:none;}
+  .dashboard-app #hero-main {margin:0 -13px; border-radius:0 0 24px 24px;min-height:205px;padding:27px 20px 56px;}
+  .dashboard-app #hero-main .hero-copy {max-width:260px;}
+  .dashboard-app #hero-main h1 {font-size:25px;}
+  .dashboard-app #hero-main .hero-copy p {font-size:12px;max-width:245px;}
+  .dashboard-app .home-welcome .quick-daily-progress {margin:-47px 1px 0;padding:15px 16px;}
+  .dashboard-app .today-priority .habit-section {margin-top:16px;}
+  .dashboard-app .habit-add-inline {min-height:36px;}
+  .dashboard-app .journey-card .journey-milestone {display:none;}
+  .dashboard-app .motivation-poster {min-height:113px;}
+}
+@media (max-width:480px) {
+  .dashboard-app .today-priority .habit-card {
+    display:flex;grid-template-columns:none;gap:8px;min-height:61px;padding:9px;
+  }
+  .dashboard-app .today-priority .habit-symbol {grid-column:auto;grid-row:auto;}
+  .dashboard-app .today-priority .habit-info {grid-column:auto;grid-row:auto;min-width:0;}
+  .dashboard-app .today-priority .habit-check {grid-column:auto;grid-row:auto;width:31px;height:31px;min-height:31px;flex-basis:31px;}
+  .dashboard-app .today-priority .habit-action-buttons {grid-column:auto;grid-row:auto;}
+  .dashboard-app .habit-card .habit-symbol {width:38px;height:38px;flex-basis:38px;font-size:21px;}
+  .dashboard-app .habit-title {font-size:13px;}
+  .dashboard-app .habit-category {font-size:9px;}
+  .dashboard-app .habit-alarm-pill {font-size:9px;padding:4px 5px;}
+  .dashboard-app #hero-main {padding:29px 18px 56px; min-height:196px;}
+  .dashboard-app #hero-main .hero-scene-next {min-height:30px;}
+  .dashboard-app .habit-check {width:31px;height:31px;}
+  .dashboard-app #top-data-menu .data-menu-items {width:calc(100vw - 38px);padding:14px 14px 18px;max-height:78dvh;}
+  .dashboard-app .motivation-card {margin-top:12px;}
+  .dashboard-app #habits-title {font-size:18px;}
+}
+@media (max-width:360px) {
+  .dashboard-app .habit-alarm-pill {display:none;}
+  .dashboard-app .habit-card .habit-action-buttons .edit-habit,
+  .dashboard-app .habit-card .habit-action-buttons .delete-habit {width:26px;}
+}
+@media (prefers-reduced-motion:reduce) {
+ .preference-line input[type="checkbox"],.preference-line input[type="checkbox"]::before,
+ .dashboard-app .habit-check {transition:none;}
+}
